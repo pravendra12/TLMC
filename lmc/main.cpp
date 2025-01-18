@@ -565,37 +565,65 @@ int main(int argc, char *argv[]){
 
   std::cout << mig_predictor.GetBarrier(cfg, lattice_id_pair) << "; " << 
   mig_predictor.GetDiff(cfg, lattice_id_pair) << std::endl;
-
-
   
-  double temperature = 800;
-  double beta = 1.0 / constants::kBoltzmann / temperature;
-  
-for (auto i_lattice_id : cfg.GetNeighborLatticeIdVectorOfLattice(vac_id, 1)){ 
+  std::cout << "{ " ;
+  for (auto ele : cfg.GetAtomVector()) {
+    std::cout << ele.GetElementString() << " ,";
+  }
+  std::cout << std::endl;
 
-  std::cout << "******************** " << i_lattice_id << " ****************" << std::endl;
-  auto l_lattice_id_lst = cfg.GetNeighborLatticeIdVectorOfLattice(i_lattice_id, 1);
+  std::unordered_map<std::string, int> counts;
 
-  // now vacancy is at the i Lattice id
-  cfg.LatticeJump({vac_id, i_lattice_id});
-  
-    for (size_t ii = 0; ii < 8; ++ii) {
-        const auto l_lattice_id = l_lattice_id_lst[ii];
-        std::cout << "ID :" << l_lattice_id << std::endl;
-        mc::JumpEvent event_i_l({i_lattice_id, l_lattice_id},
-                            mig_predictor.GetBarrierAndDiffFromLatticeIdPair(
-                                cfg, {i_lattice_id, l_lattice_id}),
-                            beta);
-        
-        std::cout << "Energy Barrier : " << event_i_l.GetForwardBarrier() << std::endl;
-        std::cout << "Energy Change : " << event_i_l.GetEnergyChange() << std::endl;
-
-        if (l_lattice_id == vac_id) {
-          std::cout << "*********************This one********" << std::endl;
-        }
+    // Count occurrences
+    for (const auto& item : cfg.GetAtomVector()) {
+        counts[item.GetElementString()]++;
     }
-    std::cout << std::endl;
+
+    // Print the counts
+    std::cout << "Occurrences:" << std::endl;
+    for (const auto& pair : counts) {
+        std::cout << pair.first << ": " << pair.second << std::endl;
     }
+
+ auto conc = cfg.GetConcentration();
+ for (auto ele : conc) {
+  std::cout << ele.first.GetElementString() << " : " << ele.second << std::endl;
+ }
+
+  auto nn_list_1 = cfg.GetNeighborLatticeIdVectorOfLattice(0,1);
+  auto nn_list_2 = cfg.GetNeighborLatticeIdVectorOfLattice(0,2);
+  auto nn_list_3 = cfg.GetNeighborLatticeIdVectorOfLattice(0,3);
+
+  std::cout << "First NN : " << nn_list_1.size() << std::endl;
+  std::cout << "Second NN : " << nn_list_2.size() - nn_list_1.size() << std::endl;
+  std::cout << "Third NN : " << nn_list_3.size()- nn_list_2.size() << std::endl;
+
+
+  std::cout << "Lattice ID 100 : " << cfg.GetAtomVector()[100].GetElementString()
+   << " : " << cfg.GetElementOfAtom(100) << std::endl;
+
+   std::cout << "Lattice ID 1000 : " << cfg.GetAtomVector()[1000].GetElementString()
+   << " : " << cfg.GetElementOfAtom(1000) << std::endl;
+
+   std::cout << "Lattice ID 500 : " << cfg.GetAtomVector()[500].GetElementString()
+   << " : " << cfg.GetElementOfAtom(500) << std::endl;
+
+   std::cout << "atom neighour of atom id 100 : " << std::endl;
+   for (auto id : cfg.GetNeighborAtomIdVectorOfAtom(100, 1)){
+    std::cout << id << " : " << cfg.GetElementOfAtom(id) << std::endl;
+   }
+
+   std::cout << "lattice neighour of lattice id 100 : " << std::endl;
+   for (auto id : cfg.GetNeighborLatticeIdVectorOfLattice(100, 1)){
+    std::cout << id << " : " << cfg.GetElementOfLattice(id) <<  std::endl;
+   }
+   
+
+
+
+
+
+
 
 
 

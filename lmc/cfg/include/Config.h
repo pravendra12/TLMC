@@ -74,9 +74,21 @@ class Config {
   [[nodiscard]] const std::vector<std::vector<std::vector<size_t> > > &GetNeighborLists() const;
 
   /*! \brief Query for the lattice ID of vacancy for the configuration.
-  *  \return  The vacancy lattice ID site for the configuration.
-  */
+   *  \return  The vacancy lattice ID site for the configuration.
+   */
   [[nodiscard]]  size_t GetVacancyLatticeId() const;
+
+  /*! \brief Returns the concentration corresponding to each element present in
+   *         in the configuration.
+   *  \return  The concentration of elements.
+   */
+  [[nodiscard]] std::map<Element, double> GetConcentration() const;
+
+  /*! \brief Returns the element and their atom ID at which they are present.
+   *  \return  Element and Atom ID vectors at which those element are present.
+   */
+  [[nodiscard]] std::map<Element, std::vector<size_t>>
+  GetElementOfAtomIdVectorMap() const;
 
   /*! \brief Query for the set of neighbor atom id of an atom.
    *  \param atom_id         The atom id of the atom.

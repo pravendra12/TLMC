@@ -76,6 +76,33 @@ size_t Config::GetVacancyLatticeId() const {
   return 0;
 }
 
+std::map<Element, double> Config::GetConcentration() const {
+  std::map<Element, double> concentration;
+  
+  // Count occurrences
+  for (const auto& element : atom_vector_) {
+      concentration[element]++;
+  }
+  // Total number of atoms
+  double total_atoms = static_cast<double>(GetNumAtoms());
+
+  // Calculate concentration fractions
+  for (auto& pair : concentration) {
+      pair.second /= total_atoms; 
+  }
+  
+  return concentration;
+}
+
+std::map<Element, std::vector<size_t>>
+Config::GetElementOfAtomIdVectorMap() const {
+  std::map<Element, std::vector<size_t>>  element_list_map;
+  for (size_t id=0; id<atom_vector_.size(); id++) {
+    element_list_map[atom_vector_[id]].push_back(id);
+  }
+  return element_list_map;
+}
+
 std::vector<size_t> Config::GetNeighborAtomIdVectorOfAtom(size_t atom_id, size_t distance_order) const {
   auto lattice_id = atom_to_lattice_hashmap_.at(atom_id);
   const auto &neighbor_lattice_id_vector = neighbor_lists_.at(distance_order - 1).at(lattice_id);

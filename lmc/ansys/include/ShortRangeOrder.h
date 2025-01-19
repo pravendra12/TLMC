@@ -11,8 +11,6 @@
 
 #include "Config.h"
 
-namespace ansys {
-
 class ShortRangeOrder {
  public:
   ShortRangeOrder(const Config &config, const std::set<Element> &element_set);
@@ -26,7 +24,5 @@ class ShortRangeOrder {
   const Config &config_;
   const std::set<Element> &element_set_;
 };
-
-} // ansys
 
 #endif //LMC_ANSYS_INCLUDE_SHORTRANGEORDER_H_

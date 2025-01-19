@@ -77,6 +77,7 @@
 // #include "KineticMcAbstract.h"
 #include "JumpEvent.h"
 #include "Constants.hpp"
+#include "ShortRangeOrder.h"
 // #include "KineticMcFirstMpi.h"
 // #include "SymmetryCustom.h"
 // #include "LatticeClusterMMM.hpp"
@@ -535,88 +536,105 @@ int main(int argc, char *argv[]){
 
  ///////////////////////// BCC System ////////////////////////   
 
-  Config cfg = Config::ReadPoscar("TiTaMoNb_Vac.POSCAR");
-  cfg.UpdateNeighborList({3.20,4.6,5.4}); // for BCC Ti_Ni
+  Config cfg = Config::ReadPoscar("sro.POSCAR");
+  cfg.UpdateNeighborList({3.20,4.6,5.3}); // for BCC Ti_Ni
 
 
-  auto supercell_cfg = Config::GenerateSupercell(4, 3.31,"Ti","BCC");
-  supercell_cfg.UpdateNeighborList({3.20, 4.6, 5.4}); // for BCC Ti
+//  auto supercell_cfg = Config::GenerateSupercell(4, 3.31,"Ti","BCC");
+//  supercell_cfg.UpdateNeighborList({3.20, 4.6, 5.4}); // for BCC Ti
+//
+//  auto vac_id = cfg.GetVacancyLatticeId();
+//
+//  std::cout << "Vacancy Lattice ID: " << vac_id << std::endl;
+//
+//  auto vac_neighbours = cfg.GetNeighborLatticeIdVectorOfLattice(vac_id, 1);
+//  
+//  std::string predictor_file = "predictro";
+//  VacancyMigrationPredictor mig_predictor(predictor_file);
+//
+//  std::cout << "Neighbours : " << std::endl;
+//  for (auto id : vac_neighbours) {
+//    std::cout << id << " ; " << mig_predictor.GetDiff(cfg, {vac_id, id}) << 
+//    " ; " << mig_predictor.GetBarrier(cfg, {vac_id, id}) << std::endl;
+//  }
+//
+//  std::pair<size_t, size_t> lattice_id_pair = {6939, vac_id};
+//
+//  auto formFunc = mig_predictor.GetBarrierAndDiffFromLatticeIdPair(cfg, lattice_id_pair);
+//  std::cout << formFunc.first << "; " << formFunc.second << std::endl;
+//
+//
+//  std::cout << mig_predictor.GetBarrier(cfg, lattice_id_pair) << "; " << 
+//  mig_predictor.GetDiff(cfg, lattice_id_pair) << std::endl;
+//  
+//  std::cout << "{ " ;
+//  for (auto ele : cfg.GetAtomVector()) {
+//    std::cout << ele.GetElementString() << " ,";
+//  }
+//  std::cout << std::endl;
+//
+//  std::unordered_map<std::string, int> counts;
+//
+//    // Count occurrences
+//    for (const auto& item : cfg.GetAtomVector()) {
+//        counts[item.GetElementString()]++;
+//    }
+//
+//    // Print the counts
+//    std::cout << "Occurrences:" << std::endl;
+//    for (const auto& pair : counts) {
+//        std::cout << pair.first << ": " << pair.second << std::endl;
+//    }
+//
+// auto conc = cfg.GetConcentration();
+// for (auto ele : conc) {
+//  std::cout << ele.first.GetElementString() << " : " << ele.second << std::endl;
+// }
+//
+//  auto nn_list_1 = cfg.GetNeighborLatticeIdVectorOfLattice(0,1);
+//  auto nn_list_2 = cfg.GetNeighborLatticeIdVectorOfLattice(0,2);
+//  auto nn_list_3 = cfg.GetNeighborLatticeIdVectorOfLattice(0,3);
+//
+//  std::cout << "First NN : " << nn_list_1.size() << std::endl;
+//  std::cout << "Second NN : " << nn_list_2.size() - nn_list_1.size() << std::endl;
+//  std::cout << "Third NN : " << nn_list_3.size()- nn_list_2.size() << std::endl;
+//
+//
+//  std::cout << "Lattice ID 100 : " << cfg.GetAtomVector()[100].GetElementString()
+//   << " : " << cfg.GetElementOfAtom(100) << std::endl;
+//
+//   std::cout << "Lattice ID 1000 : " << cfg.GetAtomVector()[1000].GetElementString()
+//   << " : " << cfg.GetElementOfAtom(1000) << std::endl;
+//
+//   std::cout << "Lattice ID 500 : " << cfg.GetAtomVector()[500].GetElementString()
+//   << " : " << cfg.GetElementOfAtom(500) << std::endl;
+//
+//   std::cout << "atom neighour of atom id 100 : " << std::endl;
+//   for (auto id : cfg.GetNeighborAtomIdVectorOfAtom(100, 1)){
+//    std::cout << id << " : " << cfg.GetElementOfAtom(id) << std::endl;
+//   }
+//
+//   std::cout << "lattice neighour of lattice id 100 : " << std::endl;
+//   for (auto id : cfg.GetNeighborLatticeIdVectorOfLattice(100, 1)){
+//    std::cout << id << " : " << cfg.GetElementOfLattice(id) <<  std::endl;
+//   }
+//
+  auto atomVector = cfg.GetAtomVector();
+  std::set<Element> element_set(atomVector.begin(), atomVector.end());
 
-  auto vac_id = cfg.GetVacancyLatticeId();
-
-  std::cout << "Vacancy Lattice ID: " << vac_id << std::endl;
-
-  auto vac_neighbours = cfg.GetNeighborLatticeIdVectorOfLattice(vac_id, 1);
-  
-  std::string predictor_file = "predictro";
-  VacancyMigrationPredictor mig_predictor(predictor_file);
-
-  std::cout << "Neighbours : " << std::endl;
-  for (auto id : vac_neighbours) {
-    std::cout << id << " ; " << mig_predictor.GetDiff(cfg, {vac_id, id}) << 
-    " ; " << mig_predictor.GetBarrier(cfg, {vac_id, id}) << std::endl;
-  }
-
-  std::pair<size_t, size_t> lattice_id_pair = {6939, vac_id};
-
-  auto formFunc = mig_predictor.GetBarrierAndDiffFromLatticeIdPair(cfg, lattice_id_pair);
-  std::cout << formFunc.first << "; " << formFunc.second << std::endl;
-
-
-  std::cout << mig_predictor.GetBarrier(cfg, lattice_id_pair) << "; " << 
-  mig_predictor.GetDiff(cfg, lattice_id_pair) << std::endl;
-  
-  std::cout << "{ " ;
-  for (auto ele : cfg.GetAtomVector()) {
-    std::cout << ele.GetElementString() << " ,";
+  for (const auto& element : element_set) {
+    std::cout << element.GetElementString() << " ";
   }
   std::cout << std::endl;
 
-  std::unordered_map<std::string, int> counts;
-
-    // Count occurrences
-    for (const auto& item : cfg.GetAtomVector()) {
-        counts[item.GetElementString()]++;
-    }
-
-    // Print the counts
-    std::cout << "Occurrences:" << std::endl;
-    for (const auto& pair : counts) {
-        std::cout << pair.first << ": " << pair.second << std::endl;
-    }
-
- auto conc = cfg.GetConcentration();
- for (auto ele : conc) {
-  std::cout << ele.first.GetElementString() << " : " << ele.second << std::endl;
- }
-
-  auto nn_list_1 = cfg.GetNeighborLatticeIdVectorOfLattice(0,1);
-  auto nn_list_2 = cfg.GetNeighborLatticeIdVectorOfLattice(0,2);
-  auto nn_list_3 = cfg.GetNeighborLatticeIdVectorOfLattice(0,3);
-
-  std::cout << "First NN : " << nn_list_1.size() << std::endl;
-  std::cout << "Second NN : " << nn_list_2.size() - nn_list_1.size() << std::endl;
-  std::cout << "Third NN : " << nn_list_3.size()- nn_list_2.size() << std::endl;
+  ShortRangeOrder sro(cfg, element_set);
+  auto wcp = sro.FindWarrenCowley(1);
+// 
+  for (auto wc : wcp ) {
+    std::cout << wc.first << " : " << wc.second << std::endl;
+  }
 
 
-  std::cout << "Lattice ID 100 : " << cfg.GetAtomVector()[100].GetElementString()
-   << " : " << cfg.GetElementOfAtom(100) << std::endl;
-
-   std::cout << "Lattice ID 1000 : " << cfg.GetAtomVector()[1000].GetElementString()
-   << " : " << cfg.GetElementOfAtom(1000) << std::endl;
-
-   std::cout << "Lattice ID 500 : " << cfg.GetAtomVector()[500].GetElementString()
-   << " : " << cfg.GetElementOfAtom(500) << std::endl;
-
-   std::cout << "atom neighour of atom id 100 : " << std::endl;
-   for (auto id : cfg.GetNeighborAtomIdVectorOfAtom(100, 1)){
-    std::cout << id << " : " << cfg.GetElementOfAtom(id) << std::endl;
-   }
-
-   std::cout << "lattice neighour of lattice id 100 : " << std::endl;
-   for (auto id : cfg.GetNeighborLatticeIdVectorOfLattice(100, 1)){
-    std::cout << id << " : " << cfg.GetElementOfLattice(id) <<  std::endl;
-   }
    
 
 

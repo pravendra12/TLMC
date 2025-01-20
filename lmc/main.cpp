@@ -83,6 +83,14 @@
 // #include "LatticeClusterMMM.hpp"
 // #include "Element.hpp"
 // #include <cmath>
+
+#include <fstream>
+#include <omp.h>
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
+
+
+
 // 
 // std::vector<size_t> GetSymmetricallySortedLatticeVectorMMM(
 //     const Config &config, const std::pair<size_t, size_t> &lattice_id_jump_pair, std::vector<size_t> lattice_id_hashset) {
@@ -536,8 +544,8 @@ int main(int argc, char *argv[]){
 
  ///////////////////////// BCC System ////////////////////////   
 
-  Config cfg = Config::ReadPoscar("sro.POSCAR");
-  cfg.UpdateNeighborList({3.20,4.6,5.3}); // for BCC Ti_Ni
+//  Config cfg = Config::ReadPoscar("sro.POSCAR");
+//  cfg.UpdateNeighborList({3.20,4.6,5.3}); // for BCC Ti_Ni
 
 
 //  auto supercell_cfg = Config::GenerateSupercell(4, 3.31,"Ti","BCC");
@@ -619,20 +627,56 @@ int main(int argc, char *argv[]){
 //    std::cout << id << " : " << cfg.GetElementOfLattice(id) <<  std::endl;
 //   }
 //
-  auto atomVector = cfg.GetAtomVector();
-  std::set<Element> element_set(atomVector.begin(), atomVector.end());
+//  auto atomVector = cfg.GetAtomVector();
+//  std::set<Element> element_set(atomVector.begin(), atomVector.end());
+//
+//  for (const auto& element : element_set) {
+//    std::cout << element.GetElementString() << " ";
+//  }
+//  std::cout << std::endl;
+//
+//  ShortRangeOrder sro(cfg, element_set);
+//  auto wcp = sro.FindWarrenCowley(1);
+//// 
+//  for (auto wc : wcp ) {
+//    std::cout << wc.first << " : " << wc.second << std::endl;
+//  }
 
-  for (const auto& element : element_set) {
-    std::cout << element.GetElementString() << " ";
-  }
-  std::cout << std::endl;
+// Verification of warren cowley parameter
 
-  ShortRangeOrder sro(cfg, element_set);
-  auto wcp = sro.FindWarrenCowley(1);
-// 
-  for (auto wc : wcp ) {
-    std::cout << wc.first << " : " << wc.second << std::endl;
-  }
+//  auto cfg_Al = Config::ReadCfg("start.cfg");
+//  cfg_Al.UpdateNeighborList({3.5, 4.8, 5.3});
+//
+//  auto atom_vector_start = cfg_Al.GetAtomVector();
+//  std::set<Element> element_set_start(atom_vector_start.begin(), atom_vector_start.end());
+//  
+//  std::cout << "Element Set for start.cfg : ";
+//  for (auto ele : element_set_start) {
+//    std::cout << ele.GetElementString() << " ,";
+//  }
+//  std::cout << std::endl;
+//
+//  ShortRangeOrder sro_start(cfg_Al, element_set_start);
+//   
+//  std::cout << "sro_start has been declared" << std::endl;
+//  auto wcp_start = sro_start.FindWarrenCowley(1);
+//
+//  for (auto wcp : wcp_start) {
+//    std::cout << wcp.first << " : " << wcp.second << std::endl;
+//  }
+ 
+//  std::string predictor_file_name = "predictor_file.json";
+//  
+//
+//  VacancyMigrationPredictor vac_predictor(predictor_file_name);
+  
+
+  // Second Order KMC code
+
+
+
+
+
 
 
    

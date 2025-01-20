@@ -40,15 +40,15 @@ class VacancyMigrationPredictor {
   // But later these will read from predictor file.
 
   /// Slope for predicting driving force.
-  double slope_E_diff_ = 0.36; 
+  double slope_E_diff_{}; 
   /// Intercept for predicting driving force.
-  double intercept_E_diff_ = 0.10; 
+  double intercept_E_diff_{}; 
   /// Slope for DbE.
-  double slope_DbE_ = 0.08;
+  double slope_DbE_{};
   /// Slope for DbA.
-  double slope_DbA_ = 0.06;
+  double slope_DbA_ ={};
   /// Intercept for barrier prediction.
-  double intercept_barrier_ = -0.36;
+  double intercept_barrier_{};
 
 //   mutable LruCache<size_t, std::pair<double, double>> lru_cache_;
 

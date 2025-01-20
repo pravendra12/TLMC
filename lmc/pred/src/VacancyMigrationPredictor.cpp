@@ -1,14 +1,52 @@
 #include "VacancyMigrationPredictor.h"
+#include <fstream>
+#include <format>
+#include <omp.h>
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
 
+std::unordered_map<std::string, double>
+ReadParamsFromJson(const std::string &json_filename) {
+  std::ifstream ifs(json_filename, std::ifstream::in);
+  if (!ifs.is_open()) {
+        throw std::runtime_error("Failed to open JSON file.");
+    }
+  json all_parameters;
+  ifs >> all_parameters;
 
+  std::unordered_map<std::string, double> param_map;
 
-VacancyMigrationPredictor::VacancyMigrationPredictor(const std::string &predictor_filename) {
-  
-  // To be done in future, slope and intercepts to predict the barrier and
-  // driving force will be read from the predictor file, for now using some,
-  // random values.
+  if (all_parameters.contains("parameters")) {
+    auto parameters = all_parameters["parameters"];
 
+    for (auto& [key, value] : parameters.items()) {
+        param_map[key] = value;
+    }
+  } 
+  else {
+    throw  std::runtime_error("No 'parameters' are present in the JSON file");
+  }
+
+  return param_map;
 }
+
+
+VacancyMigrationPredictor::VacancyMigrationPredictor(
+          const std::string &predictor_filename){
+  
+  auto parameter_map = ReadParamsFromJson(predictor_filename);
+  // Reading parameters from predictor file.
+  try {
+    slope_E_diff_ = parameter_map.at("slope_E_diff");
+    intercept_E_diff_ = parameter_map.at("intercept_E_diff");
+    slope_DbE_ = parameter_map.at("slope_DbE");
+    slope_DbA_ = parameter_map.at("slope_DbA");
+    intercept_barrier_ = parameter_map.at("intercept_barrier");
+  } catch (...){
+    throw std::runtime_error("All parameters are not present for Vacancy Migration Predictor");
+  }
+}
+
 
 std::pair<double, double> 
 VacancyMigrationPredictor::GetBarrierAndDiffFromLatticeIdPair(

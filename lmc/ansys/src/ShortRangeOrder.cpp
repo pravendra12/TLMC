@@ -83,36 +83,36 @@ ShortRangeOrder::ShortRangeOrder(const Config &config, const std::set<Element> &
 std::map<std::string, double> ShortRangeOrder::FindWarrenCowley(const size_t shell_number) const {
   std::map<std::string, double> warren_cowley;
   
+  // Initializing the warren_cowley map
   for (const auto &element1 : element_set_) {
     for (const auto &element2 : element_set_) {
+      if (element1 == ElementName::X || element2 ==  ElementName::X) {
+        continue;
+      }
       warren_cowley[element1.GetElementString() + "-" + element2.GetElementString()] = 0;
     }
   }
-
+  
   auto element_list_map = config_.GetElementOfAtomIdVectorMap();
 
   auto concentration = config_.GetConcentration();
-
   
   auto num_bonds = config_.GetNeighborLatticeIdVectorOfLattice(0,shell_number).size();
-  // switch (shell_number) {
-  //   case 1:num_bonds = config_.GetNeighborLatticeIdVectorOfLattice(0,1).size();
-  //     break;
-  //   case 2:num_bonds = config_.GetNeighborLatticeIdVectorOfLattice(0,2).size();
-  //     break;
-  //   case 3:num_bonds = config_.GetNeighborLatticeIdVectorOfLattice(0,3).size();
-  //     break;
-  //   default:throw std::invalid_argument("Unknown shell number: " + std::to_string(shell_number));
-  // }
 
   for (const auto &element1 : element_set_) {
-
+    
+    if (element1 == ElementName::X){
+      continue;
+    }
     // size_t num_all_bonds = element_list_map.at(element1).size() * num_bonds;
 
     size_t num_all_bonds = element_list_map.at(element1).size()*num_bonds;
 
     std::map<Element, size_t> ct_this_pair_map{};
     for (const auto &element2 : element_set_) {
+      if (element2 == ElementName::X) {
+        continue;
+      }
       ct_this_pair_map[element2] = 0;
     }
     for (const auto &atom_id1 : element_list_map.at(element1)) {

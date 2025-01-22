@@ -78,16 +78,13 @@
 #include "JumpEvent.h"
 #include "Constants.hpp"
 #include "ShortRangeOrder.h"
+#include "Traverse.h"
 // #include "KineticMcFirstMpi.h"
 // #include "SymmetryCustom.h"
 // #include "LatticeClusterMMM.hpp"
 // #include "Element.hpp"
 // #include <cmath>
 
-#include <fstream>
-#include <omp.h>
-#include <nlohmann/json.hpp>
-using json = nlohmann::json;
 
 
 
@@ -221,8 +218,8 @@ int main(int argc, char *argv[]){
 
 //////////////////////// FCC System ///////////////////
 
-//     auto cfg = Config::ReadCfg("lowest_energy.cfg");
-//     cfg.UpdateNeighborList({3.5, 4.8, 5.3});
+//     auto cfg_Al = Config::ReadCfg("start.cfg");
+//     cfg_Al.UpdateNeighborList({3.5, 4.8, 5.3});
 //     std::cout << "finish reading config" << std::endl;
 //     //auto temp = FindAllLatticeClustersMain(cfg,3,3,{});
 // 
@@ -233,7 +230,7 @@ int main(int argc, char *argv[]){
 //      supercell_cfg.UpdateNeighborList({3.5, 4.8, 5.3});
 // 
 // 
-//     auto atomVector = cfg.GetAtomVector();
+//     auto atomVector = cfg_Al.GetAtomVector();
 //     std::set<Element> element_set(atomVector.begin(), atomVector.end());
 //     for (const auto& element : element_set) {
 //           std::cout << element.GetElementString() << " ";
@@ -242,14 +239,29 @@ int main(int argc, char *argv[]){
 //     std::cout << std::endl;
 // 
 //     // first nearest neighbours list
-//     auto nn_list1 = cfg.GetNeighborLatticeIdVectorOfLattice(1556,1);
+//     auto nn_list1 = cfg_Al.GetNeighborLatticeIdVectorOfLattice(1556,1);
 //     
 //     std::cout << "1st Neighbours List: { ";
 //     for(auto id : nn_list1){
 //       std::cout << id << ", ";
 //     }
 //     std::cout << "}" << std::endl;
-// 
+//
+//   std::string predictor_file_name = "predictor_file.json";
+//
+//
+//     PotentialEnergyEstimator pe_estimator(predictor_file_name, 
+//                                           cfg_Al,
+//                                           supercell_cfg,
+//                                           element_set,
+//                                           3,
+//                                           3);
+//
+//    auto de = pe_estimator.GetDe(cfg_Al, {0, 647});
+//    std::cout << "0 -> 647 : " << de << std::endl;
+//    std::cout << "647 -> 0 : " << pe_estimator.GetDe(cfg_Al, {647, 0}) << std::endl;
+//
+//  
 //     // first nearest neighbours list
 //     auto nn_list2 = cfg.GetNeighborLatticeIdVectorOfLattice(1556,2);
 //     
@@ -544,12 +556,62 @@ int main(int argc, char *argv[]){
 
  ///////////////////////// BCC System ////////////////////////   
 
-//  Config cfg = Config::ReadPoscar("sro.POSCAR");
-//  cfg.UpdateNeighborList({3.20,4.6,5.3}); // for BCC Ti_Ni
+
+  Config start_cfg = Config::ReadConfig("0.cfg");
+  start_cfg.UpdateNeighborList({3.20,4.6,5.4}); // for Ti as the base matrix
+//
+  auto atomVector = start_cfg.GetAtomVector();
+  std::set<Element> element_set(atomVector.begin(), atomVector.end());
+//  ShortRangeOrder sro_start(start_cfg, element_set);
+//
+//  size_t shell_number = 1;
+//
+//  auto start_wcp = sro_start.FindWarrenCowley(shell_number);
+//
+//  Config end_cfg = Config::ReadConfig("end_NbTaTiW_800.cfg");
+//  end_cfg.UpdateNeighborList({3.20,4.6,5.4}); // for Ti as the base matrix
+//
+//  ShortRangeOrder sro_end(end_cfg, element_set);
+//  auto end_wcp = sro_end.FindWarrenCowley(shell_number);
+//  
+//  std::cout << std::endl;
+//  for (auto ele_pair : start_wcp) {
+//    std::cout << ele_pair.first << " : " << ele_pair.second << std::endl;
+//  }
+//
+//  std::cout << std::endl;
+//  for (auto ele_pair : end_wcp) {
+//    std::cout << ele_pair.first << " : " << ele_pair.second << std::endl;
+//  }
+//  
+
+  // sro param without considering vacancy in the element set
+  ShortRangeOrder sro(start_cfg, element_set);
+  auto wcp_map = sro.FindWarrenCowley(1);
+  for (auto wcp : wcp_map) {
+    std::cout << wcp.first << " : " << wcp.second << std::endl;
+  }
+
+  api::Parameter parameter(argc, argv);
+  api::Print(parameter);
+  api::Run(parameter);
 
 
-//  auto supercell_cfg = Config::GenerateSupercell(4, 3.31,"Ti","BCC");
-//  supercell_cfg.UpdateNeighborList({3.20, 4.6, 5.4}); // for BCC Ti
+
+
+
+
+
+  
+
+  
+
+
+
+
+
+
+
 //
 //  auto vac_id = cfg.GetVacancyLatticeId();
 //

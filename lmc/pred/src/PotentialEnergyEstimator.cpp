@@ -172,7 +172,10 @@ double PotentialEnergyEstimator::GetEnergyOfCluster(const Config &config, const 
 }
 
 double PotentialEnergyEstimator::GetDe(Config &config, const std::pair<size_t, size_t> &lattice_id_pair) const {
-
+  
+  if (config.GetElementOfLattice(lattice_id_pair.first) == config.GetElementOfLattice(lattice_id_pair.second)) {
+    return 0;
+  }
   // Energy Before Swap
   auto E_before_swap = GetEnergyOfCluster(config, {lattice_id_pair.first, lattice_id_pair.second});
 

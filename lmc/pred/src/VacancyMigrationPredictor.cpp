@@ -63,7 +63,10 @@ VacancyMigrationPredictor::GetBarrierAndDiffFromLatticeIdPair(
 double VacancyMigrationPredictor::GetDiff(const Config &config, 
                         const std::pair<size_t, size_t> lattice_id_jump_pair) const {
   
-  // Assuming atom at first lattice Id wants to move to second lattice Id
+  // According to the paper they have emphasised about the vacancy migration
+  // Whereas in CMC we swap two atoms randomly, not sure whether it will work 
+  // in that case. Therefore, for this function is specifically for computing 
+  // driving force for vacancy migration.
   
   size_t atom_id; // final vacancy position
   size_t vacancy_id; // initial vacancy position 

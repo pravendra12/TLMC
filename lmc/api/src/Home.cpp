@@ -101,13 +101,13 @@ void Print(const Parameter &parameter) {
   } 
   
   else if (parameter.method == "Ansys" || parameter.method == "Reformat") {
-    std::cout << "json_coefficients_filename: " << parameter.json_coefficients_filename_
-              << std::endl;
-    std::cout << "solvent_element: " << parameter.solvent_element_ << std::endl;
     std::cout << "initial_steps: " << parameter.initial_steps_ << std::endl;
     std::cout << "increment_steps: " << parameter.increment_steps_ << std::endl;
-    std::cout << "smallest_cluster_criteria: " << parameter.smallest_cluster_criteria_ << std::endl;
-    std::cout << "solvent_bond_criteria: " << parameter.solvent_bond_criteria_ << std::endl;
+    std::cout << "cutoffs: ";
+    std::transform(parameter.cutoffs_.begin(), parameter.cutoffs_.end(),
+                   std::ostream_iterator<std::string>(std::cout, " "),
+                   [](auto cutoff) { return std::to_string(cutoff); });
+    std::cout << std::endl;
     std::cout << "log_type: " << parameter.log_type_ << std::endl;
     std::cout << "config_type: " << parameter.config_type_ << std::endl;
   }
@@ -154,11 +154,14 @@ void Run(const Parameter &parameter) {
   } else if (parameter.method == "KineticMcFirstmpi") {
     auto kinetic_mc_first_mpi = api::BuildKineticMcFirstMpiFromParameter(parameter);
     kinetic_mc_first_mpi.Simulate();
-  } 
+  } else if (parameter.method == "Ansys") {
+    auto iterator = api::BuildIteratorFromParameter(parameter);
+    iterator.RunAnsys();
+  }
 }
 
-mc::CanonicalMcSerial BuildCanonicalMcSerialFromParameter(const Parameter& 
-                                                          parameter) {
+mc::CanonicalMcSerial BuildCanonicalMcSerialFromParameter(const Parameter
+                                                                &parameter) {
   Config config;
   if (parameter.map_filename_.empty()) {
     // Generalized function to read configuration
@@ -211,7 +214,7 @@ mc::CanonicalMcSerial BuildCanonicalMcSerialFromParameter(const Parameter&
 }
 
 mc::KineticMcChainOmpi BuildKineticMcChainOmpiFromParameter(const Parameter 
-                                                            &parameter) {
+                                                                  &parameter) {
 
   Config config;
   if (parameter.map_filename_.empty()) {
@@ -267,36 +270,8 @@ mc::KineticMcChainOmpi BuildKineticMcChainOmpiFromParameter(const Parameter
 
 }
 
-
-// mc::KineticMcFirstMpi BuildKineticMcFirstMpiFromParameter(const Parameter &parameter) {
-//   std::set<Element> element_set;
-//   for (const auto &element_string : parameter.element_set_) {
-//     element_set.insert(Element(element_string));
-//   }
-//   cfg::Config config;
-//   if (parameter.map_filename_.empty()) {
-//     config = cfg::Config::ReadConfig(parameter.config_filename_);
-//     config.ReassignLatticeVector();
-//   } else {
-//     config = cfg::Config::ReadMap("lattice.txt", "element.txt", parameter.map_filename_);
-//   }
-//   std::cout << "Finish config reading. Start KMC." << std::endl;
-//   return mc::KineticMcFirstMpi{config,
-//                                parameter.log_dump_steps_,
-//                                parameter.config_dump_steps_,
-//                                parameter.maximum_steps_,
-//                                parameter.thermodynamic_averaging_steps_,
-//                                parameter.restart_steps_,
-//                                parameter.restart_energy_,
-//                                parameter.restart_time_,
-//                                parameter.temperature_,
-//                                element_set,
-//                                parameter.json_coefficients_filename_,
-//                                parameter.time_temperature_filename_,
-//                                parameter.rate_corrector_};
-// }
-
-mc::KineticMcFirstMpi BuildKineticMcFirstMpiFromParameter (const Parameter &parameter) {
+mc::KineticMcFirstMpi BuildKineticMcFirstMpiFromParameter (const Parameter 
+                                                                 &parameter) {
 
   Config config;
   if (parameter.map_filename_.empty()) {
@@ -349,6 +324,45 @@ mc::KineticMcFirstMpi BuildKineticMcFirstMpiFromParameter (const Parameter &para
                                parameter.rate_corrector_,
                                parameter.vacancy_trajectory_};
 }
+
+ansys::Traverse BuildIteratorFromParameter(const Parameter &parameter) {
+
+  return ansys::Traverse{parameter.initial_steps_, 
+                         parameter.increment_steps_,
+                         parameter.cutoffs_,
+                         parameter.log_type_,
+                         parameter.config_type_};
+}
+
+// mc::KineticMcFirstMpi BuildKineticMcFirstMpiFromParameter(const Parameter &parameter) {
+//   std::set<Element> element_set;
+//   for (const auto &element_string : parameter.element_set_) {
+//     element_set.insert(Element(element_string));
+//   }
+//   cfg::Config config;
+//   if (parameter.map_filename_.empty()) {
+//     config = cfg::Config::ReadConfig(parameter.config_filename_);
+//     config.ReassignLatticeVector();
+//   } else {
+//     config = cfg::Config::ReadMap("lattice.txt", "element.txt", parameter.map_filename_);
+//   }
+//   std::cout << "Finish config reading. Start KMC." << std::endl;
+//   return mc::KineticMcFirstMpi{config,
+//                                parameter.log_dump_steps_,
+//                                parameter.config_dump_steps_,
+//                                parameter.maximum_steps_,
+//                                parameter.thermodynamic_averaging_steps_,
+//                                parameter.restart_steps_,
+//                                parameter.restart_energy_,
+//                                parameter.restart_time_,
+//                                parameter.temperature_,
+//                                element_set,
+//                                parameter.json_coefficients_filename_,
+//                                parameter.time_temperature_filename_,
+//                                parameter.rate_corrector_};
+// }
+
+
 // mc::KineticMcChainOmpi BuildKineticMcChainOmpiFromParameter(const Parameter &parameter) {
 //   std::set<Element> element_set;
 //   for (const auto &element_string : parameter.element_set_) {
@@ -420,11 +434,10 @@ mc::KineticMcFirstMpi BuildKineticMcFirstMpiFromParameter (const Parameter &para
 //                             element_set,
 //                             parameter.json_coefficients_filename_};
 // }
+// 
 // ansys::Traverse BuildIteratorFromParameter(const Parameter &parameter) {
-//   std::set<Element> element_set;
-//   for (const auto &element_string : parameter.element_set_) {
-//     element_set.insert(Element(element_string));
-//   }
+//   Element vacancy("X");
+//   element_set.erase(vacancy);
 // 
 //   return ansys::Traverse{parameter.initial_steps_, parameter.increment_steps_,
 //                          Element(parameter.solvent_element_), element_set,
@@ -434,4 +447,5 @@ mc::KineticMcFirstMpi BuildKineticMcFirstMpiFromParameter (const Parameter &para
 //                          parameter.log_type_,
 //                          parameter.config_type_};
 // }
+
 } // api

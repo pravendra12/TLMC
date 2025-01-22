@@ -17,6 +17,7 @@
 #include "CanonicalMcSerial.h"
 #include "KineticMcChainOmpi.h"
 #include "KineticMcFirstMpi.h"
+#include "Traverse.h"
 
 // #include "KineticMcFirstOmp.h"
 // #include "SimulatedAnnealing.h"
@@ -64,10 +65,18 @@ namespace api {
    */
   mc::KineticMcChainOmpi BuildKineticMcChainOmpiFromParameter(const Parameter &parameter);
   
+  /*! \brief Constructs a Iterator from parameters for the analysis of the 
+   *         structure generated from KMC, for now only SRO analysis.
+   *  \param parameter : The `Parameter` object containing the configuration for 
+   *                     the simulation.
+   *  \return          : A `ansys::Traverse` object configured with the 
+   *                     provided parameters.
+   */
+  ansys::Traverse BuildIteratorFromParameter(const Parameter &parameter);
+  
 // mc::KineticMcFirstOmp BuildKineticMcFirstOmpFromParameter(const Parameter &parameter);
 // ansys::SimulatedAnnealing BuildSimulatedAnnealingFromParameter(const Parameter &parameter);
 // mc::CanonicalMcOmp BuildCanonicalMcOmpFromParameter(const Parameter &parameter);
-// ansys::Traverse BuildIteratorFromParameter(const Parameter &parameter);
 } // api
 
 #endif //LMC_API_INCLUDE_HOME_H_

@@ -104,8 +104,11 @@ void KineticMcChainOmpi::BuildEventList() {
 double KineticMcChainOmpi::CalculateTime() {
   const auto probability_k_i = event_k_i_.GetProbability();
   const auto probability_i_k = event_k_i_.GetBackwardRate() / total_rate_i_;
+  // Probability that flicker event happens, vacancy jump backwards
   const double beta_bar_k_i = probability_k_i * probability_i_k;
+  // Probability that flicker event does not happen, vacancy jump forwards
   const double beta_k_i = probability_k_i * (1 - probability_i_k);
+  
   bool is_previous_event = event_k_i_.GetIdJumpPair().second == previous_j_lattice_id_;
 
   // Time in first order Kmc, same for all
@@ -127,7 +130,9 @@ double KineticMcChainOmpi::CalculateTime() {
 
   const auto beta_bar_k = mpi_data.beta_bar_k;
   const auto beta_k = mpi_data.beta_k;
+  // sum of beta_bar_k_i such that i != j
   const auto gamma_bar_k_j = mpi_data.gamma_bar_k_j;
+  // sum of beta_k_i such that i = j
   const auto gamma_k_j = mpi_data.gamma_k_j;
   const auto beta_k_j = mpi_data.beta_k_j;
   const auto alpha_k_j = mpi_data.alpha_k_j;

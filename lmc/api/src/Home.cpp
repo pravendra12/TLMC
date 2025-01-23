@@ -150,7 +150,7 @@ void Run(const Parameter &parameter) {
     canonical_mc_serial.Simulate();
   } else if (parameter.method == "KineticMcChainOmpi") {
     auto kinetic_mc_chain_ompi = api::BuildKineticMcChainOmpiFromParameter(parameter);
-    // kinetic_mc_chain_ompi.Simulate();
+    kinetic_mc_chain_ompi.Simulate();
   } else if (parameter.method == "KineticMcFirstmpi") {
     auto kinetic_mc_first_mpi = api::BuildKineticMcFirstMpiFromParameter(parameter);
     kinetic_mc_first_mpi.Simulate();

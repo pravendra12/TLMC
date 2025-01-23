@@ -72,13 +72,13 @@
 // #include <Eigen/Dense>
 // #include <vector>
 // #include <algorithm>
-#include "VacancyMigrationPredictor.h"
-// #include "KineticMcChainOmpi.h"
-// #include "KineticMcAbstract.h"
-#include "JumpEvent.h"
-#include "Constants.hpp"
-#include "ShortRangeOrder.h"
-#include "Traverse.h"
+// #include "VacancyMigrationPredictor.h"
+// // #include "KineticMcChainOmpi.h"
+// // #include "KineticMcAbstract.h"
+// #include "JumpEvent.h"
+// #include "Constants.hpp"
+// #include "ShortRangeOrder.h"
+// #include "Traverse.h"
 // #include "KineticMcFirstMpi.h"
 // #include "SymmetryCustom.h"
 // #include "LatticeClusterMMM.hpp"
@@ -168,15 +168,15 @@
 //     return unique_neighbors;
 // }
 
-// int main(int argc, char *argv[]) {
-//   if (argc == 1) {
-//     std::cout << "No input parameter filename." << std::endl;
-//     return 1;
-//   }
-//   api::Parameter parameter(argc, argv);
-//   api::Print(parameter);
-//   api::Run(parameter);
-// }
+int main(int argc, char *argv[]) {
+  if (argc == 1) {
+    std::cout << "No input parameter filename." << std::endl;
+    return 1;
+  }
+  api::Parameter parameter(argc, argv);
+  api::Print(parameter);
+  api::Run(parameter);
+}
 
 // int main() {
 //   mc::ThermodynamicAveraging thermodynamic_avg(0);
@@ -204,7 +204,7 @@
 //   return migrating_ele.GetElectronegativity() * migrating_ele.GetSv();
 // }
 // 
-int main(int argc, char *argv[]){
+//int main(int argc, char *argv[]){
 // 
 //   auto start = std::chrono::high_resolution_clock::now();
 // 
@@ -557,11 +557,11 @@ int main(int argc, char *argv[]){
  ///////////////////////// BCC System ////////////////////////   
 
 
-  Config start_cfg = Config::ReadConfig("0.cfg");
-  start_cfg.UpdateNeighborList({3.20,4.6,5.4}); // for Ti as the base matrix
-//
-  auto atomVector = start_cfg.GetAtomVector();
-  std::set<Element> element_set(atomVector.begin(), atomVector.end());
+//  Config start_cfg = Config::ReadConfig("TiTaMoNb_Vac.POSCAR");
+//  start_cfg.UpdateNeighborList({3.20,4.6,5.4}); // for Ti as the base matrix
+////
+//  auto atomVector = start_cfg.GetAtomVector();
+//  std::set<Element> element_set(atomVector.begin(), atomVector.end());
 //  ShortRangeOrder sro_start(start_cfg, element_set);
 //
 //  size_t shell_number = 1;
@@ -586,15 +586,101 @@ int main(int argc, char *argv[]){
 //  
 
   // sro param without considering vacancy in the element set
-  ShortRangeOrder sro(start_cfg, element_set);
-  auto wcp_map = sro.FindWarrenCowley(1);
-  for (auto wcp : wcp_map) {
-    std::cout << wcp.first << " : " << wcp.second << std::endl;
-  }
+//  ShortRangeOrder sro(start_cfg, element_set);
+//  auto wcp_map = sro.FindWarrenCowley(1);
+//  for (auto wcp : wcp_map) {
+//    std::cout << wcp.first << " : " << wcp.second << std::endl;
+//  }
 
-  api::Parameter parameter(argc, argv);
-  api::Print(parameter);
-  api::Run(parameter);
+//  api::Parameter parameter(argc, argv);
+//  api::Print(parameter);
+//  api::Run(parameter);
+
+///////////////////// Testing Second Order KMC Algo ///////////////////////////
+//  VacancyMigrationPredictor migrationPredictor("predictor_file.json");
+//
+//  auto vacancyId = start_cfg.GetVacancyLatticeId();
+//  std::cout << "Vacancy Lattice Id : " << vacancyId << std::endl;
+//  
+//
+//  auto firstNN = start_cfg.GetNeighborLatticeIdVectorOfLattice(vacancyId, 1);
+//
+//  size_t previous_lattice_id{};
+//
+//  for (auto neighbouringId : firstNN) {
+//    
+//    if (previous_lattice_id)
+//    { 
+//    // putting back vacancy to its original place
+//    start_cfg.LatticeJump({vacancyId, previous_lattice_id});
+//    }
+//    std::cout << "Initial vacancy position : " << vacancyId << std::endl;
+//    auto neighbourIDVector = start_cfg.GetNeighborLatticeIdVectorOfLattice(neighbouringId, 1);
+//    std::cout << "Id1_vac : Id2 : forwardBarrier : dE : backwardBarrier : -dE" << 
+//    ": backwardBarrier_xSv : backward_dE : id2_vac" << std::endl;
+//    
+//    // move vacancy to neighbouringId
+//    start_cfg.LatticeJump({vacancyId, neighbouringId});
+//    previous_lattice_id = neighbouringId;
+//
+//    for (auto id : neighbourIDVector) {
+//      std::cout << neighbouringId << start_cfg.GetElementOfLattice(neighbouringId) 
+//      << " : " << id << start_cfg.GetElementOfLattice(id) << " : ";
+//      auto forwardBarrier = migrationPredictor.GetBarrier(start_cfg, {neighbouringId, id});
+//      auto dE = migrationPredictor.GetDiff(start_cfg, {neighbouringId, id});
+//      auto backwardBarrier = forwardBarrier - dE;
+//
+//      std::cout << forwardBarrier << " : " << dE << " : " << backwardBarrier <<
+//      " : " << -dE << " : ";
+//
+//      // Backward barrier using xSv
+//      // neighbouringId has the vacancy
+//
+//      start_cfg.LatticeJump({neighbouringId,id});
+//     
+//      auto backwardBarrier_xSv = migrationPredictor.GetBarrier(start_cfg, {neighbouringId,id});
+//      auto backward_dE = migrationPredictor.GetDiff(start_cfg, {neighbouringId,id});
+//
+//      std::cout << backwardBarrier_xSv << " : " << backward_dE << " : " << id << 
+//      start_cfg.GetElementOfLattice(id) << std::endl;
+//      // std::cout << "Verificatin : " << id << start_cfg.GetElementOfLattice(id) << std::endl;
+//
+//      start_cfg.LatticeJump({neighbouringId,id});
+//      // std::cout << "Verificatin : " << id << start_cfg.GetElementOfLattice(id) << std::endl;
+//      
+//      
+//    }
+//    std::cout << "----------------------------------------------------" << std::endl;
+//  }
+
+////////////////////////// Verification of GetDiff function ////////////////////
+  
+//  auto vac_id = start_cfg.GetVacancyLatticeId();
+//  auto neighbouring_id = start_cfg.GetNeighborLatticeIdVectorOfLattice(vac_id, 1)[0];
+//  
+//  start_cfg.LatticeJump({vac_id, neighbouring_id});
+//  VacancyMigrationPredictor migrationPredictor("predictor_file.json"); 
+//
+//  auto dE = migrationPredictor.GetDiff(start_cfg, {vac_id, neighbouring_id});
+//
+//  std::cout << "dE : " << dE << std::endl;
+//
+//  auto forward_barrier = migrationPredictor.GetBarrier(start_cfg, {vac_id, neighbouring_id});
+//  
+//  start_cfg.LatticeJump({vac_id, neighbouring_id});
+//  
+//  auto backward_barrier = migrationPredictor.GetBarrier(start_cfg, {vac_id, neighbouring_id});
+//
+//
+//  std::cout << "Forward Barrier : " << forward_barrier << std::endl;
+//  std::cout << "Backward Barrier : " << backward_barrier << std::endl;
+//  
+//  std::cout << migrationPredictor.GetDiff(start_cfg, {vac_id, neighbouring_id}) << std::endl;
+//  start_cfg.LatticeJump({vac_id, neighbouring_id});
+//
+  
+
+  
 
 
 
@@ -758,7 +844,7 @@ int main(int argc, char *argv[]){
 
 
 
-}
+// }
 //
 //  Eigen::RowVector3d cartesian_pos = cfg.GetCartesianPositionOfLattice(1000);
 //  Eigen::RowVector3d cartesian_pos711 = cfg.GetCartesianPositionOfLattice(711);

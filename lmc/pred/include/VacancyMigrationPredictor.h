@@ -13,7 +13,7 @@ class VacancyMigrationPredictor {
   VacancyMigrationPredictor(const std::string &predictor_filename);
 
   [[nodiscard]] std::pair<double, double>
-  GetBarrierAndDiffFromLatticeIdPair(const Config &config,
+  GetBarrierAndDiffFromLatticeIdPair(Config &config,
                                      const std::pair<size_t, size_t> &lattice_id_jump_pair) const;
   
   /*! \brief Computes the Vacancy Migration Barrier.
@@ -29,7 +29,7 @@ class VacancyMigrationPredictor {
    *                                 lattice configurations and relative positions.
    *  \param lattice_id_jump_pair    Lattice Id jump pair.
   */
-  [[nodiscard]] double GetDiff(const Config &config, 
+  [[nodiscard]] double GetDiff(Config &config, 
                       const std::pair<size_t, size_t> lattice_id_jump_pair) const;
 
   

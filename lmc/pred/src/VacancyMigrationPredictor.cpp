@@ -48,17 +48,88 @@ VacancyMigrationPredictor::VacancyMigrationPredictor(
 }
 
 
-std::pair<double, double> 
+// std::pair<double, double> 
+// VacancyMigrationPredictor::GetBarrierAndDiffFromLatticeIdPair(
+//                  Config &config,
+//                  const std::pair<size_t, size_t> &lattice_id_jump_pair) const {
+// 
+//   auto dE = GetDiff(config, lattice_id_jump_pair);
+//   auto barrier = GetBarrier(config, lattice_id_jump_pair);
+//   std::pair<double, double> barrier_de = {barrier,dE};
+//   
+//   return barrier_de;
+// }
+
+std::array<double, 3>
 VacancyMigrationPredictor::GetBarrierAndDiffFromLatticeIdPair(
                  Config &config,
-                 const std::pair<size_t, size_t> &lattice_id_jump_pair) const {
+                 const std::pair<size_t, size_t> &lattice_id_jump_pair) {
+  
+  std::array<double, 3> barrier_de;
 
-  auto dE = GetDiff(config, lattice_id_jump_pair);
-  auto barrier = GetBarrier(config, lattice_id_jump_pair);
-  std::pair<double, double> barrier_de = {barrier,dE};
+  size_t migrating_lattice_id; // final vacancy position
+  size_t vacancy_id; // initial vacancy position 
+  
+  // Getting the lattice ID of migration atom and vacancy
+  if (config.GetVacancyLatticeId() == lattice_id_jump_pair.first) {
+    vacancy_id = lattice_id_jump_pair.first;
+    migrating_lattice_id = lattice_id_jump_pair.second;
+  }
+  else {
+    vacancy_id = lattice_id_jump_pair.second;
+    migrating_lattice_id = lattice_id_jump_pair.first;
+  }
+
+  auto forward_barrier = GetBarrierNew(config, {migrating_lattice_id, vacancy_id});
+  auto forward_Ed = GetDiffNew(config, {vacancy_id, migrating_lattice_id});
+
+  // config.LatticeJump({vacancy_id, migrating_lattice_id});
+
+  auto backward_barrier = GetBarrierNew(config, {vacancy_id, migrating_lattice_id});
+  auto backward_Ed = GetDiffNew(config, {vacancy_id, migrating_lattice_id});
+  
+  // config.LatticeJump({vacancy_id, migrating_lattice_id});
+
+    double new_forward_barrier;
+    double new_forward_Ed;
+    double new_backward_barrier;
+    double new_backward_Ed;
+
+    double average_barrier;
+    double average_Ed;
+
+    if (forward_barrier < backward_barrier) {
+
+      average_Ed = (abs(forward_Ed) + abs(backward_Ed))/2;
+      average_barrier = (abs(forward_barrier) + (abs(backward_barrier)-abs(backward_Ed)))/2;
+ 
+      new_forward_barrier = average_barrier;
+      new_forward_Ed = -average_Ed;
+      new_backward_barrier = average_barrier + average_Ed;
+      new_backward_Ed = average_Ed;
+    }
+    else {
+      average_Ed = (abs(forward_Ed) + abs(backward_Ed))/2;
+      average_barrier = ((abs(forward_barrier) - abs(forward_Ed)) + abs(backward_barrier))/2;
+
+      new_forward_barrier = average_barrier + average_Ed;
+      new_forward_Ed = average_Ed;
+      new_backward_barrier = average_barrier ;
+      new_backward_Ed = -average_Ed;
+
+    }
+
+  barrier_de[0] = new_forward_barrier;
+  barrier_de[1] = new_backward_barrier;
+  barrier_de[2] = new_forward_Ed;
+
+  if (new_backward_Ed != -new_forward_Ed) {
+    std::cout << "Hey Man there is some error please look into it" << std::endl;
+  }
   
   return barrier_de;
 }
+
 
 double VacancyMigrationPredictor::GetDiff(Config &config, 
                         const std::pair<size_t, size_t> lattice_id_jump_pair) const {
@@ -83,6 +154,8 @@ double VacancyMigrationPredictor::GetDiff(Config &config,
  
   // Df for initial vacancy structure
   auto Df_initial = GetDf(config, vacancy_id);
+
+  // Df for final vacancy structure
   
   auto migrating_lattice_id_neighbours = config.GetNeighborLatticeIdVectorOfLattice(migrating_lattice_id, 1);
   auto migrating_lattice_element = config.GetElementOfLattice(migrating_lattice_id);
@@ -98,14 +171,14 @@ double VacancyMigrationPredictor::GetDiff(Config &config,
       xSv_vector.push_back(GetxSv(element));
     }
   }
-
+//
   auto Df_final = GetGeometricMean(xSv_vector, 1);
 
 //  config.LatticeJump({vacancy_id, migrating_lattice_id});
-//
-//  // Df at final vacancy position, which is atom's initial position
-//  auto Df_final = GetDf(config, migrating_lattice_id);
-//
+
+  // Df at final vacancy position, which is atom's initial position
+  // auto Df_final = GetDf(config, migrating_lattice_id);
+
 //  config.LatticeJump({vacancy_id, migrating_lattice_id});
   
   // std::cout << vacancy_id << config.GetElementOfLattice(vacancy_id) << " : " <<
@@ -224,3 +297,156 @@ double GetDf(const Config &config, const size_t lattice_id) {
 
 
 
+double VacancyMigrationPredictor::GetBarrierNew(
+                const Config &config,
+                const std::pair<size_t, size_t> &lattice_id_jump_pair) const {
+  
+  // Assuming {k_lattice_id, i_lattice_id}
+  // k_lattice_id -> Vacancy Lattice Id
+  // i_lattice_id -> Migration Atoms Lattice Id
+  // Below method takes care of that
+  
+  // position of atom
+  size_t initial_position = lattice_id_jump_pair.first;
+  size_t final_position = lattice_id_jump_pair.second;
+
+  // Classification of 1st NN Atoms as I1, I2, F1, F2 based on the order
+
+  size_t bond_order = 1; // Only considering 1st nearest neighbours
+  
+  auto neighboring_lattice_ids = config.GetNeighboringLatticeIdSetOfPair(
+                                            lattice_id_jump_pair, bond_order);
+
+  std::vector<double> i1_positions; // I1
+  std::vector<double> i2_positions; // I2
+  std::vector<double> f1_positions; // F1
+  std::vector<double> f2_positions; // F2
+
+  for (auto& id : neighboring_lattice_ids) {
+    // bond order between id and migration atom
+    auto initial_BO = config.GetDistanceOrder(initial_position, id);
+    // bond order between id and vacancy, which will be final position of the atom
+    auto final_BO = config.GetDistanceOrder(final_position, id);
+
+    auto atom_element = config.GetElementOfLattice(id);
+
+    // condition for I1 atoms
+    if (initial_BO == 1 && final_BO == 2) {
+      i1_positions.push_back(GetxSv(atom_element));
+    }    
+
+    // condition for F1 atoms
+    else if (initial_BO == 2 && final_BO == 1) {
+      f1_positions.push_back(GetxSv(atom_element));
+    }
+
+    // condition for I2 atoms
+    else if (initial_BO == 1 && (final_BO >= 3)) {
+      i2_positions.push_back(GetxSv(atom_element));
+    }
+
+    // condition for F2 atoms
+    else if ((initial_BO >= 3) && final_BO == 1 ) {
+      f2_positions.push_back(GetxSv(atom_element));
+    }
+    
+  }
+
+  double DbA;
+  
+  // Effect of Migrating Atom
+  auto element_at_initial_position = config.GetElementOfLattice(initial_position);
+  auto element_at_final_position = config.GetElementOfLattice(final_position);
+  
+  if (element_at_initial_position.GetElementString() == "X") {
+    DbA = GetxSv(element_at_final_position); 
+  }
+  else {
+    DbA = GetxSv(element_at_initial_position);
+  }
+
+
+  auto i1_xSv = GetGeometricMean(i1_positions, 1.0);
+  auto i2_xSv = GetGeometricMean(i2_positions, 1.5);
+  auto f1_xSv = GetGeometricMean(f1_positions, -1.5);
+  
+  // Effect of Migrating Environment
+  double DbE =  i1_xSv*i2_xSv*f1_xSv; 
+  
+  return slope_DbE_*DbE + slope_DbA_*DbA + intercept_barrier_;
+}
+
+
+
+double VacancyMigrationPredictor::GetDiffNew(Config &config, 
+                        const std::pair<size_t, size_t> lattice_id_jump_pair) const {
+  
+  // According to the paper they have emphasised about the vacancy migration
+  // Whereas in CMC we swap two atoms randomly, not sure whether it will work 
+  // in that case. Therefore, for this function is specifically for computing 
+  // driving force for vacancy migration.
+  
+
+
+  // assumption is atom is first position and
+  // vacancy is in second position
+
+  // lattice_id_jump_pair : {atom position, vacancy}
+  // moving atom to vacancy
+
+  double Df_initial;
+  double Df_final;
+
+  // first_element -> second_element
+  
+
+  auto first_element = config.GetElementOfLattice(lattice_id_jump_pair.first);
+  auto second_element = config.GetElementOfLattice(lattice_id_jump_pair.second);
+  
+  // Df for initial vacancy structure
+
+  if (second_element.GetElementString() == "X") {
+
+    Df_initial = GetDf(config, lattice_id_jump_pair.second);
+    
+    auto migrating_lattice_id_neighbours = config.GetNeighborLatticeIdVectorOfLattice(lattice_id_jump_pair.first, 1);
+    auto migrating_lattice_element = config.GetElementOfLattice(lattice_id_jump_pair.first);
+  
+    std::vector<double> xSv_vector;
+    for (auto &id : migrating_lattice_id_neighbours) {
+      auto element = config.GetElementOfLattice(id);
+      if (element.GetElementString() == "X") {
+        xSv_vector.push_back(GetxSv(migrating_lattice_element));
+    //    std::cout << "Put the Element in place of the Vacancy" << std::endl;
+      }
+      else {
+        xSv_vector.push_back(GetxSv(element));
+      }
+    }
+  //
+    Df_final = GetGeometricMean(xSv_vector, 1);
+  
+  }
+  else {
+
+    auto migrating_lattice_id_neighbours = config.GetNeighborLatticeIdVectorOfLattice(lattice_id_jump_pair.second, 1);
+    auto migrating_lattice_element = config.GetElementOfLattice(lattice_id_jump_pair.second);
+    std::vector<double> xSv_vector;
+    for (auto &id : migrating_lattice_id_neighbours) {
+      auto element = config.GetElementOfLattice(id);
+      if (element.GetElementString() == "X") {
+        xSv_vector.push_back(GetxSv(migrating_lattice_element));
+    //    std::cout << "Put the Element in place of the Vacancy" << std::endl;
+      }
+      else {
+        xSv_vector.push_back(GetxSv(element));
+      }
+    }
+    Df_initial = GetGeometricMean(xSv_vector, 1);
+    
+    Df_final = GetDf(config, lattice_id_jump_pair.first);
+  }
+  
+  return slope_E_diff_*(Df_final - Df_initial) + intercept_E_diff_;
+
+}

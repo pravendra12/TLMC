@@ -83,6 +83,7 @@ void KineticMcChainOmpi::BuildEventList() {
     for (size_t ii = 0; ii < kEventListSize; ++ii) {
       const auto l_lattice_id = l_lattice_id_list_[ii];
       JumpEvent event_i_l({i_lattice_id, l_lattice_id},
+                         // i think here config_ is const
                           vacancy_migration_predictor_.GetBarrierAndDiffFromLatticeIdPair(
                               config_, {i_lattice_id, l_lattice_id}),
                           beta_);

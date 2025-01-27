@@ -139,7 +139,7 @@ class KineticMcFirstAbstract : public McAbstract {
     // Helpful properties
 
     /// Vacancy Migration Energy Predictor.
-    const VacancyMigrationPredictor vacancy_migration_predictor_;
+    VacancyMigrationPredictor vacancy_migration_predictor_;
 
     /// Time Temperature Interpolator
     // const pred::TimeTemperatureInterpolator time_temperature_interpolator_;

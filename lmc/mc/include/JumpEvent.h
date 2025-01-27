@@ -10,14 +10,14 @@
 #define LMC_MC_INCLUDE_JUMPEVENT_H_
 #include <cstddef>
 #include <utility>
+#include <array>
 namespace mc {
-
 class JumpEvent {
  public:
   /// Constructor
   JumpEvent();
   JumpEvent(std::pair<size_t, size_t> jump_pair,
-            const std::pair<double, double> &barrier_and_diff,
+            const std::array<double, 3> &barrier_and_diff,
             double beta);
   /// Getter
   [[nodiscard]] const std::pair<size_t, size_t> &GetIdJumpPair() const;
@@ -36,9 +36,11 @@ class JumpEvent {
  private:
   double beta_{};
   std::pair<size_t, size_t> jump_pair_{};
-  double barrier_{};
+  double forward_barrier_{};
+  double backward_barrier_{};
   double energy_change_{};
   double forward_rate_{};
+  
 
   double probability_{};
   double cumulative_probability_{};

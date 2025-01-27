@@ -171,11 +171,11 @@ void KineticMcFirstAbstract::OneStepSimulation() {
 void KineticMcFirstAbstract::Simulate() {
   while (steps_ <= maximum_steps_) {
 
-    std::cout << "Step " << steps_ << std::endl;
+    // std::cout << "Step " << steps_ << std::endl;
 
     OneStepSimulation();
 
-    std::cout << std::endl;
+    // std::cout << std::endl;
   }
 }
 

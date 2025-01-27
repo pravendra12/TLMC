@@ -12,9 +12,14 @@ class VacancyMigrationPredictor {
   // Constructor
   VacancyMigrationPredictor(const std::string &predictor_filename);
 
-  [[nodiscard]] std::pair<double, double>
-  GetBarrierAndDiffFromLatticeIdPair(Config &config,
-                                     const std::pair<size_t, size_t> &lattice_id_jump_pair) const;
+//  [[nodiscard]] std::pair<double, double>
+//  GetBarrierAndDiffFromLatticeIdPair(Config &config,
+//                                     const std::pair<size_t, size_t> &lattice_id_jump_pair) const;
+
+  [[nodiscard]] std::array<double, 3>
+  GetBarrierAndDiffFromLatticeIdPair(
+                 Config &config,
+                 const std::pair<size_t, size_t> &lattice_id_jump_pair);
   
   /*! \brief Computes the Vacancy Migration Barrier.
    *  \param config                  A reference to the Config object containing 
@@ -23,6 +28,10 @@ class VacancyMigrationPredictor {
   */
   [[nodiscard]] double GetBarrier(const Config &config, 
                                   const std::pair<size_t, size_t> &lattice_id_jump_pair) const;
+
+  double GetBarrierNew(const Config &config, const std::pair<size_t, size_t> &lattice_id_jump_pair) const;
+
+  double GetDiffNew(Config &config, const std::pair<size_t, size_t> lattice_id_jump_pair) const;
 
   /*! \brief Computes the driving force using the Df of the initial and final vacancy structure.
    *  \param config                  A reference to the Config object containing 

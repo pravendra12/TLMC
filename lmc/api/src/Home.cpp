@@ -151,7 +151,7 @@ void Run(const Parameter &parameter) {
   } else if (parameter.method == "KineticMcChainOmpi") {
     auto kinetic_mc_chain_ompi = api::BuildKineticMcChainOmpiFromParameter(parameter);
     kinetic_mc_chain_ompi.Simulate();
-  } else if (parameter.method == "KineticMcFirstmpi") {
+  } else if (parameter.method == "KineticMcFirstMpi") {
     auto kinetic_mc_first_mpi = api::BuildKineticMcFirstMpiFromParameter(parameter);
     kinetic_mc_first_mpi.Simulate();
   } else if (parameter.method == "Ansys") {

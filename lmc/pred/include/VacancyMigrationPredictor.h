@@ -19,7 +19,7 @@ class VacancyMigrationPredictor {
   [[nodiscard]] std::array<double, 3>
   GetBarrierAndDiffFromLatticeIdPair(
                  Config &config,
-                 const std::pair<size_t, size_t> &lattice_id_jump_pair);
+                 const std::pair<size_t, size_t> &lattice_id_jump_pair) const;
   
   /*! \brief Computes the Vacancy Migration Barrier.
    *  \param config                  A reference to the Config object containing 

@@ -1,7 +1,5 @@
 #include "VacancyMigrationPredictor.h"
 #include <fstream>
-// #include <format>
-#include <omp.h>
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
@@ -63,61 +61,47 @@ VacancyMigrationPredictor::VacancyMigrationPredictor(
 std::array<double, 3>
 VacancyMigrationPredictor::GetBarrierAndDiffFromLatticeIdPair(
                  Config &config,
-                 const std::pair<size_t, size_t> &lattice_id_jump_pair) {
+                 const std::pair<size_t, size_t> &lattice_id_jump_pair) const{
   
   std::array<double, 3> barrier_de;
 
-  size_t migrating_lattice_id; // final vacancy position
-  size_t vacancy_id; // initial vacancy position 
+  // Element at first lattice ID moves to second lattice ID
+
+  auto forward_barrier = GetBarrierNew(config, lattice_id_jump_pair);
+  auto forward_Ed = GetDiffNew(config, lattice_id_jump_pair);
   
-  // Getting the lattice ID of migration atom and vacancy
-  if (config.GetVacancyLatticeId() == lattice_id_jump_pair.first) {
-    vacancy_id = lattice_id_jump_pair.first;
-    migrating_lattice_id = lattice_id_jump_pair.second;
+  std::pair<size_t, size_t> backward_jump_pair = {lattice_id_jump_pair.second, 
+                                                  lattice_id_jump_pair.first};
+
+  auto backward_barrier = GetBarrierNew(config, backward_jump_pair);
+  auto backward_Ed = GetDiffNew(config, backward_jump_pair);
+
+  double new_forward_barrier;
+  double new_forward_Ed;
+  double new_backward_barrier;
+  double new_backward_Ed;
+
+  double average_barrier;
+  double average_Ed = (abs(forward_Ed) + abs(backward_Ed))/2;
+  
+  if (forward_barrier < backward_barrier) {
+    average_barrier = (abs(forward_barrier) + 
+                      (abs(backward_barrier)-abs(backward_Ed)))/2;
+
+    new_forward_barrier = average_barrier;
+    new_forward_Ed = -average_Ed;
+    new_backward_barrier = average_barrier + average_Ed;
+    new_backward_Ed = average_Ed;
   }
   else {
-    vacancy_id = lattice_id_jump_pair.second;
-    migrating_lattice_id = lattice_id_jump_pair.first;
+    average_barrier = ((abs(forward_barrier) - abs(forward_Ed)) + 
+                        abs(backward_barrier))/2;
+
+    new_forward_barrier = average_barrier + average_Ed;
+    new_forward_Ed = average_Ed;
+    new_backward_barrier = average_barrier ;
+    new_backward_Ed = -average_Ed;
   }
-
-  auto forward_barrier = GetBarrierNew(config, {migrating_lattice_id, vacancy_id});
-  auto forward_Ed = GetDiffNew(config, {vacancy_id, migrating_lattice_id});
-
-  // config.LatticeJump({vacancy_id, migrating_lattice_id});
-
-  auto backward_barrier = GetBarrierNew(config, {vacancy_id, migrating_lattice_id});
-  auto backward_Ed = GetDiffNew(config, {vacancy_id, migrating_lattice_id});
-  
-  // config.LatticeJump({vacancy_id, migrating_lattice_id});
-
-    double new_forward_barrier;
-    double new_forward_Ed;
-    double new_backward_barrier;
-    double new_backward_Ed;
-
-    double average_barrier;
-    double average_Ed;
-
-    if (forward_barrier < backward_barrier) {
-
-      average_Ed = (abs(forward_Ed) + abs(backward_Ed))/2;
-      average_barrier = (abs(forward_barrier) + (abs(backward_barrier)-abs(backward_Ed)))/2;
- 
-      new_forward_barrier = average_barrier;
-      new_forward_Ed = -average_Ed;
-      new_backward_barrier = average_barrier + average_Ed;
-      new_backward_Ed = average_Ed;
-    }
-    else {
-      average_Ed = (abs(forward_Ed) + abs(backward_Ed))/2;
-      average_barrier = ((abs(forward_barrier) - abs(forward_Ed)) + abs(backward_barrier))/2;
-
-      new_forward_barrier = average_barrier + average_Ed;
-      new_forward_Ed = average_Ed;
-      new_backward_barrier = average_barrier ;
-      new_backward_Ed = -average_Ed;
-
-    }
 
   barrier_de[0] = new_forward_barrier;
   barrier_de[1] = new_backward_barrier;
@@ -132,7 +116,7 @@ VacancyMigrationPredictor::GetBarrierAndDiffFromLatticeIdPair(
 
 
 double VacancyMigrationPredictor::GetDiff(Config &config, 
-                        const std::pair<size_t, size_t> lattice_id_jump_pair) const {
+                  const std::pair<size_t, size_t> lattice_id_jump_pair) const {
   
   // According to the paper they have emphasised about the vacancy migration
   // Whereas in CMC we swap two atoms randomly, not sure whether it will work 
@@ -385,63 +369,64 @@ double VacancyMigrationPredictor::GetDiffNew(Config &config,
   // Whereas in CMC we swap two atoms randomly, not sure whether it will work 
   // in that case. Therefore, for this function is specifically for computing 
   // driving force for vacancy migration.
-  
 
-
-  // assumption is atom is first position and
-  // vacancy is in second position
-
-  // lattice_id_jump_pair : {atom position, vacancy}
-  // moving atom to vacancy
+  // Assumption is that atom is at first lattice Id and 
+  // moves to second lattice Id where vacancy is there.
 
   double Df_initial;
   double Df_final;
 
-  // first_element -> second_element
-  
-
   auto first_element = config.GetElementOfLattice(lattice_id_jump_pair.first);
   auto second_element = config.GetElementOfLattice(lattice_id_jump_pair.second);
   
-  // Df for initial vacancy structure
+  // When vacancy is at second lattice Id
 
   if (second_element.GetElementString() == "X") {
-
+    
     Df_initial = GetDf(config, lattice_id_jump_pair.second);
     
-    auto migrating_lattice_id_neighbours = config.GetNeighborLatticeIdVectorOfLattice(lattice_id_jump_pair.first, 1);
-    auto migrating_lattice_element = config.GetElementOfLattice(lattice_id_jump_pair.first);
+    auto migrating_lattice_id_neighbours = 
+      config.GetNeighborLatticeIdVectorOfLattice(lattice_id_jump_pair.first, 1);
+    auto migrating_lattice_element = 
+      config.GetElementOfLattice(lattice_id_jump_pair.first);
   
     std::vector<double> xSv_vector;
     for (auto &id : migrating_lattice_id_neighbours) {
       auto element = config.GetElementOfLattice(id);
       if (element.GetElementString() == "X") {
         xSv_vector.push_back(GetxSv(migrating_lattice_element));
-    //    std::cout << "Put the Element in place of the Vacancy" << std::endl;
       }
       else {
         xSv_vector.push_back(GetxSv(element));
       }
     }
-  //
     Df_final = GetGeometricMean(xSv_vector, 1);
   
   }
+  
+  // Now assuming the swap have happened but in reality 
+  // vacancy is still at second position and atom at first position
+  // To compute the driving force such that when vacancy is at first position (assumption)
+  // And atom is at second.
+
   else {
 
-    auto migrating_lattice_id_neighbours = config.GetNeighborLatticeIdVectorOfLattice(lattice_id_jump_pair.second, 1);
-    auto migrating_lattice_element = config.GetElementOfLattice(lattice_id_jump_pair.second);
+    auto migrating_lattice_id_neighbours = 
+    config.GetNeighborLatticeIdVectorOfLattice(lattice_id_jump_pair.second, 1);
+    auto migrating_lattice_element = 
+    config.GetElementOfLattice(lattice_id_jump_pair.second);
+
     std::vector<double> xSv_vector;
     for (auto &id : migrating_lattice_id_neighbours) {
       auto element = config.GetElementOfLattice(id);
       if (element.GetElementString() == "X") {
-        xSv_vector.push_back(GetxSv(migrating_lattice_element));
-    //    std::cout << "Put the Element in place of the Vacancy" << std::endl;
+        xSv_vector.push_back(GetxSv(migrating_lattice_element)); 
       }
       else {
         xSv_vector.push_back(GetxSv(element));
       }
     }
+
     Df_initial = GetGeometricMean(xSv_vector, 1);
     
     Df_final = GetDf(config, lattice_id_jump_pair.first);

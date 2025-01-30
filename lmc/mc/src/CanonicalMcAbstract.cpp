@@ -72,6 +72,19 @@ std::pair<size_t, size_t> CanonicalMcAbstract::GenerateLatticeIdJumpPair() {
       == config_.GetElementOfLattice(lattice_id2));
   return {lattice_id1, lattice_id2};
 }
+
+std::pair<size_t, size_t> CanonicalMcAbstract::GenerateVacancyAtomJumpPair() {
+  size_t vacancy_id, lattice_id;
+  do {
+    vacancy_id = config_.GetVacancyLatticeId();
+    lattice_id = atom_index_selector_(generator_);
+  } while (config_.GetElementOfLattice(vacancy_id)
+      == config_.GetElementOfLattice(lattice_id));
+  return {vacancy_id, lattice_id};
+}
+
+
+
 // void CanonicalMcAbstract::UpdateTemperature() {
 //   if (steps_ % maximum_steps_ == 0 && steps_ != 0) {
 //     config_.WriteConfig("end_" + std::to_string(static_cast<int>(temperature_)) + "K.cfg",
@@ -90,7 +103,9 @@ void CanonicalMcAbstract::Dump() const {
     // config_.WriteLattice("lattice.txt");
     // config_.WriteElement("element.txt");
     // config_.WriteConfig("start.cfg",config_);
-    ofs_ << "steps\ttemperature\tenergy\taverage_energy\tabsolute_energy" << std::endl;
+    // ofs_ << "steps\ttemperature\tenergy\taverage_energy\tabsolute_energy" << std::endl;
+    ofs_ << "steps\ttemperature\tenergy\tenergy_per_atom" << std::endl;
+
   }
   if (steps_ % config_dump_steps_ == 0) {
     //config_.WriteMap("map" + std::to_string(steps_) + ".txt");
@@ -111,8 +126,7 @@ void CanonicalMcAbstract::Dump() const {
   }
   if (steps_ % log_dump_steps == 0) {
     ofs_ << steps_ << '\t' << temperature_ << '\t' << energy_ << '\t'
-         // << thermodynamic_averaging_.GetThermodynamicAverage(beta_) << '\t'
-         << absolute_energy_ << std::endl;
+         << energy_/config_.GetNumAtoms() << std::endl;
   }
 }
 void CanonicalMcAbstract::SelectEvent(const std::pair<size_t, size_t> &lattice_id_jump_pair,

@@ -86,6 +86,11 @@ class CanonicalMcAbstract : public McAbstract {
    *  \returns A pair of lattice Ids.
    */
   std::pair<size_t, size_t> GenerateLatticeIdJumpPair();
+  
+  /*! \brief Generates a Vacancy and Atom Jump Pair.
+   *  \returns A pair of vacancy and lattice Ids.
+   */
+  std::pair<size_t, size_t> GenerateVacancyAtomJumpPair();
 
   /*! 
    * \brief Selects an event based on the lattice ID pair and energy change.
@@ -102,7 +107,7 @@ class CanonicalMcAbstract : public McAbstract {
   /// Predictor for energy change
   const PotentialEnergyEstimator energy_change_predictor_;
 
-  const VacancyMigrationPredictor vacancy_migration_predictor_;
+  VacancyMigrationPredictor vacancy_migration_predictor_;
 
   /// Random Lattice Id Generator
   mutable std::uniform_int_distribution<size_t> atom_index_selector_;

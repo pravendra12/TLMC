@@ -86,6 +86,7 @@
 // #include "Element.hpp"
 // #include <cmath>
 
+#include "TimeTemperatureInterpolator.h"
 
 
 
@@ -169,178 +170,319 @@
 //     return unique_neighbors;
 // }
 
-int main(int argc, char *argv[]) {
-  if (argc == 1) {
-    std::cout << "No input parameter filename." << std::endl;
-    return 1;
-  }
-  api::Parameter parameter(argc, argv);
-  api::Print(parameter);
-  api::Run(parameter);
+// int main(int argc, char *argv[]) {
+//   if (argc == 1) {
+//     std::cout << "No input parameter filename." << std::endl;
+//     return 1;
+//   }
+//   api::Parameter parameter(argc, argv);
+//   api::Print(parameter);
+//   api::Run(parameter);
+// }
+
+
+int main()
+{
+  std::string time_temp_filename = "time_temp_file.txt";
+  //pred::TimeTemperatureInterpolator interpolator;
 }
 
+// 
+/*
+void verifyDE(size_t vacId, size_t migratingAtomId, Config &cfg, VacancyMigrationPredictor vmPredictor,
+PotentialEnergyEstimator pePredictor)
+{
+  std::cout << vacId << cfg.GetElementOfLattice(vacId)
+            << "  " 
+            << migratingAtomId << cfg.GetElementOfLattice(migratingAtomId) 
+            << std::endl;
+  
+  // Forward Event
+  // Atom (at migratingId) goes to Vacancy site (at VacId)
+  
+  auto barrier_De_f = vmPredictor.GetBarrierAndDiffFromLatticeIdPair(cfg,
+                                                       {migratingAtomId, vacId});
+  
+  // atom -> vacancy site
 
-// int main(int argc, char *argv[]) {
-//   // if (argc == 1) {
-//   //   std::cout << "No input parameter filename." << std::endl;
-//   //   return 1;
-//   // }
-//   // api::Parameter parameter(argc, argv);
-//   // api::Print(parameter);
-//   // api::Run(parameter);
-// 
-//   auto cfg = Config::ReadConfig("TiTaMoNb_Vac.POSCAR");
-//   cfg.UpdateNeighborList({3.20, 4.6, 5.4});
-// 
-// 
-//   auto old_vacancyId = cfg.GetVacancyLatticeId();
-// 
-//   cfg.LatticeJump({old_vacancyId, cfg.GetNeighborLatticeIdVectorOfLattice(old_vacancyId, 1)[0]});
-//   
-//   auto vacancyId = cfg.GetVacancyLatticeId();
-// 
-// 
-//   for (int i=0; i<8; i++){
-// 
-//     auto migratingAtomId = cfg.GetNeighborLatticeIdVectorOfLattice(vacancyId, 1)[i];
-// 
-//     std::cout << "Lattice ID Pair : " << vacancyId << " " << migratingAtomId << std::endl;
-// 
-//     VacancyMigrationPredictor migrationPredictor("predictor_file.json");
-// 
-//     // so this GetBarrierNew function takes the lattice jump pair and will return 
-//     // barrier for the event where the first lattice ID wants to move to second 
-//     // lattice ID ; one of them need to be vacancy
-//     
-//     // forward barrier will be the case where the element will move 
-//     // from migrating atom id to the vacancy id
-//     auto forward_barrier = migrationPredictor.GetBarrierNew(cfg, {migratingAtomId, vacancyId});
-// 
-//     auto forward_Ed = migrationPredictor.GetDiffNew(cfg, {migratingAtomId, vacancyId});
-// 
-//     std::cout << migratingAtomId << cfg.GetElementOfLattice(migratingAtomId) << " ";
-//     std::cout << forward_barrier << " " << forward_Ed << std::endl;
-// 
-//     
-//     std::cout << "Comparsion between the previous barrier and current " << 
-//     "barrier func for atom moving to vacany position" << std::endl;
-//     std::cout << "Old method barrier : " << migrationPredictor.GetBarrier(cfg, {migratingAtomId, vacancyId}) << std::endl;
-//     std::cout << "New method barrier : " << forward_barrier  << std::endl;
-// 
-//     std::cout << "Old method Ed : " << migrationPredictor.GetDiff(cfg, {migratingAtomId, vacancyId}) << std::endl;
-//     std::cout << "New method Ed : " << forward_Ed  << std::endl;
-// 
-// 
-//     
-// 
-//     // how to get the barrier and Ed without swapping the positions
-//       
-//     // backward barrier will be case where your atom will be at the vacancy id 
-//     // and will want to move back to the migrating atom id
-//     auto backward_barrier = migrationPredictor.GetBarrierNew(cfg, {vacancyId, migratingAtomId});
-//     auto backward_Ed = migrationPredictor.GetDiffNew(cfg, {vacancyId, migratingAtomId});
-//     
-//     cfg.LatticeJump({vacancyId, migratingAtomId});
-//     
-//     std::cout << "Comparsion between the backward previous barrier and current " << 
-//     "barrier func for atom moving to vacany position" << std::endl;
-// 
-//     std::cout << "Old method barrier : " << migrationPredictor.GetBarrier(cfg, {migratingAtomId, vacancyId}) << std::endl;
-//     std::cout << "New method barrier : " << backward_barrier  << std::endl;
-// 
-//     std::cout << "Old method Ed : " << migrationPredictor.GetDiff(cfg, {migratingAtomId, vacancyId}) << std::endl;
-//     std::cout << "New method Ed : " << backward_Ed  << std::endl;
-// 
-// 
-//     cfg.LatticeJump({vacancyId, migratingAtomId});
-//     
-//     std::cout << migratingAtomId << cfg.GetElementOfLattice(migratingAtomId) << " ";
-//     std::cout << backward_barrier << " " << backward_Ed << std::endl;
-// 
-// 
-//     double new_forward_barrier;
-//     double new_forward_Ed;
-//     double new_backward_barrier;
-//     double new_backward_Ed;
-// 
-//     double average_barrier;
-//     double average_Ed;
-// 
-//     if (forward_barrier < backward_barrier) {
-// 
-//       average_Ed = (abs(forward_Ed) + abs(backward_Ed))/2;
-//       average_barrier = (abs(forward_barrier) + (abs(backward_barrier)-abs(backward_Ed)))/2;
-// 
-//       std::cout << "Average Ed : " << average_Ed << std::endl;
-//       std::cout << "Average barrier : " << average_barrier << std::endl; 
-//       new_forward_barrier = average_barrier;
-//       new_forward_Ed = -average_Ed;
-//       new_backward_barrier = average_barrier + average_Ed;
-//       new_backward_Ed = average_Ed;
-//     }
-//     else {
-//       average_Ed = (abs(forward_Ed) + abs(backward_Ed))/2;
-//       average_barrier = ((abs(forward_barrier) - abs(forward_Ed)) + abs(backward_barrier))/2;
-// 
-//       std::cout << "Average Ed : " << average_Ed << std::endl;
-//       std::cout << "Average barrier : " << average_barrier << std::endl; 
-//       new_forward_barrier = average_barrier + average_Ed;
-//       new_forward_Ed = average_Ed;
-//       new_backward_barrier = average_barrier ;
-//       new_backward_Ed = -average_Ed;
-// 
-//     }
-// 
-//     std::cout << "New barrier and Ed from the proposed solution" << std::endl;
-// 
-//     std::cout << "Forward Barrier : " << new_forward_barrier << std::endl;
-//     std::cout << "Forward Ed : " << new_forward_Ed << std::endl;
-//     std::cout << "Backward Barrier : " << new_backward_barrier << std::endl;
-//     std::cout << "Backward Ed : " << new_backward_Ed << std::endl;
-// 
-//     std::cout << "-----------------------" << std::endl;
-// 
-//     std::pair<std::pair<double, double>, std::pair<double, double>> forward_backward_info =
-//     {{new_forward_barrier, new_forward_Ed}, {new_backward_barrier, new_backward_Ed}};
-// 
-//     
-// 
-//     std::cout << "Forward Barrier #: " << forward_backward_info.first.first << std::endl;
-//     std::cout << "Forward Ed #: " << forward_backward_info.first.second << std::endl;
-//     std::cout << "Backward Barrier #: " << forward_backward_info.second.first << std::endl;
-//     std::cout << "Backward Ed #: " << forward_backward_info.second.second << std::endl;
-// 
-//     std::array<double, 3> barrier_de;
-//     barrier_de[0] = new_forward_barrier;
-//     barrier_de[1] = new_backward_barrier;
-//     barrier_de[2] = new_forward_Ed;
-// 
-//     double beta = 1 / 400 / constants::kBoltzmann;
-// 
-//     mc::JumpEvent event({vacancyId, migratingAtomId},
-//                         barrier_de,
-//                         beta);
-//     
-//     std::cout << "Defining the event " << std::endl;
-//     std::cout << std::endl;
-//     
-//     std::cout << "For Forward event " << std::endl;
-// 
-//     std::cout << "Forward Barrier #: " << event.GetForwardBarrier() << std::endl;
-//     std::cout << "Forward Ed #: " << event.GetEnergyChange() << std::endl;
-//     std::cout << "Backward Barrier: " << event.GetBackwardBarrier() << std::endl;
-// 
-//     auto backward_event = event.GetReverseJumpEvent();
-//     
-//     std::cout << "forward Barrier  for b#: " << backward_event.GetForwardBarrier() << std::endl;
-//     std::cout << " Ed for backward event #: " << backward_event.GetEnergyChange() << std::endl;
-//     std::cout << "backward Barrier  for b#: " << backward_event.GetBackwardBarrier() << std::endl;
-// 
-//     break;
-// 
-//   }
-//   
-// }
+  std::cout << "Forward Event" << std::endl;
+  std::cout << " F Barrier : " << barrier_De_f[0];
+  std::cout << " B Barrier : " << barrier_De_f[1];
+  std::cout << " dE : " << barrier_De_f[2]; 
+
+  std::cout << " CE dE : " << pePredictor.GetDe(cfg, {vacId, migratingAtomId});
+
+  std::cout << std::endl;
+  std::cout << cfg.GetDistanceOrder(vacId, migratingAtomId) << std::endl;
+
+
+  cfg.LatticeJump({vacId, migratingAtomId});
+}
+*/
+
+
+/*
+int main() {
+  // Verifying the driving force
+
+  auto cfg = Config::ReadConfig("TiMo.POSCAR");
+  cfg.UpdateNeighborList({3.20, 4.6, 5.4});
+
+  auto supercell_cfg = Config::GenerateSupercell(4, 3.31,"Ti","BCC");
+  supercell_cfg.UpdateNeighborList({3.20, 4.6, 5.4}); // for BCC Ti
+
+  auto vacId = cfg.GetVacancyLatticeId();
+  auto migratingAtomId = cfg.GetNeighborLatticeIdVectorOfLattice(vacId, 1)[0];
+
+  VacancyMigrationPredictor vmPredictor("predictor_file.json");
+
+  std::cout << vacId << cfg.GetElementOfLattice(vacId)
+            << "  " 
+            << migratingAtomId << cfg.GetElementOfLattice(migratingAtomId) 
+            << std::endl;
+  
+  // Forward Event
+  // Atom (at migratingId) goes to Vacancy site (at VacId)
+  
+  auto barrier_De_f = vmPredictor.GetBarrierAndDiffFromLatticeIdPair(cfg,
+                                                       {migratingAtomId, vacId});
+
+  auto atomVector = cfg.GetAtomVector();
+  std::set<Element> elementSet(atomVector.begin(), atomVector.end());
+
+  PotentialEnergyEstimator peEstimator("predictor_file.json",
+                                       cfg,
+                                       supercell_cfg,
+                                       elementSet,
+                                       3,
+                                       3);
+  
+  // atom -> vacancy site
+
+  std::cout << "Forward Event" << std::endl;
+  std::cout << "F Barrier : " << barrier_De_f[0];
+  std::cout << "B Barrier : " << barrier_De_f[1];
+  std::cout << "dE : " << barrier_De_f[2]; 
+
+  std::cout << std::endl;
+
+  //cfg.LatticeJump({vacId, migratingAtomId});
+  
+  for (int i = 0; i<8; ++i)
+  {
+    auto tempID1 = cfg.GetNeighborLatticeIdVectorOfLattice(migratingAtomId, 1)[i];
+    for (int j = 0; j<8; ++j)
+    {
+      auto tempID2 = cfg.GetNeighborLatticeIdVectorOfLattice(tempID1,1)[j];
+
+      for (int z = 0; z<8; ++z)
+      {
+        auto tempID3 = cfg.GetNeighborLatticeIdVectorOfLattice(tempID2,1)[z];
+        if (tempID3 == vacId)
+        {
+          if (cfg.GetElementOfLattice(tempID1) == cfg.GetElementOfLattice(tempID2) ||
+              cfg.GetElementOfLattice(tempID2) == cfg.GetElementOfLattice(tempID3))
+              {
+                std::cout << " " << migratingAtomId << cfg.GetElementOfLattice(migratingAtomId)
+                          << " " << tempID1 << cfg.GetElementOfLattice(tempID1)
+                          << " " << tempID2 << cfg.GetElementOfLattice(tempID2) 
+                          << " " << tempID3 << cfg.GetElementOfLattice(tempID3)
+                          << std::endl;
+              }
+              
+        }
+  
+      }
+    }
+
+        
+  }
+
+  auto id_vector = {41716, 40785, 39886, 40786};
+
+  for (auto id : id_vector) 
+  {
+    std::cout << id << cfg.GetElementOfLattice(id) << " : ";
+    for (int i = 0; i< 8; ++i)
+    { 
+      auto temp_id = cfg.GetNeighborLatticeIdVectorOfLattice(id, 1)[i];
+      std::cout << temp_id << cfg.GetElementOfLattice(temp_id) << " ";
+    }
+    std::cout << std::endl;
+  }
+
+  
+  // 1
+    verifyDE(vacId, migratingAtomId, cfg, vmPredictor, peEstimator);
+    // 2
+    verifyDE(cfg.GetVacancyLatticeId(), 39886, cfg, vmPredictor, peEstimator);
+    
+    // 3
+    verifyDE(cfg.GetVacancyLatticeId(), 40786, cfg, vmPredictor, peEstimator);
+
+    // 4
+    verifyDE(cfg.GetVacancyLatticeId(), 41716, cfg, vmPredictor, peEstimator);
+ 
+}
+*/
+
+/*
+int main(int argc, char *argv[]) {
+  // if (argc == 1) {
+  //   std::cout << "No input parameter filename." << std::endl;
+  //   return 1;
+  // }
+  // api::Parameter parameter(argc, argv);
+  // api::Print(parameter);
+  // api::Run(parameter);
+
+  auto cfg = Config::ReadConfig("TiTaMoNb_Vac.POSCAR");
+  cfg.UpdateNeighborList({3.20, 4.6, 5.4});
+
+
+  auto old_vacancyId = cfg.GetVacancyLatticeId();
+
+  cfg.LatticeJump({old_vacancyId, cfg.GetNeighborLatticeIdVectorOfLattice(old_vacancyId, 1)[0]});
+  
+  auto vacancyId = cfg.GetVacancyLatticeId();
+
+  VacancyMigrationPredictor migrationPredictor("predictor_file.json");
+
+  for (int i=0; i<8; i++){
+
+    auto migratingAtomId = cfg.GetNeighborLatticeIdVectorOfLattice(vacancyId, 1)[i];
+
+    std::cout << "Lattice ID Pair : " << vacancyId << " " << migratingAtomId << std::endl;
+
+
+    // so this GetBarrierNew function takes the lattice jump pair and will return 
+    // barrier for the event where the first lattice ID atom will to move to second 
+    // lattice ID ; one of them need to be vacancy
+    
+    // Forward Barrier
+    // Migrating Atom will move to Vacancy position
+    auto forward_barrier = migrationPredictor.GetBarrierNew(cfg, {migratingAtomId, vacancyId});
+
+    auto forward_Ed = migrationPredictor.GetDiffNew(cfg, {migratingAtomId, vacancyId});
+    
+    std::cout << "Comparsion between the previous barrier and current " << 
+    "barrier func for atom moving to vacany position" << std::endl;
+
+    std::cout << "Old method barrier : " << migrationPredictor.GetBarrier(cfg, {migratingAtomId, vacancyId}) << std::endl;
+    std::cout << "New method barrier : " << forward_barrier  << std::endl;
+
+    std::cout << "Old method Ed : " << migrationPredictor.GetDiff(cfg, {migratingAtomId, vacancyId}) << std::endl;
+    std::cout << "New method Ed : " << forward_Ed  << std::endl;
+
+
+    // Backward Barrier
+    // Assuming migrating atom and vacancy have switched places
+    // So now atom is at vacancy Id 
+    // As our functions takes input such that specie at first Id moves to second Id 
+    auto backward_barrier = migrationPredictor.GetBarrierNew(cfg, {vacancyId, migratingAtomId});
+    auto backward_Ed = migrationPredictor.GetDiffNew(cfg, {vacancyId, migratingAtomId});
+    
+    cfg.LatticeJump({vacancyId, migratingAtomId});
+    
+    std::cout << "Comparsion between the backward previous barrier and current " << 
+    "barrier func for atom moving to vacany position" << std::endl;
+
+    std::cout << "Old method barrier : " << migrationPredictor.GetBarrier(cfg, {migratingAtomId, vacancyId}) << std::endl;
+    std::cout << "New method barrier : " << backward_barrier  << std::endl;
+
+    std::cout << "Old method Ed : " << migrationPredictor.GetDiff(cfg, {migratingAtomId, vacancyId}) << std::endl;
+    std::cout << "New method Ed : " << backward_Ed  << std::endl;
+
+    cfg.LatticeJump({vacancyId, migratingAtomId});
+
+
+
+
+    double new_forward_barrier;
+    double new_forward_Ed;
+    double new_backward_barrier;
+    double new_backward_Ed;
+
+    double average_barrier;
+    double average_Ed;
+
+    if (forward_barrier < backward_barrier) {
+
+      average_Ed = (abs(forward_Ed) + abs(backward_Ed))/2;
+      average_barrier = (abs(forward_barrier) + (abs(backward_barrier)-abs(backward_Ed)))/2;
+
+      std::cout << "Average Ed : " << average_Ed << std::endl;
+      std::cout << "Average barrier : " << average_barrier << std::endl;
+       
+      new_forward_barrier = average_barrier;
+      new_forward_Ed = -average_Ed;
+      new_backward_barrier = average_barrier + average_Ed;
+      new_backward_Ed = average_Ed;
+    }
+    else {
+      average_Ed = (abs(forward_Ed) + abs(backward_Ed))/2;
+      average_barrier = ((abs(forward_barrier) - abs(forward_Ed)) + abs(backward_barrier))/2;
+
+      std::cout << "Average Ed : " << average_Ed << std::endl;
+      std::cout << "Average barrier : " << average_barrier << std::endl; 
+      new_forward_barrier = average_barrier + average_Ed;
+      new_forward_Ed = average_Ed;
+      new_backward_barrier = average_barrier ;
+      new_backward_Ed = -average_Ed;
+
+    }
+
+    std::cout << "New barrier and Ed from the proposed solution" << std::endl;
+
+    std::cout << "Forward Barrier : " << new_forward_barrier << std::endl;
+    std::cout << "Forward Ed : " << new_forward_Ed << std::endl;
+    std::cout << "Backward Barrier : " << new_backward_barrier << std::endl;
+    std::cout << "Backward Ed : " << new_backward_Ed << std::endl;
+
+    std::cout << "-----------------------" << std::endl;
+
+    std::pair<std::pair<double, double>, std::pair<double, double>> forward_backward_info =
+    {{new_forward_barrier, new_forward_Ed}, {new_backward_barrier, new_backward_Ed}};
+
+    
+
+    std::cout << "Forward Barrier #: " << forward_backward_info.first.first << std::endl;
+    std::cout << "Forward Ed #: " << forward_backward_info.first.second << std::endl;
+    std::cout << "Backward Barrier #: " << forward_backward_info.second.first << std::endl;
+    std::cout << "Backward Ed #: " << forward_backward_info.second.second << std::endl;
+
+    std::array<double, 3> barrier_de;
+    barrier_de[0] = new_forward_barrier;
+    barrier_de[1] = new_backward_barrier;
+    barrier_de[2] = new_forward_Ed;
+
+    double beta = 1 / 400 / constants::kBoltzmann;
+
+    mc::JumpEvent event({vacancyId, migratingAtomId},
+                        barrier_de,
+                        beta);
+    
+    std::cout << "Defining the event " << std::endl;
+    std::cout << std::endl;
+    
+    std::cout << "For Forward event " << std::endl;
+
+    std::cout << "Forward Barrier #: " << event.GetForwardBarrier() << std::endl;
+    std::cout << "Forward Ed #: " << event.GetEnergyChange() << std::endl;
+    std::cout << "Backward Barrier: " << event.GetBackwardBarrier() << std::endl;
+
+    auto backward_event = event.GetReverseJumpEvent();
+    
+    std::cout << "forward Barrier  for b#: " << backward_event.GetForwardBarrier() << std::endl;
+    std::cout << " Ed for backward event #: " << backward_event.GetEnergyChange() << std::endl;
+    std::cout << "backward Barrier  for b#: " << backward_event.GetBackwardBarrier() << std::endl;
+
+    std::cout << "**********************************************" << std::endl;
+
+  }
+  
+}
+*/
 
 //int main(int argc, char *argv[]) {
 //  // if (argc == 1) {

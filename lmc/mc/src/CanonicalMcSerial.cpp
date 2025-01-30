@@ -62,17 +62,33 @@ void CanonicalMcSerial::Simulate() {
   while (steps_ <= maximum_steps_) {
 
     // Generate the lattice id jump pair
-    auto lattice_id_jump_pair = GenerateLatticeIdJumpPair();
+    // auto lattice_id_jump_pair = GenerateLatticeIdJumpPair();
+
+    // Generate the vacancy and lattice id jump pair
+    // Used for xSv determinant
+    auto vacancy_lattice_id_jump_pair = GenerateVacancyAtomJumpPair();
     
     // This need to be derived using the  cluster expansion hamiltonian
     // As xSv method specifically predicts the dE lattice id jump pair which 
-    // involves a vacancy, may be for binary alloy its not reliable as it only 
+    // involves a vacancy, may be for binary alloy its not reliable as it only     
     // consider the first NN
-    auto dE = energy_change_predictor_.GetDe(config_, lattice_id_jump_pair);
+    
+    // For CE method
+    // auto dE = energy_change_predictor_.GetDe(config_, lattice_id_jump_pair);
+
+    // Using xSv Determinant
+    auto dE = vacancy_migration_predictor_.GetDiff(config_, 
+                                                   vacancy_lattice_id_jump_pair);
+
+    // std::cout << "{" << vacancy_lattice_id_jump_pair.first << "\t" 
+    //                  << vacancy_lattice_id_jump_pair.second << "}\t" 
+    //           << dE << std::endl;
 
     Dump();
 
-    SelectEvent(lattice_id_jump_pair, dE);
+    // SelectEvent(lattice_id_jump_pair, dE);
+    SelectEvent(vacancy_lattice_id_jump_pair, dE);
+
     ++steps_;
   }
 }

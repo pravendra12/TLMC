@@ -14,6 +14,8 @@ class TimeTemperatureInterpolator {
 
   //Computes the corresponding Y value for X using linear interpolation
   [[nodiscard]] double GetTemperature(double time) const;
+  
+  void printTimeTemperaturePoints(); 
 
  private:
   void SortPoints();
@@ -23,6 +25,7 @@ class TimeTemperatureInterpolator {
   std::vector<std::pair<double, double>> points_{};
 };
 
-}    // namespace pred
+
+} // namespace pred
 
 #endif    //LMC_LMC_PRED_INCLUDE_TIMETEMPERATUREINTERPOLATOR_H_

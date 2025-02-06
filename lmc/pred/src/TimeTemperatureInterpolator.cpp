@@ -4,35 +4,39 @@
 #include <limits>
 #include <stdexcept>
 #include <utility>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
+
 
 namespace pred {
-TimeTemperatureInterpolator::TimeTemperatureInterpolator(const std::string &time_temperature_filename)
-{
-  if (time_temperature_filename.empty()) 
-  { 
-    return; 
-  }
 
-  std::ifstream ifs(time_temperature_filename, std::ifstream::in);
-  if (!ifs.is_open()) {
-    throw std::runtime_error("Cannot open " + time_temperature_filename);
-    return;
-  }
 
-  double time, temperature;
-  while (ifs.peek() != '0') 
-  { 
-    ifs.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
-  }
-
-  while (ifs >> time >> temperature) {
-    if (ifs.eof() || ifs.bad()) 
-    { 
-      break; 
+std::vector<std::pair<double, double>> readTimeTemperatureJsonFile(const std::string& filename) {
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        throw std::runtime_error("Cannot open file " + filename);
     }
-    points_.emplace_back(time, temperature);
-    ifs.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-  }
+
+    json jsonData;
+    file >> jsonData;  // Parse the JSON content into a JSON object
+
+    std::vector<std::pair<double, double>> time_temp_vector;
+    for (const auto& pair : jsonData) {
+        double time = pair[0];
+        double temp = pair[1];
+
+        time_temp_vector.emplace_back(time, temp);
+    }
+
+    return time_temp_vector;
+}
+
+
+TimeTemperatureInterpolator::TimeTemperatureInterpolator(
+            const std::string &time_temperature_filename)
+            :points_(readTimeTemperatureJsonFile(time_temperature_filename))
+{
   SortPoints();
 }
 
@@ -41,6 +45,15 @@ TimeTemperatureInterpolator::TimeTemperatureInterpolator(const std::vector<std::
 {
   SortPoints();
 }
+
+void TimeTemperatureInterpolator::printTimeTemperaturePoints()
+{
+  for (auto &point : points_ )
+  {
+    std::cout << point.first << '\t' << point.second << std::endl;
+  }
+}
+
 
 void TimeTemperatureInterpolator::SortPoints()
 {
@@ -69,11 +82,22 @@ double TimeTemperatureInterpolator::GetTemperature(const double time) const
 
   //Find the first table entry whose value is >= caller's time value
   const auto iter = std::lower_bound(points_.cbegin(), points_.cend(), time, less_than);
+
   //If the caller's X value is greater than the largest X value in the table, we can't interpolate.
-  if (iter == points_.cend()) { return (points_.cend() - 1)->second; }
+  if (iter == points_.cend()) 
+  { 
+    return (points_.cend() - 1)->second; 
+  }
+
   //If the caller's X value is less than the smallest X value in the table, we can't interpolate.
-  if (iter == points_.cbegin() and time <= points_.cbegin()->first) { return points_.cbegin()->second; }
-  //We can interpolate!
+  if (iter == points_.cbegin() and time <= points_.cbegin()->first) 
+  { 
+    return points_.cbegin()->second; 
+  }
+
+  // We can interpolate!
+  // Equation of line in 2 variables
+  
   const double upper_x{iter->first};
   const double upper_y{iter->second};
   const double lower_x{(iter - 1)->first};
@@ -83,5 +107,6 @@ double TimeTemperatureInterpolator::GetTemperature(const double time) const
   const double deltaX{upper_x - lower_x};
   return lower_y + ((time - lower_x) / deltaX) * deltaY;
 }
+
 
 }    // namespace pred

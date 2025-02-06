@@ -36,7 +36,7 @@ KineticMcFirstAbstract::KineticMcFirstAbstract(Config config,
                  "kmc_log.txt"),
       kEventListSize(config.GetNeighborLatticeIdVectorOfLattice(0,1).size()),
       vacancy_migration_predictor_(json_coefficients_filename),
-      // time_temperature_interpolator_(time_temperature_filename),
+      time_temperature_interpolator_(time_temperature_filename),
       is_time_temperature_interpolator_(!time_temperature_filename.empty()),
       // rate_corrector_(config_.GetVacancyConcentration(), config_.GetSoluteConcentration(Element("Al"))),
       is_rate_corrector_(is_rate_corrector),
@@ -46,12 +46,12 @@ KineticMcFirstAbstract::KineticMcFirstAbstract(Config config,
 
 KineticMcFirstAbstract::~KineticMcFirstAbstract() = default;
 
-// void KineticMcFirstAbstract::UpdateTemperature() {
-//   if (is_time_temperature_interpolator_) {
-//     temperature_ = time_temperature_interpolator_.GetTemperature(time_);
-//     beta_ = 1.0 / constants::kBoltzmann / temperature_;
-//   }
-// }
+void KineticMcFirstAbstract::UpdateTemperature() {
+  if (is_time_temperature_interpolator_) {
+    temperature_ = time_temperature_interpolator_.GetTemperature(time_);
+    beta_ = 1.0 / constants::kBoltzmann / temperature_;
+  }
+}
 // 
 // double KineticMcFirstAbstract::GetTimeCorrectionFactor() {
 //   if (is_rate_corrector_) {
@@ -88,7 +88,11 @@ void KineticMcFirstAbstract::Dump() const {
     log_dump_steps = std::min(log_dump_steps, log_dump_steps_);
   }
   if (steps_ % log_dump_steps == 0) {
-    ofs_ << steps_ << '\t' << time_ << '\t' << temperature_ << '\t' << energy_ << '\t' << event_k_i_.GetForwardBarrier()
+    ofs_ << steps_ << '\t' 
+         << time_ << '\t' 
+         << temperature_ << '\t' 
+         << energy_ << '\t' 
+         << event_k_i_.GetForwardBarrier()
          << '\t' << event_k_i_.GetEnergyChange() << '\t'
          << event_k_i_.GetIdJumpPair().second << '\t'
          << vacancy_trajectory_ << std::endl;
@@ -133,19 +137,16 @@ void KineticMcFirstAbstract::Debug(double one_step_time) const {
 }
 
 void KineticMcFirstAbstract::OneStepSimulation() {
-  // UpdateTemperature();
+  UpdateTemperature();
   // thermodynamic_averaging_.AddEnergy(energy_);
   BuildEventList();
   // double one_step_time = CalculateTime() * GetTimeCorrectionFactor();
   double one_step_time = CalculateTime();
   Debug(one_step_time);
+
   event_k_i_ = event_k_i_list_[SelectEvent()];
-  Dump();
-
-  // Print event_k_i_list_
   
-  // std::cout << "Size of event_k_i_list_ : " << event_k_i_list_.size() << std::endl;
-
+  Dump();
 
   // modify
   time_ += one_step_time;

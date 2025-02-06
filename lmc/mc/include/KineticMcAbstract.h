@@ -20,7 +20,7 @@
 #include "McAbstract.h"
 #include "JumpEvent.h"
 #include "VacancyMigrationPredictor.h"
-// #include "TimeTemperatureInterpolator.h"
+#include "TimeTemperatureInterpolator.h"
 // #include "RateCorrector.hpp"
 
 
@@ -97,7 +97,11 @@ class KineticMcFirstAbstract : public McAbstract {
     void Simulate() override;
 
   protected:
-    // void UpdateTemperature();
+    
+    /*!
+     * \brief Update the temperature based on the current temperature.
+     */
+    void UpdateTemperature();
     // double GetTimeCorrectionFactor();
 
     /*!
@@ -142,7 +146,7 @@ class KineticMcFirstAbstract : public McAbstract {
     VacancyMigrationPredictor vacancy_migration_predictor_;
 
     /// Time Temperature Interpolator
-    // const pred::TimeTemperatureInterpolator time_temperature_interpolator_;
+    const pred::TimeTemperatureInterpolator time_temperature_interpolator_;
 
     /// Indicates if time-temperature interpolation is used.
     const bool is_time_temperature_interpolator_;

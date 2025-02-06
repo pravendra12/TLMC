@@ -170,22 +170,27 @@
 //     return unique_neighbors;
 // }
 
-// int main(int argc, char *argv[]) {
-//   if (argc == 1) {
-//     std::cout << "No input parameter filename." << std::endl;
-//     return 1;
-//   }
-//   api::Parameter parameter(argc, argv);
-//   api::Print(parameter);
-//   api::Run(parameter);
-// }
-
-
-int main()
-{
-  std::string time_temp_filename = "time_temp_file.txt";
-  //pred::TimeTemperatureInterpolator interpolator;
+int main(int argc, char *argv[]) {
+  if (argc == 1) {
+    std::cout << "No input parameter filename." << std::endl;
+    return 1;
+  }
+  api::Parameter parameter(argc, argv);
+  api::Print(parameter);
+  api::Run(parameter);
 }
+
+
+//int main()
+//{
+//  std::string time_temp_filename = "time_temp_file.txt";
+//
+//
+//  pred::TimeTemperatureInterpolator interpolator(time_temp_filename);
+//  
+//  interpolator.printTimeTemperaturePoints();
+//  
+//}
 
 // 
 /*

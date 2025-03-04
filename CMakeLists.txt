@@ -67,6 +67,8 @@ file(GLOB PROJECT_SRC
      ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/ce/src/*.cpp
      ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/mc/src/*.cpp
      ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/pred/src/*.cpp
+     ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/utility/src/*.cpp
+
 )
 
 file(GLOB PROJECT_SOURCE ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/*/src)

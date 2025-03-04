@@ -2,7 +2,7 @@
  * Copyright (c) 2022-2023. All rights reserved.                                                  *
  * @Author: Zhucong Xi                                                                            *
  * @Date: 6/14/22 12:36 PM                                                                        *
- * @Last Modified by: zhucongx                                                                    *
+ * @Last Modified by: pravendra12                                                                  *
  * @Last Modified time: 10/30/23 3:13 PM                                                          *
  **************************************************************************************************/
 
@@ -11,10 +11,6 @@
  */
 
 #include "PotentialEnergyEstimator.h"
-#include <fstream>
-#include <omp.h>
-#include <nlohmann/json.hpp>
-using json = nlohmann::json;
 
 /*! \brief Convert cluster set to a map with the number of appearance of each cluster type.
  *  \param cluster_type_set : The set of cluster types
@@ -30,43 +26,30 @@ static std::unordered_map<ClusterType, size_t, boost::hash<ClusterType>> Convert
 }
 
 
-/*! \brief Reads the theta values from trained data from json file
- *  \param json_filename Path to the JSON file.
- *  \param json_key Key under which "theta" values are stored.
- *  \return        Eigen::VectorXd containing theta values.
-*/
-static Eigen::VectorXd ReadVectorFromJson(const std::string &json_filename, const std::string &json_key) {
-  std::ifstream ifs(json_filename, std::ifstream::in);
-  json all_parameters;
-  ifs >> all_parameters;
-  Eigen::VectorXd eigen_vector;
-  for (const auto &[key, parameters] : all_parameters.items()) {
-    if (key == json_key) {
-      auto base_theta_json = parameters.at("theta");
-      eigen_vector = {};
-      for (const auto &theta : base_theta_json) {
-        eigen_vector.conservativeResize(eigen_vector.size() + 1);
-        eigen_vector(eigen_vector.size() - 1) = theta.get<double>();
-      }
-    }
-  }
-  return eigen_vector;
-}
-
-PotentialEnergyEstimator::PotentialEnergyEstimator(const std::string &predictor_filename,
-                                                   const Config &reference_config,
-                                                   const Config &supercell_config,
-                                                   const std::set<Element> &element_set,
-                                                   size_t max_cluster_size,
-                                                   size_t max_bond_order)
-    : effective_cluster_interaction_(ReadVectorFromJson(predictor_filename, "Base")),
-      element_set_(element_set),
-      initialized_cluster_type_set_(
-          InitializeClusterTypeSet(reference_config, element_set_, max_cluster_size, max_bond_order)),
-          
-      lattice_cluster_type_count_(CountLatticeClusterTypes(supercell_config, max_cluster_size, max_bond_order)),
-      // all_lattice_hashset_(FindAllLatticeClusters(reference_config, max_cluster_size, max_bond_order, {})),
-      max_cluster_size_(max_cluster_size), max_bond_order_(max_bond_order) {
+PotentialEnergyEstimator::PotentialEnergyEstimator(
+  const std::string &predictor_filename,
+  const Config &reference_config,
+  const Config &supercell_config,
+  const std::set<Element> &element_set,
+  size_t max_cluster_size,
+  size_t max_bond_order) : ce_fitted_parameters_(
+                           ReadParametersFromJson(predictor_filename, "ce")),
+                           adjusted_beta_ce_(ce_fitted_parameters_.first),
+                           adjusted_intercept_(ce_fitted_parameters_.second),
+                           element_set_(element_set),
+                           initialized_cluster_type_set_(
+                           InitializeClusterTypeSet(reference_config, 
+                                                     element_set_, 
+                                                     max_cluster_size, 
+                                                     max_bond_order)),
+                           lattice_cluster_type_count_(
+                           CountLatticeClusterTypes(supercell_config, 
+                                                    max_cluster_size, 
+                                                    max_bond_order)),
+                           max_cluster_size_(max_cluster_size), 
+                           max_bond_order_(max_bond_order)
+                            
+{
 
   ///Todo : check the size of the effective_cluster_interaction_ and initialized_cluster_type_set_
   // if (initialized_cluster_type_set_.size() != static_cast<size_t>(effective_cluster_interaction_.size())) {
@@ -76,8 +59,6 @@ PotentialEnergyEstimator::PotentialEnergyEstimator(const std::string &predictor_
   //           + std::to_string(effective_cluster_interaction_.size()) + " and "
   //           + std::to_string(initialized_cluster_type_set_.size()) + " respectively.");
   // }
-
-
 
 
 }
@@ -134,7 +115,7 @@ Eigen::VectorXd PotentialEnergyEstimator::GetEncodeVectorOfCluster(const Config 
 
     encode_vector_cluster(idx) = count_bond/total_bond;
 
-    //std::cout << cluster_type << " : " << count_bond << " : " << total_bond << std::endl;
+    std::cout << cluster_type << " : " << count_bond << " : " << total_bond << std::endl;
     ++idx;
 
   }

@@ -52,6 +52,7 @@
 // }
 
 #include "Home.h"
+#include "ClusterExpansion.h"
 // #include "ThermodynamicAveraging.h"
 // #include "CanonicalMcSerial.h"
 // #include "CanonicalMcAbstract.h"
@@ -81,13 +82,12 @@
 // #include "ShortRangeOrder.h"
 // #include "Traverse.h"
 // #include "KineticMcFirstMpi.h"
-// #include "SymmetryCustom.h"
+#include "SymmetryCustom.h"
 // #include "LatticeClusterMMM.hpp"
 // #include "Element.hpp"
 // #include <cmath>
 
 #include "TimeTemperatureInterpolator.h"
-
 
 
 // 
@@ -170,14 +170,46 @@
 //     return unique_neighbors;
 // }
 
-int main(int argc, char *argv[]) {
-  if (argc == 1) {
-    std::cout << "No input parameter filename." << std::endl;
-    return 1;
-  }
-  api::Parameter parameter(argc, argv);
-  api::Print(parameter);
-  api::Run(parameter);
+// int main(int argc, char *argv[]) {
+//   if (argc == 1) {
+//     std::cout << "No input parameter filename." << std::endl;
+//     return 1;
+//   }
+//   api::Parameter parameter(argc, argv);
+//   api::Print(parameter);
+//   api::Run(parameter);
+// }
+#include <iostream>
+#include "json_utils.h"
+using namespace std;
+
+int main()
+{
+  std::string predictor_file = "predictor_file_WTa.json";
+/**/
+  auto ce = ReadParametersFromJson(predictor_file, "barrier");
+
+  // std::cout << ce.first << std::endl;
+  // std::cout << ce.second << std::endl;
+
+
+  std::vector<double> ceEncoding = {0., 0., 0., 1., 0., 0., 1., 2., 0., 0., 1., 2., 0., 0., 2., 1., 0.,
+    0., 0., 3., 0., 0., 2., 1., 0., 0., 2., 1., 0., 0., 1., 0.};
+
+  
+ auto ceEncodingEigen = Eigen::Map<Eigen::VectorXd>(ceEncoding.data(), ceEncoding.size());
+
+ std::cout << ceEncodingEigen.dot(ce.first) + ce.second << std::endl;
+
+
+
+
+
+   
+
+  
+
+
 }
 
 

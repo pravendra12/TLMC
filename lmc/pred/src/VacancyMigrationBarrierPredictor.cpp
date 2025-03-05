@@ -12,7 +12,7 @@ VacancyMigrationBarrierPredictor::VacancyMigrationBarrierPredictor(
                 adjusted_intercept_barrier_(barrier_fitted_parameters_.second),
                 oneHotEncodingMap_(GetOneHotEncodeHashmap(move(elementSet))),
                 encoding3FoldRotation_(GetEquivalentSites3Fold(move(config), 
-                                                               maxBondOrder)),
+                                                               2)),
                 // For now only works for bond order of 2
                 maxBondOrder_(2)
 {

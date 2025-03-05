@@ -52,6 +52,9 @@ vector<size_t> GetSortedLatticeVectorStateOfPair(
  *                     (currently, only maxBondOrder = 2 is supported).
  *  \return A list of equivalent sites encoding under the 3-fold rotation along
  *          the 111 direction.
+ * 
+ * Works only till 2nd NN
+ * 
  */
 vector<vector<size_t>> 
 GetEquivalentSites3Fold(const Config &config, 

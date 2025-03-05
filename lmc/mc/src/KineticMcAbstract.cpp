@@ -56,7 +56,8 @@ KineticMcFirstAbstract::KineticMcFirstAbstract(Config config,
 KineticMcFirstAbstract::~KineticMcFirstAbstract() = default;
 
 void KineticMcFirstAbstract::UpdateTemperature() {
-  if (is_time_temperature_interpolator_) {
+  if (is_time_temperature_interpolator_) 
+  {
     temperature_ = time_temperature_interpolator_.GetTemperature(time_);
     beta_ = 1.0 / constants::kBoltzmann / temperature_;
   }

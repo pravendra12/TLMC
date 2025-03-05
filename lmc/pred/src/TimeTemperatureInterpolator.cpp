@@ -12,7 +12,8 @@ using json = nlohmann::json;
 namespace pred {
 
 
-std::vector<std::pair<double, double>> readTimeTemperatureJsonFile(const std::string& filename) {
+std::vector<std::pair<double, double>> readTimeTemperatureJsonFile(const std::string& filename) 
+{
     std::ifstream file(filename);
     if (!file.is_open()) {
         throw std::runtime_error("Cannot open file " + filename);
@@ -35,8 +36,12 @@ std::vector<std::pair<double, double>> readTimeTemperatureJsonFile(const std::st
 
 TimeTemperatureInterpolator::TimeTemperatureInterpolator(
             const std::string &time_temperature_filename)
-            :points_(readTimeTemperatureJsonFile(time_temperature_filename))
 {
+  if (time_temperature_filename.empty()) 
+  { 
+    return; 
+  }
+  points_ = readTimeTemperatureJsonFile(time_temperature_filename);
   SortPoints();
 }
 

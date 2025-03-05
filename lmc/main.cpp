@@ -51,8 +51,6 @@
 //     std::cout << "\n";
 // }
 
-#include "Home.h"
-#include "ClusterExpansion.h"
 // #include "ThermodynamicAveraging.h"
 // #include "CanonicalMcSerial.h"
 // #include "CanonicalMcAbstract.h"
@@ -73,8 +71,6 @@
 // #include <Eigen/Dense>
 // #include <vector>
 // #include <algorithm>
-#include "VacancyMigrationPredictor.h"
-#include "JumpEvent.h"
 // // #include "KineticMcChainOmpi.h"
 // // #include "KineticMcAbstract.h"
 // #include "JumpEvent.h"
@@ -82,12 +78,9 @@
 // #include "ShortRangeOrder.h"
 // #include "Traverse.h"
 // #include "KineticMcFirstMpi.h"
-#include "SymmetryCustom.h"
 // #include "LatticeClusterMMM.hpp"
 // #include "Element.hpp"
 // #include <cmath>
-
-#include "TimeTemperatureInterpolator.h"
 
 
 // 
@@ -179,51 +172,205 @@
 //   api::Print(parameter);
 //   api::Run(parameter);
 // }
-#include <iostream>
-#include "json_utils.h"
-using namespace std;
+// #include <iostream>
+// #include "Config.h"
+// #include "PotentialEnergyEstimator.h"
+// #include "VacancyMigrationBarrierPredictor.h"
+// #include "JsonUtility.h"
+// #include "Symmetry.h"
+// #include "PrintUtility.h"
+// #include "Home.h"
+// using namespace std;
 
+/*
 int main()
 {
-  std::string predictor_file = "predictor_file_WTa.json";
-/**/
-  auto ce = ReadParametersFromJson(predictor_file, "barrier");
+  const vector<double> cutoffs = {3.3, 4.7, 5.6};
+  auto cfg = Config::ReadCfg("start_W50Ta50_20x20x20.cfg");
+  cfg.UpdateNeighborList(cutoffs);
 
-  // std::cout << ce.first << std::endl;
-  // std::cout << ce.second << std::endl;
+  auto supercellCfg = Config::GenerateSupercell(5, 3.4, "X", "BCC");
+  supercellCfg.UpdateNeighborList(cutoffs);
+
+  auto atomVector = cfg.GetAtomVector();
+  std::set<Element> elementSet(atomVector.begin(), atomVector.end());
+
+  PotentialEnergyEstimator peEstimator("predictor_file_WTa.json",
+                                       cfg,
+                                       supercellCfg, 
+                                       elementSet, 
+                                       3, 
+                                       3);
+
+  elementSet.erase(Element("X"));
+
+  VacancyMigrationBarrierPredictor barrierPredictor(cfg, 
+                                                      elementSet,
+                                                      2,
+                                                      "predictor_file_WTa.json");
+ // Verificaton of dE in a loop
+
+  auto vacancyId = cfg.GetVacancyLatticeId();
+  auto initialVacancyId = vacancyId;
+  
+  size_t site1 = 15723;
+  size_t site2 = 143;
+  size_t site3 = 15722;
+  
+  std::cout << "Initial Vacancy ID: " << vacancyId << std::endl;  
+  
+  std::pair<size_t, size_t> pair;
+  
+  // X Jump to site1
+  pair = {vacancyId, site1};
+  auto e1 = peEstimator.GetDe(cfg, pair);
+  
+  auto forwardBarrier1 = barrierPredictor.GetBarrier(cfg, pair);
+  pair = {site1, vacancyId};  // Corrected pair for backward barrier
+  auto backwardBarrier1 = barrierPredictor.GetBarrier(cfg, pair);
+  
+  std::cout << "Forward Barrier (site1) : " << forwardBarrier1 << std::endl;
+  std::cout << "Backward Barrier (site1) : " << backwardBarrier1 << std::endl;
+  
+  auto e1_barrier = forwardBarrier1 - backwardBarrier1;
+  std::cout << "Barrier Energy Difference (site1): " << e1_barrier << std::endl;
+  
+  cfg.LatticeJump(pair);
+  std::cout << "New Vacancy ID after jump (site1): " << cfg.GetVacancyLatticeId() << std::endl;
+  
+  // X Jump to site2
+  pair = {cfg.GetVacancyLatticeId(), site2};
+  auto e2 = peEstimator.GetDe(cfg, pair);
+  
+  auto forwardBarrier2 = barrierPredictor.GetBarrier(cfg, pair);
+  pair = {site2, cfg.GetVacancyLatticeId()};  // Corrected pair for backward barrier
+  auto backwardBarrier2 = barrierPredictor.GetBarrier(cfg, pair);
+  
+  std::cout << "Forward Barrier (site2) : " << forwardBarrier2 << std::endl;
+  std::cout << "Backward Barrier (site2) : " << backwardBarrier2 << std::endl;
+  
+  auto e2_barrier = forwardBarrier2 - backwardBarrier2;
+  std::cout << "Barrier Energy Difference (site2): " << e2_barrier << std::endl;
+  
+  cfg.LatticeJump(pair);
+  std::cout << "New Vacancy ID after jump (site2): " << cfg.GetVacancyLatticeId() << std::endl;
+  
+  // X Jump to site3
+  pair = {cfg.GetVacancyLatticeId(), site3};
+  auto e3 = peEstimator.GetDe(cfg, pair);
+  
+  auto forwardBarrier3 = barrierPredictor.GetBarrier(cfg, pair);
+  pair = {site3, cfg.GetVacancyLatticeId()};  // Corrected pair for backward barrier
+  auto backwardBarrier3 = barrierPredictor.GetBarrier(cfg, pair);
+  
+  std::cout << "Forward Barrier (site3) : " << forwardBarrier3 << std::endl;
+  std::cout << "Backward Barrier (site3) : " << backwardBarrier3 << std::endl;
+  
+  auto e3_barrier = forwardBarrier3 - backwardBarrier3;
+  std::cout << "Barrier Energy Difference (site3): " << e3_barrier << std::endl;
+  
+  cfg.LatticeJump(pair);
+  std::cout << "New Vacancy ID after jump (site3): " << cfg.GetVacancyLatticeId() << std::endl;
+  
+  // X Jump to initial Site
+  pair = {cfg.GetVacancyLatticeId(), initialVacancyId};
+  auto e4 = peEstimator.GetDe(cfg, pair);
+  
+  auto forwardBarrier4 = barrierPredictor.GetBarrier(cfg, pair);
+  pair = {initialVacancyId, cfg.GetVacancyLatticeId()};  // Corrected pair for backward barrier
+  auto backwardBarrier4 = barrierPredictor.GetBarrier(cfg, pair);
+  
+  std::cout << "Forward Barrier (initial site) : " << forwardBarrier4 << std::endl;
+  std::cout << "Backward Barrier (initial site) : " << backwardBarrier4 << std::endl;
+  
+  auto e4_barrier = forwardBarrier4 - backwardBarrier4;
+  std::cout << "Barrier Energy Difference (initial site): " << e4_barrier << std::endl;
+  
+  cfg.LatticeJump(pair);
+  std::cout << "New Vacancy ID after jump (initial): " << cfg.GetVacancyLatticeId() << std::endl;
+  
+  // Print and compare dE with dE from barrier
+  std::cout << "Energy Change (dE) for each site jump:" << std::endl;
+  std::cout << "Site 1 dE: " << e1_barrier << " , " << e1 << std::endl;
+  std::cout << "Site 2 dE: " << e2_barrier << " , " << e2 << std::endl;
+  std::cout << "Site 3 dE: " << e3_barrier << " , " << e3 << std::endl;
+  std::cout << "Initial Site dE: " << e4_barrier << " , " << e4 << std::endl;
 
 
-  std::vector<double> ceEncoding = {0., 0., 0., 1., 0., 0., 1., 2., 0., 0., 1., 2., 0., 0., 2., 1., 0.,
-    0., 0., 3., 0., 0., 2., 1., 0., 0., 2., 1., 0., 0., 1., 0.};
+  std::cout << e1+e2+e3+e4 << std::endl;
+  std::cout << e1_barrier + e2_barrier + e3_barrier + e4_barrier   << std::endl;
+
 
   
- auto ceEncodingEigen = Eigen::Map<Eigen::VectorXd>(ceEncoding.data(), ceEncoding.size());
-
- std::cout << ceEncodingEigen.dot(ce.first) + ce.second << std::endl;
 
 
+  // Verification of Barrier Prediction
 
-
-
-   
-
+  elementSet.erase(Element("X"));
+  auto vacancyId = cfg.GetVacancyLatticeId();
+  auto nnAtomVector = cfg.GetNeighborLatticeIdVectorOfLattice(vacancyId, 1);
   
+  for (auto nnAtomId : nnAtomVector)
+  {
 
 
+    // Jump Pair
+    // { vacancyId, migratingAtomId }
+    // Forward Jump
+
+    std::cout << "Forward Jump" << std::endl;
+
+    std::pair<size_t, size_t> JumpPair = {vacancyId, 
+                                          nnAtomId};
+
+    std::cout << "{ " << JumpPair.first << "\t" << JumpPair.second << " }" << std::endl;
+     
+    
+
+    std::cout << barrierPredictor.GetBarrier(cfg, JumpPair) << std::endl;
+
+
+    // Backward Jump
+    // { migratingAtomId, vacancyId }
+    // Barrier for backward jump will be computed using the dE predicted using CE
+    
+    
+    JumpPair = {nnAtomId, 
+                vacancyId};
+
+    std::cout << "Backward Jump" << std::endl;
+
+    std::cout << "{ " << JumpPair.first << "\t" << JumpPair.second << " }" << std::endl;
+
+
+    std::cout << barrierPredictor.GetBarrier(cfg, JumpPair) << std::endl;
+
+
+    std::cout << "Energy Change : " << peEstimator.GetDe(cfg, 
+      JumpPair) << std::endl;
+
+
+    std::cout << "-----------------" << std::endl;
+
+
+    break;
+    }
 }
+*/
 
+#include "Home.h"
+#include "Parameter.h"
 
-//int main()
-//{
-//  std::string time_temp_filename = "time_temp_file.txt";
-//
-//
-//  pred::TimeTemperatureInterpolator interpolator(time_temp_filename);
-//  
-//  interpolator.printTimeTemperaturePoints();
-//  
-//}
-
+int main(int argc, char *argv[]) 
+{
+  if (argc == 1) {
+    std::cout << "No input parameter filename." << std::endl;
+    return 1;
+  }
+  api::Parameter parameter(argc, argv);
+  api::Print(parameter);
+  api::Run(parameter);
+}
 // 
 /*
 void verifyDE(size_t vacId, size_t migratingAtomId, Config &cfg, VacancyMigrationPredictor vmPredictor,

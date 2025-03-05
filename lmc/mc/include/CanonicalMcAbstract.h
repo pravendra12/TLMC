@@ -17,7 +17,6 @@
 #include <omp.h>
 #include "McAbstract.h"
 #include "PotentialEnergyEstimator.h"
-#include "VacancyMigrationPredictor.h"
 
 namespace mc {
 
@@ -82,12 +81,12 @@ class CanonicalMcAbstract : public McAbstract {
    */
   virtual void Dump() const;
 
-  /*! \brief Generates a Lattice Id jump pair.
+  /*! \brief Generates a lattice Id jump pair.
    *  \returns A pair of lattice Ids.
    */
   std::pair<size_t, size_t> GenerateLatticeIdJumpPair();
   
-  /*! \brief Generates a Vacancy and Atom Jump Pair.
+  /*! \brief Generates a vacancy and atom jump pair.
    *  \returns A pair of vacancy and lattice Ids.
    */
   std::pair<size_t, size_t> GenerateVacancyAtomJumpPair();
@@ -106,8 +105,6 @@ class CanonicalMcAbstract : public McAbstract {
   
   /// Predictor for energy change
   const PotentialEnergyEstimator energy_change_predictor_;
-
-  VacancyMigrationPredictor vacancy_migration_predictor_;
 
   /// Random Lattice Id Generator
   mutable std::uniform_int_distribution<size_t> atom_index_selector_;

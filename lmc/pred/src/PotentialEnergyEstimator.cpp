@@ -35,7 +35,7 @@ PotentialEnergyEstimator::PotentialEnergyEstimator(
   size_t max_bond_order) : ce_fitted_parameters_(
                            ReadParametersFromJson(predictor_filename, "ce")),
                            adjusted_beta_ce_(ce_fitted_parameters_.first),
-                           adjusted_intercept_(ce_fitted_parameters_.second),
+                           adjusted_intercept_ce_(ce_fitted_parameters_.second),
                            element_set_(element_set),
                            initialized_cluster_type_set_(
                            InitializeClusterTypeSet(reference_config, 
@@ -95,7 +95,10 @@ Eigen::VectorXd PotentialEnergyEstimator::GetEncodeVector(const Config &config) 
 }
 
 
-Eigen::VectorXd PotentialEnergyEstimator::GetEncodeVectorOfCluster(const Config &config, std::vector<size_t> cluster) const {
+Eigen::VectorXd 
+PotentialEnergyEstimator::GetEncodeVectorOfCluster(const Config &config, 
+                                                   std::vector<size_t> cluster) const 
+{
   auto cluster_type_count_hashmap(ConvertSetToHashMap(initialized_cluster_type_set_));
 
   auto all_lattice_clusters  = FindAllLatticeClusters(config, max_cluster_size_, max_bond_order_, cluster);
@@ -115,7 +118,7 @@ Eigen::VectorXd PotentialEnergyEstimator::GetEncodeVectorOfCluster(const Config 
 
     encode_vector_cluster(idx) = count_bond/total_bond;
 
-    std::cout << cluster_type << " : " << count_bond << " : " << total_bond << std::endl;
+    // std::cout << cluster_type << " : " << count_bond << " : " << total_bond << std::endl;
     ++idx;
 
   }
@@ -123,37 +126,33 @@ Eigen::VectorXd PotentialEnergyEstimator::GetEncodeVectorOfCluster(const Config 
   return encode_vector_cluster;
 }
 
-double PotentialEnergyEstimator::GetEnergy(const Config &config) const {
+double 
+PotentialEnergyEstimator::GetEnergy(const Config &config) const 
+{
     auto encode_vector = GetEncodeVector(config);
 
-    // std::cout << "I am here ..... " << std::endl;
+    double energy = adjusted_beta_ce_.dot(encode_vector) + adjusted_intercept_ce_;    
 
-    // Eigen::VectorXd energy_vector = effective_cluster_interaction_.array()*encode_vector.array();
-
-    Eigen::VectorXd energy_vector(encode_vector.size());
-    for (int i = 0; i < encode_vector.size(); ++i) {
-        energy_vector[i] = effective_cluster_interaction_[i] * encode_vector[i];
-    }
-
-    return energy_vector.sum();
+    return energy;
 }
 
-double PotentialEnergyEstimator::GetEnergyOfCluster(const Config &config, const std::vector<size_t> &cluster) const {
-  auto encode_vector_cluster = GetEncodeVectorOfCluster(config, cluster);
-  
-  // Eigen::VectorXd energy_vector = effective_cluster_interaction_.array()*encode_vector_cluster.array();
+double 
+PotentialEnergyEstimator::GetEnergyOfCluster(const Config &config, 
+                                             const std::vector<size_t> &cluster) const 
+{
+  Eigen::VectorXd encode_vector_cluster = GetEncodeVectorOfCluster(config, 
+                                                                   cluster);
 
-  Eigen::VectorXd energy_vector(encode_vector_cluster.size());
-  for (int i = 0; i < encode_vector_cluster.size(); ++i) {
-    energy_vector[i] = effective_cluster_interaction_[i] * encode_vector_cluster[i];
-  }
-   
-  return energy_vector.sum();
+  double energy_cluster = adjusted_beta_ce_.dot(encode_vector_cluster) +
+                          adjusted_intercept_ce_;
 
+  return energy_cluster;
 }
 
-double PotentialEnergyEstimator::GetDe(Config &config, const std::pair<size_t, size_t> &lattice_id_pair) const {
-  
+double 
+PotentialEnergyEstimator::GetDe(Config &config, 
+                                const std::pair<size_t, size_t> &lattice_id_pair) const 
+{  
   if (config.GetElementOfLattice(lattice_id_pair.first) == config.GetElementOfLattice(lattice_id_pair.second)) {
     return 0;
   }

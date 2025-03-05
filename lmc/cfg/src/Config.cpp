@@ -178,70 +178,6 @@ std::unordered_set<size_t> Config::GetNeighboringLatticeIdSetOfPair(
   return neighboring_lattice_ids;
 }
 
-Eigen::RowVector3d Config::GetLatticePairCenter(
-            const std::pair<size_t, size_t>& lattice_id_jump_pair) const{
-
-  // Get relative positions of the lattice IDs
-  Eigen::Vector3d first_relative = GetRelativePositionOfLattice(lattice_id_jump_pair.first);
-  Eigen::Vector3d second_relative = GetRelativePositionOfLattice(lattice_id_jump_pair.second);
-
-  Eigen::Vector3d center_position;
-  for (int kDim = 0; kDim < 3; ++kDim) {
-    double distance = first_relative[kDim] - second_relative[kDim];
-    int period = static_cast<int>(distance / 0.5);
-
-    // Adjust the positions once based on the period
-    if (period != 0) {
-      first_relative[kDim] -= period;
-    }
-
-    center_position[kDim] = 0.5 * (first_relative[kDim] + second_relative[kDim]);
-  }
-
-  return center_position.transpose();
-}
-
-Eigen::Matrix3d Config::GetLatticePairRotationMatrix( 
-                  const std::pair<size_t, size_t>& lattice_id_jump_pair) const {
-
-  // Get Pair Direction
-  Eigen::Vector3d relative_distance_vector_pair = GetRelativeDistanceVectorLattice(
-      lattice_id_jump_pair.first, lattice_id_jump_pair.second);
-  Eigen::RowVector3d pair_direction = relative_distance_vector_pair.transpose() * basis_; 
-  pair_direction.normalize();
-
-  Eigen::RowVector3d vertical_vector;
-
-  // First nearest neighbors
-  std::vector<size_t> nn_list = GetNeighborLatticeIdVectorOfLattice(lattice_id_jump_pair.first, 1);
-
-  std::sort(nn_list.begin(), nn_list.end());
-
-  for (const auto nn_id : nn_list) {
-    // Get Jump Vector
-    Eigen::Vector3d relative_distance_vector = GetRelativeDistanceVectorLattice(
-        lattice_id_jump_pair.first, nn_id);
-    Eigen::RowVector3d jump_vector = relative_distance_vector.transpose() * basis_;
-    jump_vector.normalize();
-
-    // Check for vertical direction
-    const double dot_prod = pair_direction.dot(jump_vector);
-    if (std::abs(dot_prod) < constants::kEpsilon) {
-      vertical_vector = jump_vector;
-      break;
-    }
-  }
-
-  // Rotation Matrix
-  Eigen::Matrix3d rotation_matrix;
-  rotation_matrix.row(0) = pair_direction; 
-  rotation_matrix.row(1) = vertical_vector;  
-  rotation_matrix.row(2) = pair_direction.cross(vertical_vector);
-
-  return rotation_matrix.transpose();
-}
-
-
 void Config::SetPeriodicBoundaryCondition(const std::array<bool, 3> &periodic_boundary_condition) {
   periodic_boundary_condition_ = periodic_boundary_condition;
 }
@@ -335,7 +271,24 @@ void Config::ReassignLattice() {
   atom_to_lattice_hashmap_ = new_atom_to_lattice_hashmap;
 }
 
-Eigen::Vector3d Config::GetRelativeDistanceVectorLattice(size_t lattice_id1, size_t lattice_id2) const {
+Eigen::Vector3d Config::GetNormalizedDirection(size_t referenceId, size_t latticeId) const 
+{
+  auto diff = GetRelativePositionOfLattice(referenceId) - 
+                                        GetRelativePositionOfLattice(latticeId);
+
+  double normFactor = diff.cwiseAbs().maxCoeff();
+  
+  if (normFactor == 0)
+  {
+    return Eigen::Vector3d::Zero();
+  }
+  
+  return diff / normFactor;
+}
+
+
+Eigen::Vector3d Config::GetRelativeDistanceVectorLattice(size_t lattice_id1, size_t lattice_id2) const 
+{
   Eigen::Vector3d relative_distance_vector = relative_position_matrix_.col(static_cast<int>(lattice_id2))
       - relative_position_matrix_.col(static_cast<int>(lattice_id1));
   // periodic boundary conditions

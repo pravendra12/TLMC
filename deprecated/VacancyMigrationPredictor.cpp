@@ -3,6 +3,8 @@
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
+/// Implementation of xSv Determinant
+
 std::unordered_map<std::string, double>
 ReadParamsFromJson(const std::string &json_filename) {
   std::ifstream ifs(json_filename, std::ifstream::in);

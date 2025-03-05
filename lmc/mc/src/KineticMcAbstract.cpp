@@ -35,7 +35,16 @@ KineticMcFirstAbstract::KineticMcFirstAbstract(Config config,
                  json_coefficients_filename,
                  "kmc_log.txt"),
       kEventListSize(config.GetNeighborLatticeIdVectorOfLattice(0,1).size()),
-      vacancy_migration_predictor_(json_coefficients_filename),
+      vacancy_migration_predictor_(move(config),
+                                   element_set, 
+                                   max_bond_order,
+                                   json_coefficients_filename),
+      energy_change_predictor_(json_coefficients_filename,
+                               config,
+                               supercell_config,
+                               element_set,
+                               max_cluster_size,
+                               max_bond_order),
       time_temperature_interpolator_(time_temperature_filename),
       is_time_temperature_interpolator_(!time_temperature_filename.empty()),
       // rate_corrector_(config_.GetVacancyConcentration(), config_.GetSoluteConcentration(Element("Al"))),
@@ -71,7 +80,9 @@ void KineticMcFirstAbstract::Dump() const {
   if (steps_ == 0) {
     // config_.WriteLattice("lattice.txt");
     // config_.WriteElement("element.txt");
-    ofs_ << "steps\ttime\ttemperature\tenergy\tEa\tdE\tselected\tvac1\tvac2\tvac3" << std::endl;
+    ofs_ << "steps\ttime\ttemperature\tenergy\tEa\tdE\tselected\tvac1\tvac2\tvac3";
+    // Test
+    ofs_ << "\tEa_backward\tEa_backwardModel\tdE_barrier" << std::endl;
   }
   if (steps_ % config_dump_steps_ == 0) {
     // config_.WriteMap("map" + std::to_string(step_) + ".txt");
@@ -92,10 +103,15 @@ void KineticMcFirstAbstract::Dump() const {
          << time_ << '\t' 
          << temperature_ << '\t' 
          << energy_ << '\t' 
-         << event_k_i_.GetForwardBarrier()
-         << '\t' << event_k_i_.GetEnergyChange() << '\t'
+         << event_k_i_.GetForwardBarrier() << '\t' 
+         << event_k_i_.GetEnergyChange() << '\t'
          << event_k_i_.GetIdJumpPair().second << '\t'
-         << vacancy_trajectory_ << std::endl;
+         << vacancy_trajectory_ << '\t'
+         << event_k_i_.GetBackwardBarrier() << '\t'
+         // From Model
+         << event_k_i_.GetTrueBackwardBarrier() << '\t'
+         << event_k_i_.GetdEBarrier()
+         << std::endl;
          // config_.GetAtomIdFromLatticeId(event_k_i_.GetIdJumpPair().second) << '\t' << vacancy_trajectory_
         
   }

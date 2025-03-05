@@ -54,13 +54,24 @@ KineticMcFirstMpi::~KineticMcFirstMpi() = default;
 
 void KineticMcFirstMpi::BuildEventList() {
   total_rate_k_ = 0;
+
   // Neighbours of Vacancy 
   const auto neighbor_vacancy_id = 
       config_.GetNeighborLatticeIdVectorOfLattice(vacancy_lattice_id_, 1)[static_cast<size_t>(world_rank_)];
 
-  JumpEvent event_k_i_({vacancy_lattice_id_, neighbor_vacancy_id},
-      vacancy_migration_predictor_.GetBarrierAndDiffFromLatticeIdPair(
-          config_, {vacancy_lattice_id_, neighbor_vacancy_id}),
+  JumpEvent event_k_i_(
+      // Jump Pair
+      {vacancy_lattice_id_, neighbor_vacancy_id},
+      // Forward Barrier
+      vacancy_migration_predictor_.GetBarrier(config_, 
+                                              {vacancy_lattice_id_, neighbor_vacancy_id}),
+      // Backward Barrier
+      vacancy_migration_predictor_.GetBarrier(config_, 
+                                              {neighbor_vacancy_id, vacancy_lattice_id_}),
+      // dE value from CE
+      energy_change_predictor_.GetDe(config_, 
+                                     {vacancy_lattice_id_, neighbor_vacancy_id}),
+      // Thermodynamics Beta
       beta_);  
 
   const double rate_k_i = event_k_i_.GetForwardRate();

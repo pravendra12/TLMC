@@ -59,7 +59,6 @@ CanonicalMcAbstract::CanonicalMcAbstract(Config config,
                                element_set,
                                max_cluster_size,
                                max_bond_order),
-      vacancy_migration_predictor_(json_coefficients_filename),
       atom_index_selector_(0, config_.GetNumAtoms() - 1){
 }
 

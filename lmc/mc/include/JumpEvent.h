@@ -17,15 +17,30 @@ class JumpEvent {
   /// Constructor
   JumpEvent();
   JumpEvent(std::pair<size_t, size_t> jump_pair,
-            const std::array<double, 3> &barrier_and_diff,
+            const double forward_barrier,
+            const double backward_barrier,
+            // Energy change from CE
+            const double dE,
             double beta);
   /// Getter
   [[nodiscard]] const std::pair<size_t, size_t> &GetIdJumpPair() const;
   [[nodiscard]] double GetForwardBarrier() const;
   [[nodiscard]] double GetForwardRate() const;
+  
+  // Zhucongs way using forward barrier and dE from CE
   [[nodiscard]] double GetBackwardBarrier() const;
+
+  // From Model
+  double GetTrueBackwardBarrier() const;
+
+
   [[nodiscard]] double GetBackwardRate() const;
+  // Returns Energy Change from the CE 
   [[nodiscard]] double GetEnergyChange() const;
+  
+  // dE from barrier
+  double GetdEBarrier() const;
+
   [[nodiscard]] double GetProbability() const;
   [[nodiscard]] double GetCumulativeProbability() const;
   [[nodiscard]] JumpEvent GetReverseJumpEvent() const;

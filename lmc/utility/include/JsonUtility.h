@@ -1,5 +1,5 @@
-#ifndef _LMC_UTILITY_JSON_UTILS_H_
-#define _LMC_UTILITY_JSON_UTILS_H_
+#ifndef _LMC_UTILITY_INCLUDE_JSONUTILITY_H_
+#define _LMC_UTILITY_INCLUDE_JSONUTILITY_H_
 
 #include <vector>
 #include <omp.h>
@@ -21,5 +21,5 @@ ReadParametersFromJson(const string &json_filename,
                        const string &json_key);
 
 
-#endif // _LMC_UTILITY_JSON_UTILS_H_
+#endif // _LMC_UTILITY_JsonUtility_H_
 

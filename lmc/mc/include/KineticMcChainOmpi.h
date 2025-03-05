@@ -15,7 +15,6 @@
 #include <random>
 #include <omp.h>
 #include <mpi.h>
-#include "VacancyMigrationPredictor.h"
 #include "JumpEvent.h"
 #include "KineticMcAbstract.h"
 namespace mc {

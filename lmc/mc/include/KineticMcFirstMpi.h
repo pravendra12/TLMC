@@ -18,7 +18,6 @@
 #include <mpi.h>
 #include "JumpEvent.h"
 #include "KineticMcAbstract.h"
-#include "VacancyMigrationPredictor.h"
 
 namespace mc {
 

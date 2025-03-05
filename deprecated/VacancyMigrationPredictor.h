@@ -5,6 +5,7 @@
 #include "Config.h"
 #include "PotentialEnergyEstimator.h"
 
+// Implementation of xSv Determinant
 
 
 class VacancyMigrationPredictor {

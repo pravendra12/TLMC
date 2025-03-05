@@ -82,11 +82,21 @@ void KineticMcChainOmpi::BuildEventList() {
 #pragma omp for
     for (size_t ii = 0; ii < kEventListSize; ++ii) {
       const auto l_lattice_id = l_lattice_id_list_[ii];
-      JumpEvent event_i_l({i_lattice_id, l_lattice_id},
-                         // i think here config_ is const
-                          vacancy_migration_predictor_.GetBarrierAndDiffFromLatticeIdPair(
-                              config_, {i_lattice_id, l_lattice_id}),
-                          beta_);
+      JumpEvent event_i_l(
+                // Jump Pair
+                {i_lattice_id, l_lattice_id},
+                // Forward Barrier
+                vacancy_migration_predictor_.GetBarrier(config_, 
+                                                        {i_lattice_id, l_lattice_id}),
+                // Backward Barrier
+                vacancy_migration_predictor_.GetBarrier(config_, 
+                                                        {l_lattice_id, i_lattice_id}),
+                // dE value from CE
+                energy_change_predictor_.GetDe(config_, 
+                                               {i_lattice_id, l_lattice_id}),
+                // Thermodynamics Beta
+                beta_);
+
       if (l_lattice_id == k_lattice_id) {
         event_k_i_ = event_i_l.GetReverseJumpEvent();
       }

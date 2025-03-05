@@ -19,7 +19,8 @@
 #include <Eigen/Dense>
 #include "McAbstract.h"
 #include "JumpEvent.h"
-#include "VacancyMigrationPredictor.h"
+#include "VacancyMigrationBarrierPredictor.h"
+#include "PotentialEnergyEstimator.h"
 #include "TimeTemperatureInterpolator.h"
 // #include "RateCorrector.hpp"
 
@@ -142,8 +143,11 @@ class KineticMcFirstAbstract : public McAbstract {
 
     // Helpful properties
 
-    /// Vacancy Migration Energy Predictor.
-    VacancyMigrationPredictor vacancy_migration_predictor_;
+    /// Vacancy Migration Energy Predictor
+    const VacancyMigrationBarrierPredictor vacancy_migration_predictor_;
+
+    /// Potential Energy Predictor
+    const PotentialEnergyEstimator energy_change_predictor_;
 
     /// Time Temperature Interpolator
     const pred::TimeTemperatureInterpolator time_temperature_interpolator_;

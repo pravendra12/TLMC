@@ -161,23 +161,8 @@ class Config {
   [[nodiscard]] std::unordered_set<size_t> GetNeighboringLatticeIdSetOfPair(
     const std::pair<size_t,size_t>& lattice_id_pair, const size_t & max_bond_order) const;
 
-  /*! \brief Computes the center position of a lattice pair while accounting for 
-             periodic boundary conditions.
-   *
-   * This function calculates the geometric center of two lattice points specified 
-   * by their IDs. It adjusts the relative positions of the lattice points to 
-   * ensure that the computed distance between them is within the range (0, 0.5) 
-   * in each dimension, considering periodic boundaries.
-   *
-   *  \param config               A reference to the Config object containing 
-   *                              lattice configurations and relative positions.
-   *  \param lattice_id_jump_pair A pair of lattice IDs representing the two 
-   *                              lattice points.
-   *  \return                     Eigen::Vector3d The computed center position of 
-   *                              the lattice pair in three dimensions.
-   */
-  [[nodiscard]] Eigen::RowVector3d GetLatticePairCenter(
-                   const std::pair<size_t, size_t> &lattice_id_jump_pair) const;
+
+  [[nodiscard]] Eigen::Vector3d GetNormalizedDirection(size_t referenceId, size_t latticeId) const;
 
 
   /*! \brief Query for the relative distance vector between two lattice.
@@ -186,49 +171,47 @@ class Config {
    *  \return             The relative distance vector between the two lattice.
    */
   [[nodiscard]] Eigen::Vector3d GetRelativeDistanceVectorLattice(size_t lattice_id1, size_t lattice_id2) const;
-
-
-   
-  [[nodiscard]] Eigen::Matrix3d GetLatticePairRotationMatrix(const std::pair<size_t, size_t> &lattice_id_jump_pair) const;
   
+  
+   
   /*! \brief Set the periodic boundary condition of the configuration.
    *  \param periodic_boundary_condition  The periodic boundary condition of the configuration.
    */
   void SetPeriodicBoundaryCondition(const std::array<bool, 3> &periodic_boundary_condition);
-
+  
   /*! \brief Wrap atoms outside the unit cell into the cell.
-   */
-  void Wrap();
-
+  */
+ void Wrap();
+ 
   /*! \brief Set the element type at the atom with given atom id.
    *  \param atom_id       The atom id of the atom.
    *  \param element_type  The new element type.
    */
   
   void SetElementOfAtom(size_t atom_id, Element element_type);
-
-
+  
+  
   /*! \brief Modify the atom configuration.
-   *  \param lattice_id_jump_pair  The pair of lattice ids to modify the configuration.
-   */
-  void LatticeJump(const std::pair<size_t, size_t> &lattice_id_jump_pair);
-
-
+  *  \param lattice_id_jump_pair  The pair of lattice ids to modify the configuration.
+  */
+ void LatticeJump(const std::pair<size_t, size_t> &lattice_id_jump_pair);
+ 
+ 
   /*! \brief Update the neighbor list of the configuration with the given cutoffs.
-   *  \param cutoffs  The cutoffs to update the neighbor list.
-   */
-  void UpdateNeighborList(std::vector<double> cutoffs);
-
-  /*! \brief Read the configuration from a lattice file, element file and map file.
-   *  \param lattice_filename  The name of the lattice file.
-   *  \param element_filename  The name of the element file.
-   *  \param map_filename      The name of the map file.
-   *  \return                  The configuration read from the file.
-   */
-  static Config ReadMap(const std::string &lattice_filename,
-                        const std::string &element_filename,
-                        const std::string &map_filename);
-
+  *  \param cutoffs  The cutoffs to update the neighbor list.
+  */
+ void UpdateNeighborList(std::vector<double> cutoffs);
+ 
+ /*! \brief Read the configuration from a lattice file, element file and map file.
+ *  \param lattice_filename  The name of the lattice file.
+ *  \param element_filename  The name of the element file.
+ *  \param map_filename      The name of the map file.
+ *  \return                  The configuration read from the file.
+ */
+static Config ReadMap(const std::string &lattice_filename,
+  const std::string &element_filename,
+  const std::string &map_filename);
+  
   /*! \brief Read the configuration from a CFG file.
    *  \param filename  The name of the CFG file.
    *  \return          The configuration read from the file.
@@ -346,3 +329,4 @@ class Config {
 };
 
 #endif //LMC_CFG_INCLUDE_CONFIG_H_
+

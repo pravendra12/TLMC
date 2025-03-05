@@ -18,7 +18,7 @@
 
 #include "eigen3/Eigen/Dense"
 #include "ClusterExpansion.h"
-#include "json_utils.h"
+#include "JsonUtility.h"
 
 /*! \brief Class for defining cluster expansion Hamiltonian.
  */
@@ -70,16 +70,13 @@ class PotentialEnergyEstimator {
   [[nodiscard]] double GetDe(Config &config, const std::pair<size_t, size_t> &lattice_id_pair) const;
   [[nodiscard]] std::map<Element, double> GetChemicalPotential(Element solvent_element) const;
   
-  const Eigen::VectorXd effective_cluster_interaction_{};
-
+ private:
   const std::pair<Eigen::VectorXd, double> ce_fitted_parameters_{};
   /// Adjusted Effective cluster interaction.
   const Eigen::VectorXd adjusted_beta_ce_{};
 
   /// @brief Adjusted Intercept
-  const double adjusted_intercept_;
-  
- private:
+  const double adjusted_intercept_ce_;
  
   /// Element set
   const std::set<Element> element_set_{};
@@ -97,6 +94,8 @@ class PotentialEnergyEstimator {
 
   /// Maximum Bond Order
   const size_t max_bond_order_{};
+
+  
 };
 
   

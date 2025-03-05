@@ -13,7 +13,8 @@ VacancyMigrationBarrierPredictor::VacancyMigrationBarrierPredictor(
                 oneHotEncodingMap_(GetOneHotEncodeHashmap(move(elementSet))),
                 encoding3FoldRotation_(GetEquivalentSites3Fold(move(config), 
                                                                maxBondOrder)),
-                maxBondOrder_(maxBondOrder)
+                // For now only works for bond order of 2
+                maxBondOrder_(2)
 {
 }
 

@@ -86,11 +86,13 @@ void KineticMcChainOmpi::BuildEventList() {
                 // Jump Pair
                 {i_lattice_id, l_lattice_id},
                 // Forward Barrier
-                vacancy_migration_predictor_.GetBarrier(config_, 
-                                                        {i_lattice_id, l_lattice_id}),
-                // Backward Barrier
+                // here vacancy is at i_lattice_id
+                // migrating atom is at l_lattice_id
                 vacancy_migration_predictor_.GetBarrier(config_, 
                                                         {l_lattice_id, i_lattice_id}),
+                // Backward Barrier
+                vacancy_migration_predictor_.GetBarrier(config_, 
+                                                        {i_lattice_id, l_lattice_id}),
                 // dE value from CE
                 energy_change_predictor_.GetDe(config_, 
                                                {i_lattice_id, l_lattice_id}),

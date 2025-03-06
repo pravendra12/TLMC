@@ -92,14 +92,14 @@ static std::vector<std::vector<size_t>> AddOneSiteToExistingClusterHelper(
   return new_clusters;
 }
 
-/*
+
 /*! \brief Add neighboring sites to the existing clusters list (Series)
  *  \param reference_config : The configuration the code works on
  *  \param max_bond_order   : The cutoff bond distance order applied
  *  \param old_clusters     : The input cluster list
  *  \return                 : The output cluster list
  */
-
+/*
 static std::vector<std::vector<size_t>> AddOneSiteToExistingClusterHelper(
     const Config &reference_config,
     const size_t max_bond_order,

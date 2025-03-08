@@ -1,0 +1,37 @@
+\doxysection{Rate\+Corrector.\+hpp}
+\hypertarget{RateCorrector_8hpp_source}{}\label{RateCorrector_8hpp_source}\index{lmc/pred/include/RateCorrector.hpp@{lmc/pred/include/RateCorrector.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#ifndef\ LMC\_LMC\_PRED\_INCLUDE\_RATECORRECTOR\_HPP\_}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#define\ LMC\_LMC\_PRED\_INCLUDE\_RATECORRECTOR\_HPP\_}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ <cmath>}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <utility>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <iostream>}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}Constants.hpp"{}}}
+\DoxyCodeLine{00009\ \textcolor{keyword}{namespace\ }pred\ \{}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classpred_1_1RateCorrector}{RateCorrector}}\ \{}
+\DoxyCodeLine{00012\ }
+\DoxyCodeLine{00013\ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00014\ \ \ \ \ \mbox{\hyperlink{classpred_1_1RateCorrector}{RateCorrector}}(\textcolor{keywordtype}{double}\ vacancy\_concentration,\ \textcolor{keywordtype}{double}\ solute\_concentration)}
+\DoxyCodeLine{00015\ \ \ \ \ \ \ \ \ :\ vacancy\_concentration\_(vacancy\_concentration),}
+\DoxyCodeLine{00016\ \ \ \ \ \ \ \ \ \ \ solute\_concentration\_(solute\_concentration)\ \{\}}
+\DoxyCodeLine{00017\ \ \ \ \ [[nodiscard]]\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{double}\ GetTimeCorrectionFactor(\textcolor{keywordtype}{double}\ temperature)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00018\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vacancy\_concentration\_\ /\ GetCorrectVacancyConcentration(temperature)}
+\DoxyCodeLine{00019\ \ \ \ \ \ \ \ \ \ \ /\ (1\ -\/\ 13\ *\ solute\_concentration\_);}
+\DoxyCodeLine{00020\ \ \ \ \ \}}
+\DoxyCodeLine{00021\ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{double}\ GetCorrectVacancyConcentration(\textcolor{keywordtype}{double}\ temperature)\ \{}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 1.64\ *\ std::exp(-\/(0.66\ /\ constants::kBoltzmann\ /\ temperature\ -\/\ 0.7));}
+\DoxyCodeLine{00024\ \ \ \ \ \}}
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{keywordtype}{double}\ vacancy\_concentration\_;}
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{keywordtype}{double}\ solute\_concentration\_;}
+\DoxyCodeLine{00027\ \};}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \}\ \textcolor{comment}{//\ pred}}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00031\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//LMC\_LMC\_PRED\_INCLUDE\_RATECORRECTOR\_HPP\_}}
+
+\end{DoxyCode}

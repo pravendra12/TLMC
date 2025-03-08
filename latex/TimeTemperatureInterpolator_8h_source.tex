@@ -1,0 +1,37 @@
+\doxysection{Time\+Temperature\+Interpolator.\+h}
+\hypertarget{TimeTemperatureInterpolator_8h_source}{}\label{TimeTemperatureInterpolator_8h_source}\index{lmc/pred/include/TimeTemperatureInterpolator.h@{lmc/pred/include/TimeTemperatureInterpolator.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#ifndef\ LMC\_LMC\_PRED\_INCLUDE\_TIMETEMPERATUREINTERPOLATOR\_H\_}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#define\ LMC\_LMC\_PRED\_INCLUDE\_TIMETEMPERATUREINTERPOLATOR\_H\_}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ <iostream>}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <utility>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ \textcolor{keyword}{namespace\ }pred\ \{}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classpred_1_1TimeTemperatureInterpolator}{TimeTemperatureInterpolator}}\ \{}
+\DoxyCodeLine{00010\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00011\ \ \ \textcolor{keyword}{explicit}\ \mbox{\hyperlink{classpred_1_1TimeTemperatureInterpolator}{TimeTemperatureInterpolator}}(\textcolor{keyword}{const}\ std::string\ \&time\_temperature\_filename);}
+\DoxyCodeLine{00012\ }
+\DoxyCodeLine{00013\ \ \ \textcolor{keyword}{explicit}\ \mbox{\hyperlink{classpred_1_1TimeTemperatureInterpolator}{TimeTemperatureInterpolator}}(\textcolor{keyword}{const}\ std::vector<std::pair<double,\ double>>\ \&points);}
+\DoxyCodeLine{00014\ }
+\DoxyCodeLine{00015\ \ \ \textcolor{comment}{//Computes\ the\ corresponding\ Y\ value\ for\ X\ using\ linear\ interpolation}}
+\DoxyCodeLine{00016\ \ \ [[nodiscard]]\ \textcolor{keywordtype}{double}\ GetTemperature(\textcolor{keywordtype}{double}\ time)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00017\ \ \ }
+\DoxyCodeLine{00018\ \ \ \textcolor{keywordtype}{void}\ printTimeTemperaturePoints();\ }
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00021\ \ \ \textcolor{keywordtype}{void}\ SortPoints();}
+\DoxyCodeLine{00022\ \ \ \textcolor{comment}{//Our\ container\ of\ (x,y)\ data\ points}}
+\DoxyCodeLine{00023\ \ \ \textcolor{comment}{//std::pair::<double,\ double>.first\ =\ x\ value}}
+\DoxyCodeLine{00024\ \ \ \textcolor{comment}{//std::pair::<double,\ double>.second\ =\ y\ value}}
+\DoxyCodeLine{00025\ \ \ std::vector<std::pair<double,\ double>>\ points\_\{\};}
+\DoxyCodeLine{00026\ \};}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \}\ \textcolor{comment}{//\ namespace\ pred}}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00031\ \textcolor{preprocessor}{\#endif\ \ \ \ }\textcolor{comment}{//LMC\_LMC\_PRED\_INCLUDE\_TIMETEMPERATUREINTERPOLATOR\_H\_}}
+
+\end{DoxyCode}

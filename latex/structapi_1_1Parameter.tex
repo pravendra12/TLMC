@@ -1,0 +1,215 @@
+\doxysection{api\+::Parameter Struct Reference}
+\hypertarget{structapi_1_1Parameter}{}\label{structapi_1_1Parameter}\index{api::Parameter@{api::Parameter}}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structapi_1_1Parameter_a963118d562925596d10b56c2e28cfac2}{Parameter}} (int argc, char \texorpdfstring{$\ast$}{*}argv\mbox{[}$\,$\mbox{]})
+\begin{DoxyCompactList}\small\item\em Constructs a \doxylink{structapi_1_1Parameter}{Parameter} object and parses command-\/line arguments. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structapi_1_1Parameter_a25c07972a5e2a45cd5ab87ce868aff54}{Parameter}} (const std\+::string \&param\+\_\+filename)
+\begin{DoxyCompactList}\small\item\em Constructs a \doxylink{structapi_1_1Parameter}{Parameter} object and reads parameters from a file. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{structapi_1_1Parameter_a27348a324d46fe5dfbe3b57cd2856dcc}{Parse\+Args}} (int argc, char \texorpdfstring{$\ast$}{*}argv\mbox{[}$\,$\mbox{]})
+\begin{DoxyCompactList}\small\item\em Parses command-\/line arguments and initializes parameters. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{structapi_1_1Parameter_af2674f883fcc40bc1dd774cc7816ce2c}{Read\+Param}} (const std\+::string \&param\+\_\+filename)
+\begin{DoxyCompactList}\small\item\em Reads and initializes parameters from a file. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::string \mbox{\hyperlink{structapi_1_1Parameter_a01ea9de922420adf04e90dc2c5ba102a}{parameters\+\_\+filename}} \{\}
+\begin{DoxyCompactList}\small\item\em Member variables. \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_a4dd471911c728de3dae2bc2d75374132}\label{structapi_1_1Parameter_a4dd471911c728de3dae2bc2d75374132} 
+std\+::string {\bfseries method} \{\}
+\begin{DoxyCompactList}\small\item\em Method used for the simulation (e.\+g. Canonical\+Mc\+Serial, Kinetic\+Mc\+Chain\+Ompi). \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_abb3fc13d0d85cee9e18df8335edba921}\label{structapi_1_1Parameter_abb3fc13d0d85cee9e18df8335edba921} 
+std\+::string {\bfseries config\+\_\+filename\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Configuration file name. \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_a889227c6aa8f161ba48a4d7c0183a49e}\label{structapi_1_1Parameter_a889227c6aa8f161ba48a4d7c0183a49e} 
+std\+::string {\bfseries map\+\_\+filename\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Filename for the mapping file. \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_ad3c45728d612cd89e0077a6b607ddfb3}\label{structapi_1_1Parameter_ad3c45728d612cd89e0077a6b607ddfb3} 
+std\+::string {\bfseries json\+\_\+coefficients\+\_\+filename\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em JSON file containing pre-\/trained coefficients. \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_af6de50cc89877b231b4c7ba370ddc425}\label{structapi_1_1Parameter_af6de50cc89877b231b4c7ba370ddc425} 
+std\+::string {\bfseries time\+\_\+temperature\+\_\+filename\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Filename for time-\/temperature data. \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_aa9cde0d558481e0eea7cba39c9bfcabb}\label{structapi_1_1Parameter_aa9cde0d558481e0eea7cba39c9bfcabb} 
+std\+::string {\bfseries log\+\_\+type\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Type of logging. \end{DoxyCompactList}\item 
+std\+::string \mbox{\hyperlink{structapi_1_1Parameter_a8d9895d7bc643072f9177fb97a115294}{config\+\_\+type\+\_\+}} \{\}
+\item 
+\Hypertarget{structapi_1_1Parameter_a8c1cab8907007e2dc50f31ea8e505942}\label{structapi_1_1Parameter_a8c1cab8907007e2dc50f31ea8e505942} 
+std\+::string {\bfseries structure\+\_\+type\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Type of structure (e.\+g., BCC, FCC). \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_adf4cdd27945d694c664883626a0d53e5}\label{structapi_1_1Parameter_adf4cdd27945d694c664883626a0d53e5} 
+unsigned long long int {\bfseries log\+\_\+dump\+\_\+steps\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Number of steps after which the log file is updated. \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_ae520d2d24c14bb63db02015c013aacdc}\label{structapi_1_1Parameter_ae520d2d24c14bb63db02015c013aacdc} 
+unsigned long long int {\bfseries config\+\_\+dump\+\_\+steps\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Number of steps after which the configuration is dumped. \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_a89e07dd4907b745df3e391437b519e76}\label{structapi_1_1Parameter_a89e07dd4907b745df3e391437b519e76} 
+unsigned long long int {\bfseries maximum\+\_\+steps\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Maximum number of steps for the simulation. \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_ac2214e265a7f64c597f60d545882422b}\label{structapi_1_1Parameter_ac2214e265a7f64c597f60d545882422b} 
+Eigen\+::\+Row\+Vector3d {\bfseries vacancy\+\_\+trajectory\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Vector to store vacancy trajectory. \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_a8e785beffadbc987456cc282750fbfed}\label{structapi_1_1Parameter_a8e785beffadbc987456cc282750fbfed} 
+size\+\_\+t {\bfseries max\+\_\+cluster\+\_\+size\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Maximum size of clusters to be considered. \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_ad8ab86d416bda7203400273174000674}\label{structapi_1_1Parameter_ad8ab86d416bda7203400273174000674} 
+size\+\_\+t {\bfseries max\+\_\+bond\+\_\+order\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Maximum bond order to be considered. \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_aa8a1532517476fedd84f37548201e49f}\label{structapi_1_1Parameter_aa8a1532517476fedd84f37548201e49f} 
+unsigned long long int {\bfseries thermodynamic\+\_\+averaging\+\_\+steps\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Number of steps used for thermodynamic averaging. \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_a26ec39bec647a3034d835e953bae09d2}\label{structapi_1_1Parameter_a26ec39bec647a3034d835e953bae09d2} 
+double {\bfseries temperature\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Temperature of the simulation in Kelvin. \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_a8020b1a205d8d896720e60a0f7eaa819}\label{structapi_1_1Parameter_a8020b1a205d8d896720e60a0f7eaa819} 
+double {\bfseries initial\+\_\+temperature\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Initial Temperature in Kelvin. \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_a65546ba952d9c63fd405c67502685a02}\label{structapi_1_1Parameter_a65546ba952d9c63fd405c67502685a02} 
+double {\bfseries decrement\+\_\+temperature\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Decrement in temperature for annealing. \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_ab346a090c6b816f85944b919304eb959}\label{structapi_1_1Parameter_ab346a090c6b816f85944b919304eb959} 
+size\+\_\+t {\bfseries supercell\+\_\+size\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Size of the supercell used for training. \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_aa4152d40beeabc03065ca6b66054286d}\label{structapi_1_1Parameter_aa4152d40beeabc03065ca6b66054286d} 
+double {\bfseries lattice\+\_\+param\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Lattice parameter of the structure. \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_a654162c6d55ecbcbbe51d2d32ca10e93}\label{structapi_1_1Parameter_a654162c6d55ecbcbbe51d2d32ca10e93} 
+unsigned long long int {\bfseries restart\+\_\+steps\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Steps at which the simulation restarts. \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_a0061e58287152f11300f3e54bf979d2c}\label{structapi_1_1Parameter_a0061e58287152f11300f3e54bf979d2c} 
+double {\bfseries restart\+\_\+energy\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Energy at the restart step. \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_a1f814241c8d0d9aa076e30c03ae0afd1}\label{structapi_1_1Parameter_a1f814241c8d0d9aa076e30c03ae0afd1} 
+double {\bfseries restart\+\_\+time\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Time at the restart step. \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_af34d1842f61f242e8c9699c6e5d870fc}\label{structapi_1_1Parameter_af34d1842f61f242e8c9699c6e5d870fc} 
+bool {\bfseries rate\+\_\+corrector\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Enables or disables rate correction. \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_a895b8cf206ea1de5cb840a2a82fec9d5}\label{structapi_1_1Parameter_a895b8cf206ea1de5cb840a2a82fec9d5} 
+std\+::vector$<$ double $>$ {\bfseries cutoffs\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Cutoff distances for cluster interactions. \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_aeb3262b29a3620b6661de399e29b9b86}\label{structapi_1_1Parameter_aeb3262b29a3620b6661de399e29b9b86} 
+unsigned long long int {\bfseries initial\+\_\+steps\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Initial number of steps for the simulation. \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_a384fdef53fc89f5ec8baaffa906f51cc}\label{structapi_1_1Parameter_a384fdef53fc89f5ec8baaffa906f51cc} 
+unsigned long long int {\bfseries increment\+\_\+steps\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Incremental steps for specific operations. \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_adba776210ae09345d4beefbbed47f393}\label{structapi_1_1Parameter_adba776210ae09345d4beefbbed47f393} 
+size\+\_\+t {\bfseries smallest\+\_\+cluster\+\_\+criteria\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Criteria for the smallest clusters. \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_a74b05d11b91571468d14b81dbe8d70ad}\label{structapi_1_1Parameter_a74b05d11b91571468d14b81dbe8d70ad} 
+size\+\_\+t {\bfseries solvent\+\_\+bond\+\_\+criteria\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Criteria for solvent bonds. \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_a06b22e1482a0aad8b56f90132faf2442}\label{structapi_1_1Parameter_a06b22e1482a0aad8b56f90132faf2442} 
+size\+\_\+t {\bfseries factor\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Scaling factor for specific parameters. \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_a8f59e2b078de8216b858431c598b6a4c}\label{structapi_1_1Parameter_a8f59e2b078de8216b858431c598b6a4c} 
+std\+::string {\bfseries solvent\+\_\+element\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Element representing the solvent in the simulation. \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_a49bca84f02ff1de9dfbc6fcde60ec362}\label{structapi_1_1Parameter_a49bca84f02ff1de9dfbc6fcde60ec362} 
+std\+::vector$<$ std\+::string $>$ {\bfseries solute\+\_\+element\+\_\+set\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em List of solute elements in the simulation. \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_ac67ea19dc908a8180f18bc6a5d6628fe}\label{structapi_1_1Parameter_ac67ea19dc908a8180f18bc6a5d6628fe} 
+std\+::vector$<$ size\+\_\+t $>$ {\bfseries solute\+\_\+number\+\_\+set\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Number of each solute element in the system. \end{DoxyCompactList}\item 
+\Hypertarget{structapi_1_1Parameter_a1c0c483b00dd6c42391ca4cf4c904b7b}\label{structapi_1_1Parameter_a1c0c483b00dd6c42391ca4cf4c904b7b} 
+unsigned long long int {\bfseries early\+\_\+stop\+\_\+steps\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Early stopping criteria based on the number of steps. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{structapi_1_1Parameter_a963118d562925596d10b56c2e28cfac2}\label{structapi_1_1Parameter_a963118d562925596d10b56c2e28cfac2} 
+\index{api::Parameter@{api::Parameter}!Parameter@{Parameter}}
+\index{Parameter@{Parameter}!api::Parameter@{api::Parameter}}
+\doxysubsubsection{\texorpdfstring{Parameter()}{Parameter()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily api\+::\+Parameter\+::\+Parameter (\begin{DoxyParamCaption}\item[{int}]{argc,  }\item[{char \texorpdfstring{$\ast$}{*}}]{argv\mbox{[}$\,$\mbox{]} }\end{DoxyParamCaption})}
+
+
+
+Constructs a \doxylink{structapi_1_1Parameter}{Parameter} object and parses command-\/line arguments. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em } & argc Number of command-\/line arguments. \\
+\hline
+{\em } & argv Array of command-\/line argument strings. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{structapi_1_1Parameter_a25c07972a5e2a45cd5ab87ce868aff54}\label{structapi_1_1Parameter_a25c07972a5e2a45cd5ab87ce868aff54} 
+\index{api::Parameter@{api::Parameter}!Parameter@{Parameter}}
+\index{Parameter@{Parameter}!api::Parameter@{api::Parameter}}
+\doxysubsubsection{\texorpdfstring{Parameter()}{Parameter()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily api\+::\+Parameter\+::\+Parameter (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{param\+\_\+filename }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [explicit]}}
+
+
+
+Constructs a \doxylink{structapi_1_1Parameter}{Parameter} object and reads parameters from a file. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em param\+\_\+filename} & \+: \doxylink{structapi_1_1Parameter}{Parameter} file name. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{structapi_1_1Parameter_a27348a324d46fe5dfbe3b57cd2856dcc}\label{structapi_1_1Parameter_a27348a324d46fe5dfbe3b57cd2856dcc} 
+\index{api::Parameter@{api::Parameter}!ParseArgs@{ParseArgs}}
+\index{ParseArgs@{ParseArgs}!api::Parameter@{api::Parameter}}
+\doxysubsubsection{\texorpdfstring{ParseArgs()}{ParseArgs()}}
+{\footnotesize\ttfamily void api\+::\+Parameter\+::\+Parse\+Args (\begin{DoxyParamCaption}\item[{int}]{argc,  }\item[{char \texorpdfstring{$\ast$}{*}}]{argv\mbox{[}$\,$\mbox{]} }\end{DoxyParamCaption})}
+
+
+
+Parses command-\/line arguments and initializes parameters. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em argc} & \+: Number of command-\/line arguments. \\
+\hline
+{\em argv} & \+: Array of command-\/line argument strings. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{structapi_1_1Parameter_af2674f883fcc40bc1dd774cc7816ce2c}\label{structapi_1_1Parameter_af2674f883fcc40bc1dd774cc7816ce2c} 
+\index{api::Parameter@{api::Parameter}!ReadParam@{ReadParam}}
+\index{ReadParam@{ReadParam}!api::Parameter@{api::Parameter}}
+\doxysubsubsection{\texorpdfstring{ReadParam()}{ReadParam()}}
+{\footnotesize\ttfamily void api\+::\+Parameter\+::\+Read\+Param (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{param\+\_\+filename }\end{DoxyParamCaption})}
+
+
+
+Reads and initializes parameters from a file. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em param\+\_\+filename} & \+: \doxylink{structapi_1_1Parameter}{Parameter} file name. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Data Documentation}
+\Hypertarget{structapi_1_1Parameter_a8d9895d7bc643072f9177fb97a115294}\label{structapi_1_1Parameter_a8d9895d7bc643072f9177fb97a115294} 
+\index{api::Parameter@{api::Parameter}!config\_type\_@{config\_type\_}}
+\index{config\_type\_@{config\_type\_}!api::Parameter@{api::Parameter}}
+\doxysubsubsection{\texorpdfstring{config\_type\_}{config\_type\_}}
+{\footnotesize\ttfamily std\+::string api\+::\+Parameter\+::config\+\_\+type\+\_\+ \{\}}
+
+Type of configuration format (e.\+g., POSCAR, XYZ) ~\newline
+ \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}\+Need To Check Once \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*} \Hypertarget{structapi_1_1Parameter_a01ea9de922420adf04e90dc2c5ba102a}\label{structapi_1_1Parameter_a01ea9de922420adf04e90dc2c5ba102a} 
+\index{api::Parameter@{api::Parameter}!parameters\_filename@{parameters\_filename}}
+\index{parameters\_filename@{parameters\_filename}!api::Parameter@{api::Parameter}}
+\doxysubsubsection{\texorpdfstring{parameters\_filename}{parameters\_filename}}
+{\footnotesize\ttfamily std\+::string api\+::\+Parameter\+::parameters\+\_\+filename \{\}}
+
+
+
+Member variables. 
+
+Filename containing simulation parameters. 
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+lmc/api/include/\mbox{\hyperlink{Parameter_8h}{Parameter.\+h}}\item 
+lmc/api/src/\mbox{\hyperlink{Parameter_8cpp}{Parameter.\+cpp}}\end{DoxyCompactItemize}

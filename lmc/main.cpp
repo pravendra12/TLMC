@@ -10,12 +10,24 @@
  *  \brief File for the main function.
  */
 
+#include "Home.h"
 
-// #include "ClusterExpansion.h"
-// #include "PotentialEnergyEstimator.h"
+int main(int argc, char *argv[]) {
+  if (argc == 1) {
+    std::cout << "No input parameter filename." << std::endl;
+    return 1;
+  }
+  api::Parameter parameter(argc, argv);
+  api::Print(parameter);
+  api::Run(parameter);
+}
+
+
+// // #include "ClusterExpansion.h"
+// // #include "PotentialEnergyEstimator.h"
 // using namespace std;
 // 
-// // #include <chrono>
+// // // #include <chrono>
 // 
 // static std::unordered_map<LatticeClusterType, size_t, boost::hash<LatticeClusterType>> ConvertLatticeSetToHashMap(
 //     const std::set<LatticeClusterType> &lattice_cluster_type_set) {
@@ -51,36 +63,36 @@
 //     std::cout << "\n";
 // }
 
-// #include "ThermodynamicAveraging.h"
-// #include "CanonicalMcSerial.h"
-// #include "CanonicalMcAbstract.h"
-// #include "PotentialEnergyEstimator.h"
-// #include "Config.h"
-// #include "ClusterExpansion.h"
-// #include <unordered_set>
-// #include <unordered_map>
-// #include <vector>
-// #include <string>
-// #include <set>
-// #include <algorithm>
-// #include <boost/functional/hash.hpp>
-// #include "CanonicalMcSerial.h"
-// #include "Symmetry.h"
-// #include <omp.h>
-// #include <chrono>
-// #include <Eigen/Dense>
-// #include <vector>
-// #include <algorithm>
-// // #include "KineticMcChainOmpi.h"
-// // #include "KineticMcAbstract.h"
-// #include "JumpEvent.h"
-// #include "Constants.hpp"
-// #include "ShortRangeOrder.h"
-// #include "Traverse.h"
-// #include "KineticMcFirstMpi.h"
-// #include "LatticeClusterMMM.hpp"
-// #include "Element.hpp"
-// #include <cmath>
+// // #include "ThermodynamicAveraging.h"
+// // #include "CanonicalMcSerial.h"
+// // #include "CanonicalMcAbstract.h"
+// // #include "PotentialEnergyEstimator.h"
+// // #include "Config.h"
+// // #include "ClusterExpansion.h"
+// // #include <unordered_set>
+// // #include <unordered_map>
+// // #include <vector>
+// // #include <string>
+// // #include <set>
+// // #include <algorithm>
+// // #include <boost/functional/hash.hpp>
+// // #include "CanonicalMcSerial.h"
+// // #include "Symmetry.h"
+// // #include <omp.h>
+// // #include <chrono>
+// // #include <Eigen/Dense>
+// // #include <vector>
+// // #include <algorithm>
+// // // #include "KineticMcChainOmpi.h"
+// // // #include "KineticMcAbstract.h"
+// // #include "JumpEvent.h"
+// // #include "Constants.hpp"
+// // #include "ShortRangeOrder.h"
+// // #include "Traverse.h"
+// // #include "KineticMcFirstMpi.h"
+// // #include "LatticeClusterMMM.hpp"
+// // #include "Element.hpp"
+// // #include <cmath>
 
 
 // 
@@ -163,126 +175,38 @@
 //     return unique_neighbors;
 // }
 
-// int main(int argc, char *argv[]) {
-//   if (argc == 1) {
-//     std::cout << "No input parameter filename." << std::endl;
-//     return 1;
-//   }
-//   api::Parameter parameter(argc, argv);
-//   api::Print(parameter);
-//   api::Run(parameter);
-// }
-// #include <iostream>
-// #include "Config.h"
-// #include "PotentialEnergyEstimator.h"
-// #include "VacancyMigrationBarrierPredictor.h"
-// #include "JsonUtility.h"
-// #include "Symmetry.h"
-// #include "PrintUtility.h"
-// #include "Home.h"
+
+// // #include <iostream>
+// // #include "Config.h"
+// // #include "PotentialEnergyEstimator.h"
+// // #include "VacancyMigrationBarrierPredictor.h"
+// // #include "JsonUtility.h"
+// // #include "Symmetry.h"
+// // #include "PrintUtility.h"
+// // #include "Home.h"
 // using namespace std;
 
 
-#include "Config.h"
-#include "Home.h"
-#include "Symmetry.h"
-#include <boost/functional/hash.hpp>
-#include <chrono>
-using namespace std;
-#include <omp.h>
-#include <mutex>
-#include <unordered_set>
-#include "PrintUtility.h"
-#include "B2OrderParameter.h"
+// #include "Config.h"
+// #include "Home.h"
+// #include "Symmetry.h"
+// #include <boost/functional/hash.hpp>
+// #include <chrono>
+// #include <omp.h>
+// #include <mutex>
+// #include <unordered_set>
+// #include "PrintUtility.h"
+// #include "B2OrderParameter.h"
 
 
 
-pair<unordered_set<size_t>,unordered_set<size_t>> GetB2OrderedStucture(const Config& cfg)
-{
-  auto secondNearestNeighbors = cfg.GetNeighborLists()[1];
 
-  std::unordered_set<size_t> alphaSitesSet;
-  
-  for (size_t id1 = 0; id1 < secondNearestNeighbors.size(); id1++) 
-  {
-    const auto& neighbors = secondNearestNeighbors[id1];
-
-    for (size_t id2 : neighbors) 
-    {
-      bool id1Valid = true;
-      bool id2Valid = true;
-
-      // Check if id1 has any bond order of 1 with sites already in alphaSitesSet
-      for (size_t id3 : alphaSitesSet) 
-      {
-        if (cfg.GetDistanceOrder(id1, id3) == 1) 
-        {
-            id1Valid = false;
-            break;
-        }
-      }
-
-      // Check if id2 has any bond order of 1 with sites already in alphaSitesSet
-      for (size_t id3 : alphaSitesSet) {
-        if (cfg.GetDistanceOrder(id2, id3) == 1) {
-          id2Valid = false;
-          break;
-        }
-      }
-
-      // Add valid sites to alphaCandidates
-      if (id1Valid) 
-      {
-        alphaSitesSet.emplace(id1);
-      }
-      if (id2Valid) 
-      {
-        alphaSitesSet.emplace(id2);
-      }
-    }
-  }
-  
-  size_t numLattice = cfg.GetNumLattices();
-
-  std::unordered_set<size_t> allSitesSet;
-  allSitesSet.reserve(numLattice);
-
-  for (size_t id = 0; id < numLattice; id++)
-  {
-    allSitesSet.insert(id);
-  }
-
-  std::unordered_set<size_t> betaSitesSet;
-  betaSitesSet.reserve(alphaSitesSet.size()); // Optimize for expected size
-  
-  // betaSites = allSites - alphaSites
-  for (auto site : allSitesSet) 
-  {
-    // O(1) Time Complexity
-    if (alphaSitesSet.find(site) == alphaSitesSet.end()) 
-    { 
-      betaSitesSet.insert(site);
-    }
-  }
-
-  auto b2OrderedStucture = std::make_pair(alphaSitesSet, betaSitesSet);
-  
-  return b2OrderedStucture;
-}
-
-
-int main()
+/*
+int main(int argc, char* argv[])
 {
   const vector<double> cutoffs = {3.3, 4.7, 5.6};
-  auto cfg = Config::ReadConfig("1000000.cfg");
+  auto cfg = Config::ReadPoscar("NbTaW_5x5x5.POSCAR");
   cfg.UpdateNeighborList(cutoffs);
-
-  auto atomVector = cfg.GetAtomVector();
-  set<Element> eleSet(atomVector.begin(), atomVector.end());
-  for (auto ele : eleSet)
-  {
-    cout << ele.GetElementString() << endl;
-  }
 
 
   Element ele1("Cl");
@@ -334,7 +258,7 @@ int main()
   cout << "b2 ele2 : " << b2OrderCsCl.GetB2OrderParameter(ele2) << endl;
 
 
-
+  
 
 
   
@@ -348,7 +272,7 @@ int main()
 
   
 }
-
+*/
 /*
 int main()
 {
@@ -583,8 +507,8 @@ int main()
 }
 */
 
-#include "Home.h"
-#include "Parameter.h"
+// #include "Home.h"
+// #include "Parameter.h"
 
 // int main(int argc, char *argv[]) 
 // {
@@ -856,10 +780,10 @@ int main(int argc, char *argv[]) {
 
     
 
-    std::cout << "Forward Barrier #: " << forward_backward_info.first.first << std::endl;
-    std::cout << "Forward Ed #: " << forward_backward_info.first.second << std::endl;
-    std::cout << "Backward Barrier #: " << forward_backward_info.second.first << std::endl;
-    std::cout << "Backward Ed #: " << forward_backward_info.second.second << std::endl;
+    std::cout << "Forward Barrier // #: " << forward_backward_info.first.first << std::endl;
+    std::cout << "Forward Ed // #: " << forward_backward_info.first.second << std::endl;
+    std::cout << "Backward Barrier // #: " << forward_backward_info.second.first << std::endl;
+    std::cout << "Backward Ed // #: " << forward_backward_info.second.second << std::endl;
 
     std::array<double, 3> barrier_de;
     barrier_de[0] = new_forward_barrier;
@@ -877,15 +801,15 @@ int main(int argc, char *argv[]) {
     
     std::cout << "For Forward event " << std::endl;
 
-    std::cout << "Forward Barrier #: " << event.GetForwardBarrier() << std::endl;
-    std::cout << "Forward Ed #: " << event.GetEnergyChange() << std::endl;
+    std::cout << "Forward Barrier // #: " << event.GetForwardBarrier() << std::endl;
+    std::cout << "Forward Ed // #: " << event.GetEnergyChange() << std::endl;
     std::cout << "Backward Barrier: " << event.GetBackwardBarrier() << std::endl;
 
     auto backward_event = event.GetReverseJumpEvent();
     
-    std::cout << "forward Barrier  for b#: " << backward_event.GetForwardBarrier() << std::endl;
-    std::cout << " Ed for backward event #: " << backward_event.GetEnergyChange() << std::endl;
-    std::cout << "backward Barrier  for b#: " << backward_event.GetBackwardBarrier() << std::endl;
+    std::cout << "forward Barrier  for b// #: " << backward_event.GetForwardBarrier() << std::endl;
+    std::cout << " Ed for backward event // #: " << backward_event.GetEnergyChange() << std::endl;
+    std::cout << "backward Barrier  for b// #: " << backward_event.GetBackwardBarrier() << std::endl;
 
     std::cout << "**********************************************" << std::endl;
 
@@ -991,10 +915,10 @@ int main(int argc, char *argv[]) {
 //
 //    
 //
-//    std::cout << "Forward Barrier #: " << forward_backward_info.first.first << std::endl;
-//    std::cout << "Forward Ed #: " << forward_backward_info.first.second << std::endl;
-//    std::cout << "Backward Barrier #: " << forward_backward_info.second.first << std::endl;
-//    std::cout << "Backward Ed #: " << forward_backward_info.second.second << std::endl;
+//    std::cout << "Forward Barrier // #: " << forward_backward_info.first.first << std::endl;
+//    std::cout << "Forward Ed // #: " << forward_backward_info.first.second << std::endl;
+//    std::cout << "Backward Barrier // #: " << forward_backward_info.second.first << std::endl;
+//    std::cout << "Backward Ed // #: " << forward_backward_info.second.second << std::endl;
 //
 //    std::array<double, 3> barrier_de;
 //    barrier_de[0] = new_forward_barrier;
@@ -1012,15 +936,15 @@ int main(int argc, char *argv[]) {
 //    
 //    std::cout << "For Forward event " << std::endl;
 //
-//    std::cout << "Forward Barrier #: " << event.GetForwardBarrier() << std::endl;
-//    std::cout << "Forward Ed #: " << event.GetEnergyChange() << std::endl;
+//    std::cout << "Forward Barrier // #: " << event.GetForwardBarrier() << std::endl;
+//    std::cout << "Forward Ed // #: " << event.GetEnergyChange() << std::endl;
 //    std::cout << "Backward Barrier: " << event.GetBackwardBarrier() << std::endl;
 //
 //    auto backward_event = event.GetReverseJumpEvent();
 //    
-//    std::cout << "forward Barrier  for b#: " << backward_event.GetForwardBarrier() << std::endl;
-//    std::cout << " Ed for backward event #: " << backward_event.GetEnergyChange() << std::endl;
-//    std::cout << "backward Barrier  for b#: " << backward_event.GetBackwardBarrier() << std::endl;
+//    std::cout << "forward Barrier  for b// #: " << backward_event.GetForwardBarrier() << std::endl;
+//    std::cout << " Ed for backward event // #: " << backward_event.GetEnergyChange() << std::endl;
+//    std::cout << "backward Barrier  for b// #: " << backward_event.GetBackwardBarrier() << std::endl;
 //
 //  }
 //  
@@ -1943,7 +1867,7 @@ int main(int argc, char *argv[]) {
 //
 //}
 
-// #include "Config.h"
+// // #include "Config.h"
 // 
 // 
 // 
@@ -1965,7 +1889,7 @@ int main(int argc, char *argv[]) {
 //   
 //   
 // }
-// #include "Symmetry.h"
+// // #include "Symmetry.h"
 // int main() {
 
   //Config cfg = Config::ReadPoscar("Al");
@@ -2241,7 +2165,7 @@ int main(int argc, char *argv[]) {
 // cfg.WriteConfig("output.cfg.gz");
 // cfg.WriteConfig("output.cfg");
 
-// #include "Home.h"
+// // #include "Home.h"
 // int main(int argc, char *argv[]) {
 //   if (argc == 1) {
 //     std::cout << "No input parameter filename." << std::endl;

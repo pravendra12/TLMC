@@ -1,0 +1,168 @@
+\doxysection{B2\+Order\+Parameter Class Reference}
+\hypertarget{classB2OrderParameter}{}\label{classB2OrderParameter}\index{B2OrderParameter@{B2OrderParameter}}
+
+
+Computes the B2 order parameter for a given element in a configuration.  
+
+
+
+
+{\ttfamily \#include $<$B2\+Order\+Parameter.\+h$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classB2OrderParameter_ad9e6c458517bcbb10e42261adb7a3776}{B2\+Order\+Parameter}} (const \mbox{\hyperlink{classConfig}{Config}} \&config)
+\begin{DoxyCompactList}\small\item\em Constructs a \doxylink{classB2OrderParameter}{B2\+Order\+Parameter} object and initializes lattice site classifications. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classB2OrderParameter_a866f24d58577839249dacaf798c8168b}{Get\+B2\+Order\+Parameter}} (const Element \&element)
+\begin{DoxyCompactList}\small\item\em Computes the B2 order parameter for a given element. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classB2OrderParameter_a84263203b36b4d637b0456f5a1831913}{Get\+Alpha\+Site\+Occupancy}} (const Element \&element)
+\begin{DoxyCompactList}\small\item\em Computes the fractional occupancy of an element at alpha lattice sites. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classB2OrderParameter_aa62e166066466a9e74a78bcfbc405978}{Get\+Beta\+Site\+Occupancy}} (const Element \&element)
+\begin{DoxyCompactList}\small\item\em Computes the fractional occupancy of an element at beta lattice sites. \end{DoxyCompactList}\item 
+unordered\+\_\+set$<$ size\+\_\+t $>$ \mbox{\hyperlink{classB2OrderParameter_a5758cfb826ad75a0616c592598d055fa}{Get\+Alpha\+Lattice\+Sites}} ()
+\begin{DoxyCompactList}\small\item\em Retrieves the set of lattice sites classified as alpha sites. \end{DoxyCompactList}\item 
+unordered\+\_\+set$<$ size\+\_\+t $>$ \mbox{\hyperlink{classB2OrderParameter_ac020a604aa0259e183a45e786ab9f2e7}{Get\+Beta\+Lattice\+Sites}} ()
+\begin{DoxyCompactList}\small\item\em Retrieves the set of lattice sites classified as beta sites. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Computes the B2 order parameter for a given element in a configuration. 
+
+The B2 order parameter is a measure of atomic ordering in binary alloys, particularly in BCC structures. It quantifies the difference in site occupancy of a given element between two distinct sublattices (alpha and beta). 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classB2OrderParameter_ad9e6c458517bcbb10e42261adb7a3776}\label{classB2OrderParameter_ad9e6c458517bcbb10e42261adb7a3776} 
+\index{B2OrderParameter@{B2OrderParameter}!B2OrderParameter@{B2OrderParameter}}
+\index{B2OrderParameter@{B2OrderParameter}!B2OrderParameter@{B2OrderParameter}}
+\doxysubsubsection{\texorpdfstring{B2OrderParameter()}{B2OrderParameter()}}
+{\footnotesize\ttfamily B2\+Order\+Parameter\+::\+B2\+Order\+Parameter (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classConfig}{Config}} \&}]{config }\end{DoxyParamCaption})}
+
+
+
+Constructs a \doxylink{classB2OrderParameter}{B2\+Order\+Parameter} object and initializes lattice site classifications. 
+
+This constructor initializes the alpha and beta lattice sites by identifying their positions in the given configuration. It calls {\ttfamily Initialize\+Alpha\+Lattice\+Sites()} and {\ttfamily Initialize\+Beta\+Lattice\+Sites()} to classify the sites into two groups based on second nearest neighbor (NN) relationships.
+
+
+\begin{DoxyParams}{Parameters}
+{\em config} & The configuration object containing lattice information, including element occupancy and neighbor relationships. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classB2OrderParameter_a5758cfb826ad75a0616c592598d055fa}\label{classB2OrderParameter_a5758cfb826ad75a0616c592598d055fa} 
+\index{B2OrderParameter@{B2OrderParameter}!GetAlphaLatticeSites@{GetAlphaLatticeSites}}
+\index{GetAlphaLatticeSites@{GetAlphaLatticeSites}!B2OrderParameter@{B2OrderParameter}}
+\doxysubsubsection{\texorpdfstring{GetAlphaLatticeSites()}{GetAlphaLatticeSites()}}
+{\footnotesize\ttfamily unordered\+\_\+set$<$ size\+\_\+t $>$ B2\+Order\+Parameter\+::\+Get\+Alpha\+Lattice\+Sites (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Retrieves the set of lattice sites classified as alpha sites. 
+
+Alpha sites are a subset of the lattice that are identified based on second nearest neighbor relationships. These sites are used to compute the B2 order parameter.
+
+\begin{DoxyReturn}{Returns}
+An unordered set containing the indices of alpha lattice sites. 
+\end{DoxyReturn}
+\Hypertarget{classB2OrderParameter_a84263203b36b4d637b0456f5a1831913}\label{classB2OrderParameter_a84263203b36b4d637b0456f5a1831913} 
+\index{B2OrderParameter@{B2OrderParameter}!GetAlphaSiteOccupancy@{GetAlphaSiteOccupancy}}
+\index{GetAlphaSiteOccupancy@{GetAlphaSiteOccupancy}!B2OrderParameter@{B2OrderParameter}}
+\doxysubsubsection{\texorpdfstring{GetAlphaSiteOccupancy()}{GetAlphaSiteOccupancy()}}
+{\footnotesize\ttfamily double B2\+Order\+Parameter\+::\+Get\+Alpha\+Site\+Occupancy (\begin{DoxyParamCaption}\item[{const Element \&}]{element }\end{DoxyParamCaption})}
+
+
+
+Computes the fractional occupancy of an element at alpha lattice sites. 
+
+The fractional occupancy is calculated as\+:  \[
+f_{\alpha} = \frac{\text{Number of alpha sites occupied by the element}}{\text{Total number of alpha sites}}
+\] This function iterates through the alpha sites and counts how many are occupied by the given element.
+
+
+\begin{DoxyParams}{Parameters}
+{\em element} & The element whose occupancy is being calculated. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Fractional occupancy of the element at alpha sites (a value between 0 and 1). 
+\end{DoxyReturn}
+\Hypertarget{classB2OrderParameter_a866f24d58577839249dacaf798c8168b}\label{classB2OrderParameter_a866f24d58577839249dacaf798c8168b} 
+\index{B2OrderParameter@{B2OrderParameter}!GetB2OrderParameter@{GetB2OrderParameter}}
+\index{GetB2OrderParameter@{GetB2OrderParameter}!B2OrderParameter@{B2OrderParameter}}
+\doxysubsubsection{\texorpdfstring{GetB2OrderParameter()}{GetB2OrderParameter()}}
+{\footnotesize\ttfamily double B2\+Order\+Parameter\+::\+Get\+B2\+Order\+Parameter (\begin{DoxyParamCaption}\item[{const Element \&}]{element }\end{DoxyParamCaption})}
+
+
+
+Computes the B2 order parameter for a given element. 
+
+The B2 order parameter measures the degree of ordering in a B2-\/type structure. It is defined as\+:
+
+\[
+B2 = \frac{f_{\alpha} - f_{\beta}}{f_{\alpha} + f_{\beta}}
+\]
+
+where\+:
+
+
+\begin{DoxyItemize}
+\item $f_{\alpha}$ is the fractional occupancy of the element at alpha sites.
+\item $f_{\alpha}$ is the fractional occupancy of the element at beta sites.
+\end{DoxyItemize}
+
+A perfectly ordered B2 structure has ( B2 = 1 ), while a completely disordered structure has ( B2 = 0 ).
+
+
+\begin{DoxyParams}{Parameters}
+{\em element} & The element for which the B2 order parameter is computed. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The B2 order parameter value for the specified element. 
+\end{DoxyReturn}
+\Hypertarget{classB2OrderParameter_ac020a604aa0259e183a45e786ab9f2e7}\label{classB2OrderParameter_ac020a604aa0259e183a45e786ab9f2e7} 
+\index{B2OrderParameter@{B2OrderParameter}!GetBetaLatticeSites@{GetBetaLatticeSites}}
+\index{GetBetaLatticeSites@{GetBetaLatticeSites}!B2OrderParameter@{B2OrderParameter}}
+\doxysubsubsection{\texorpdfstring{GetBetaLatticeSites()}{GetBetaLatticeSites()}}
+{\footnotesize\ttfamily unordered\+\_\+set$<$ size\+\_\+t $>$ B2\+Order\+Parameter\+::\+Get\+Beta\+Lattice\+Sites (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Retrieves the set of lattice sites classified as beta sites. 
+
+Beta sites are defined as the complement of alpha sites in the lattice. These sites are used in the calculation of the B2 order parameter.
+
+\begin{DoxyReturn}{Returns}
+An unordered set containing the indices of beta lattice sites. 
+\end{DoxyReturn}
+\Hypertarget{classB2OrderParameter_aa62e166066466a9e74a78bcfbc405978}\label{classB2OrderParameter_aa62e166066466a9e74a78bcfbc405978} 
+\index{B2OrderParameter@{B2OrderParameter}!GetBetaSiteOccupancy@{GetBetaSiteOccupancy}}
+\index{GetBetaSiteOccupancy@{GetBetaSiteOccupancy}!B2OrderParameter@{B2OrderParameter}}
+\doxysubsubsection{\texorpdfstring{GetBetaSiteOccupancy()}{GetBetaSiteOccupancy()}}
+{\footnotesize\ttfamily double B2\+Order\+Parameter\+::\+Get\+Beta\+Site\+Occupancy (\begin{DoxyParamCaption}\item[{const Element \&}]{element }\end{DoxyParamCaption})}
+
+
+
+Computes the fractional occupancy of an element at beta lattice sites. 
+
+Similar to {\ttfamily \doxylink{classB2OrderParameter_a84263203b36b4d637b0456f5a1831913}{Get\+Alpha\+Site\+Occupancy()}}, this function calculates the fraction of beta sites occupied by the given element using the formula\+:  \[
+f_{\beta} = \frac{\text{Number of beta sites occupied by the element}}{\text{Total number of beta sites}}
+\] It iterates through the beta sites and counts how many are occupied by the given element.
+
+
+\begin{DoxyParams}{Parameters}
+{\em element} & The element whose occupancy is being calculated. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Fractional occupancy of the element at beta sites (a value between 0 and 1). 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+lmc/ansys/include/B2\+Order\+Parameter.\+h\item 
+lmc/ansys/src/B2\+Order\+Parameter.\+cpp\end{DoxyCompactItemize}

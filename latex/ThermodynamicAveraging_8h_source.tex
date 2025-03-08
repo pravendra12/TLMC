@@ -1,0 +1,45 @@
+\doxysection{Thermodynamic\+Averaging.\+h}
+\hypertarget{ThermodynamicAveraging_8h_source}{}\label{ThermodynamicAveraging_8h_source}\index{lmc/mc/include/ThermodynamicAveraging.h@{lmc/mc/include/ThermodynamicAveraging.h}}
+\mbox{\hyperlink{ThermodynamicAveraging_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/**************************************************************************************************}}
+\DoxyCodeLine{00002\ \textcolor{comment}{\ *\ Copyright\ (c)\ 2023.\ All\ rights\ reserved.\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\ *\ @Author:\ Zhucong\ Xi\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ *\ @Date:\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ *\ @Last\ Modified\ by:\ pravendra12\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00006\ \textcolor{comment}{\ *\ @Last\ Modified\ time:\ 11/30/24\ 5:50\ PM\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ **************************************************************************************************/}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#ifndef\ LMC\_MC\_INCLUDE\_THERMODYNAMICAVERAGING\_H\_}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#define\ LMC\_MC\_INCLUDE\_THERMODYNAMICAVERAGING\_H\_}}
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#include\ <list>}}
+\DoxyCodeLine{00012\ \textcolor{preprocessor}{\#include\ <deque>}}
+\DoxyCodeLine{00013\ \textcolor{preprocessor}{\#include\ <iterator>}}
+\DoxyCodeLine{00014\ }
+\DoxyCodeLine{00018\ \textcolor{keyword}{namespace\ }mc\ \{}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classmc_1_1ThermodynamicAveraging}{ThermodynamicAveraging}}\ \{}
+\DoxyCodeLine{00021\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00026\ \ \ \textcolor{keyword}{explicit}\ \mbox{\hyperlink{classmc_1_1ThermodynamicAveraging}{ThermodynamicAveraging}}(\textcolor{keywordtype}{size\_t}\ size);}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00031\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classmc_1_1ThermodynamicAveraging_aa3fe3cfa621d2c0db24f9efcc72d0028}{AddEnergy}}(\textcolor{keywordtype}{double}\ value);}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00042\ \ \ [[nodiscard]]\ \textcolor{keywordtype}{double}\ \mbox{\hyperlink{classmc_1_1ThermodynamicAveraging_a65964226ca262062504fcacb1471c331}{GetThermodynamicAverage}}(\textcolor{keywordtype}{double}\ beta)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00052\ \ \ [[nodiscard]]\ \textcolor{keywordtype}{double}\ GetAverage()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00055\ \ \ std::deque<double>\ energy\_list\_\{\};}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00058\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ size\_;}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00061\ \ \ \textcolor{keywordtype}{double}\ sum\_\{\};}
+\DoxyCodeLine{00062\ \};}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00064\ \}\ \textcolor{comment}{//\ mc}}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//LMC\_MC\_INCLUDE\_THERMODYNAMICAVERAGING\_H\_}}
+
+\end{DoxyCode}

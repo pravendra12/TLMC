@@ -1,0 +1,63 @@
+\doxysection{Canonical\+Mc\+Abstract.\+h}
+\hypertarget{CanonicalMcAbstract_8h_source}{}\label{CanonicalMcAbstract_8h_source}\index{lmc/mc/include/CanonicalMcAbstract.h@{lmc/mc/include/CanonicalMcAbstract.h}}
+\mbox{\hyperlink{CanonicalMcAbstract_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/**************************************************************************************************}}
+\DoxyCodeLine{00002\ \textcolor{comment}{\ *\ Copyright\ (c)\ 2023-\/2023.\ All\ rights\ reserved.\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\ *\ @Author:\ Zhucong\ Xi\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ *\ @Date:\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ *\ @Last\ Modified\ by:\ pravendra12\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00006\ \textcolor{comment}{\ *\ @Last\ Modified\ time:\ 12/01/24\ 10:30\ AM\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ **************************************************************************************************/}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00013\ \textcolor{preprocessor}{\#ifndef\ LMC\_MC\_INCLUDE\_CANONICALMCABSTRACT\_H\_}}
+\DoxyCodeLine{00014\ \textcolor{preprocessor}{\#define\ LMC\_MC\_INCLUDE\_CANONICALMCABSTRACT\_H\_}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#include\ <random>}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#include\ <mpi.h>}}
+\DoxyCodeLine{00017\ \textcolor{preprocessor}{\#include\ <omp.h>}}
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{McAbstract_8h}{McAbstract.h}}"{}}}
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{PotentialEnergyEstimator_8h}{PotentialEnergyEstimator.h}}"{}}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \textcolor{keyword}{namespace\ }mc\ \{}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classmc_1_1CanonicalMcAbstract}{CanonicalMcAbstract}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{classMcAbstract}{McAbstract}}\ \{}
+\DoxyCodeLine{00024\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00057\ \ \ \mbox{\hyperlink{classmc_1_1CanonicalMcAbstract}{CanonicalMcAbstract}}(\mbox{\hyperlink{classConfig}{Config}}\ config,}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classConfig}{Config}}\ supercell\_config,}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{int}\ log\_dump\_steps,}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{int}\ config\_dump\_steps,}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{int}\ maximum\_steps,}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{int}\ thermodynamic\_averaging\_steps,}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{int}\ restart\_steps,}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ restart\_energy,}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ temperature,}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::set<Element>\ \&element\_set,}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ max\_cluster\_size,}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ max\_bond\_order,}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::string\ \&json\_coefficients\_filename);}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00074\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classmc_1_1CanonicalMcAbstract_a37980a9c4651a94bc4de4c485c4278b4}{Simulate}}()\ \textcolor{keyword}{override}\ =\ 0;}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00077\ \ \ \textcolor{comment}{//\ void\ UpdateTemperature();}}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00082\ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classmc_1_1CanonicalMcAbstract_a7c2d78b10f26027a9ac13546533f940f}{Dump}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00087\ \ \ std::pair<size\_t,\ size\_t>\ \mbox{\hyperlink{classmc_1_1CanonicalMcAbstract_a3d0848367e0c7e705398ea078ce14c31}{GenerateLatticeIdJumpPair}}();}
+\DoxyCodeLine{00088\ \ \ }
+\DoxyCodeLine{00092\ \ \ std::pair<size\_t,\ size\_t>\ \mbox{\hyperlink{classmc_1_1CanonicalMcAbstract_a443b1b9bc7f3d48c2f02897708820823}{GenerateVacancyAtomJumpPair}}();}
+\DoxyCodeLine{00093\ }
+\DoxyCodeLine{00103\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classmc_1_1CanonicalMcAbstract_ae37d7edc85d24d57ef454560af6c3439}{SelectEvent}}(\textcolor{keyword}{const}\ std::pair<size\_t,\ size\_t>\ \&lattice\_id\_jump\_pair,\ }
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ dE);}
+\DoxyCodeLine{00105\ \ \ }
+\DoxyCodeLine{00107\ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classPotentialEnergyEstimator}{PotentialEnergyEstimator}}\ \mbox{\hyperlink{classmc_1_1CanonicalMcAbstract_a63e14455e55a7723784b15df2d1c0c42}{energy\_change\_predictor\_}};}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00110\ \ \ \textcolor{keyword}{mutable}\ std::uniform\_int\_distribution<size\_t>\ \mbox{\hyperlink{classmc_1_1CanonicalMcAbstract_affe98f9d730138ee3d76bc0cf7a103e9}{atom\_index\_selector\_}};}
+\DoxyCodeLine{00111\ \};}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \}\ \textcolor{comment}{//\ mc}}
+\DoxyCodeLine{00114\ }
+\DoxyCodeLine{00115\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//LMC\_MC\_INCLUDE\_CANONICALMCABSTRACT\_H\_}}
+
+\end{DoxyCode}

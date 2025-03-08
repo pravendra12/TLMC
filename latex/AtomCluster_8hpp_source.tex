@@ -1,0 +1,69 @@
+\doxysection{Atom\+Cluster.\+hpp}
+\hypertarget{AtomCluster_8hpp_source}{}\label{AtomCluster_8hpp_source}\index{lmc/ce/include/AtomCluster.hpp@{lmc/ce/include/AtomCluster.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/**************************************************************************************************}}
+\DoxyCodeLine{00002\ \textcolor{comment}{\ *\ Copyright\ (c)\ 2022-\/2023.\ All\ rights\ reserved.\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\ *\ @Author:\ Zhucong\ Xi\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ *\ @Date:\ 2/14/22\ 8:45\ PM\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ *\ @Last\ Modified\ by:\ zhucongx\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00006\ \textcolor{comment}{\ *\ @Last\ Modified\ time:\ 7/4/23\ 10:55\ PM\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ **************************************************************************************************/}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00013\ \textcolor{preprocessor}{\#ifndef\ LMC\_CE\_INCLUDE\_ATOMCLUSTER\_HPP\_}}
+\DoxyCodeLine{00014\ \textcolor{preprocessor}{\#define\ LMC\_CE\_INCLUDE\_ATOMCLUSTER\_HPP\_}}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#include\ <utility>}}
+\DoxyCodeLine{00017\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ <boost/functional/hash.hpp>}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#include\ "{}eigen3/Eigen/Dense"{}}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ "{}AtomClusterType.hpp"{}}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00025\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classAtomCluster}{AtomCluster}}\ \{}
+\DoxyCodeLine{00026\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00029\ \ \ \mbox{\hyperlink{classAtomCluster_aceed74839399d61223cefcb14c41715b}{AtomCluster}}()\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00035\ \ \ \mbox{\hyperlink{classAtomCluster_add8427b6ca733894ef154ce368ec9a97}{AtomCluster}}(\mbox{\hyperlink{classAtomClusterType}{AtomClusterType}}\ atom\_cluster\_type,\ std::vector<size\_t>\ atom\_id\_vector)}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ :\ \mbox{\hyperlink{classAtomCluster_ac4591a133aad0afddddcb89752def175}{cluster\_type\_}}(std::move(atom\_cluster\_type)),\ \mbox{\hyperlink{classAtomCluster_ada7c489079652cee15b75f070fde81a6}{atom\_id\_vector\_}}(std::move(atom\_id\_vector))\ \{}
+\DoxyCodeLine{00037\ \ \ \ \ std::sort(\mbox{\hyperlink{classAtomCluster_ada7c489079652cee15b75f070fde81a6}{atom\_id\_vector\_}}.begin(),\ \mbox{\hyperlink{classAtomCluster_ada7c489079652cee15b75f070fde81a6}{atom\_id\_vector\_}}.end());}
+\DoxyCodeLine{00038\ \ \ \}}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00044\ \ \ \textcolor{keyword}{template}<\textcolor{keyword}{typename}\ ...\ Id>}
+\DoxyCodeLine{00045\ \ \ \textcolor{keyword}{explicit}\ \mbox{\hyperlink{classAtomCluster_a0bcea5c0c73ae58556da3119cc2c2737}{AtomCluster}}(\mbox{\hyperlink{classAtomClusterType}{AtomClusterType}}\ atom\_cluster\_type,\ Id\ \&\&...\ atom\_id)}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ :\ \mbox{\hyperlink{classAtomCluster_ac4591a133aad0afddddcb89752def175}{cluster\_type\_}}(std::move(atom\_cluster\_type)),\ \mbox{\hyperlink{classAtomCluster_ada7c489079652cee15b75f070fde81a6}{atom\_id\_vector\_}}\{std::forward<Id>(atom\_id)...\}\ \{}
+\DoxyCodeLine{00047\ \ \ \ \ std::sort(\mbox{\hyperlink{classAtomCluster_ada7c489079652cee15b75f070fde81a6}{atom\_id\_vector\_}}.begin(),\ \mbox{\hyperlink{classAtomCluster_ada7c489079652cee15b75f070fde81a6}{atom\_id\_vector\_}}.end());}
+\DoxyCodeLine{00048\ \ \ \}}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00052\ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{classAtomCluster_a7a5b7558cecab329aa65159701f77b52}{\string~AtomCluster}}()\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00057\ \ \ [[nodiscard]]\ \textcolor{keyword}{const}\ std::vector<size\_t>\ \&\mbox{\hyperlink{classAtomCluster_acf0802d07a6156a38a3c171303d8d245}{GetAtomIdVector}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classAtomCluster_ada7c489079652cee15b75f070fde81a6}{atom\_id\_vector\_}};}
+\DoxyCodeLine{00059\ \ \ \}}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00066\ \ \ \textcolor{keyword}{friend}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classAtomCluster_a2ccaa1b8abeef25b89341b366ab50832}{operator==}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classAtomCluster}{AtomCluster}}\ \&lhs,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classAtomCluster}{AtomCluster}}\ \&rhs)\ \{}
+\DoxyCodeLine{00067\ \ \ \ \ \textcolor{comment}{//\ if\ (lhs.cluster\_type\_\ !=\ rhs.cluster\_type\_)\ \{\ return\ false;\ \}\ //\ not\ necessary}}
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{keywordflow}{if}\ (lhs.\mbox{\hyperlink{classAtomCluster_ada7c489079652cee15b75f070fde81a6}{atom\_id\_vector\_}}.size()\ !=\ rhs.\mbox{\hyperlink{classAtomCluster_ada7c489079652cee15b75f070fde81a6}{atom\_id\_vector\_}}.size())\ \{\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};\ \}}
+\DoxyCodeLine{00069\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ lhs.\mbox{\hyperlink{classAtomCluster_ada7c489079652cee15b75f070fde81a6}{atom\_id\_vector\_}}.size();\ ++i)\ \{}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (lhs.\mbox{\hyperlink{classAtomCluster_ada7c489079652cee15b75f070fde81a6}{atom\_id\_vector\_}}[i]\ !=\ rhs.\mbox{\hyperlink{classAtomCluster_ada7c489079652cee15b75f070fde81a6}{atom\_id\_vector\_}}[i])\ \{\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};\ \}}
+\DoxyCodeLine{00071\ \ \ \ \ \}}
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00073\ \ \ \}}
+\DoxyCodeLine{00074\ }
+\DoxyCodeLine{00079\ \ \ \textcolor{keyword}{friend}\ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{classAtomCluster_af5939bad9295005a716dfc40b00e3ecd}{hash\_value}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classAtomCluster}{AtomCluster}}\ \&cluster)\ \{}
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ seed\ =\ 0;}
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ :\ cluster.\mbox{\hyperlink{classAtomCluster_ada7c489079652cee15b75f070fde81a6}{atom\_id\_vector\_}})\ \{}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ boost::hash\_combine(seed,\ i);}
+\DoxyCodeLine{00083\ \ \ \ \ \}}
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{keywordflow}{return}\ seed;}
+\DoxyCodeLine{00085\ \ \ \}}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00089\ \ \ \mbox{\hyperlink{classAtomClusterType}{AtomClusterType}}\ \mbox{\hyperlink{classAtomCluster_ac4591a133aad0afddddcb89752def175}{cluster\_type\_}};}
+\DoxyCodeLine{00091\ \ \ std::vector<size\_t>\ \mbox{\hyperlink{classAtomCluster_ada7c489079652cee15b75f070fde81a6}{atom\_id\_vector\_}};}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ \};}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//LMC\_CE\_INCLUDE\_ATOMCLUSTER\_HPP\_}}
+
+\end{DoxyCode}

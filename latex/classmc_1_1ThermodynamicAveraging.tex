@@ -1,0 +1,73 @@
+\doxysection{mc\+::Thermodynamic\+Averaging Class Reference}
+\hypertarget{classmc_1_1ThermodynamicAveraging}{}\label{classmc_1_1ThermodynamicAveraging}\index{mc::ThermodynamicAveraging@{mc::ThermodynamicAveraging}}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classmc_1_1ThermodynamicAveraging_a37c7d358cb7be39b15a76035a689a451}{Thermodynamic\+Averaging}} (size\+\_\+t size)
+\begin{DoxyCompactList}\small\item\em Constructs a \doxylink{classmc_1_1ThermodynamicAveraging}{Thermodynamic\+Averaging} object. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classmc_1_1ThermodynamicAveraging_aa3fe3cfa621d2c0db24f9efcc72d0028}{Add\+Energy}} (double value)
+\begin{DoxyCompactList}\small\item\em Adds a new energy value. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classmc_1_1ThermodynamicAveraging_a65964226ca262062504fcacb1471c331}{Get\+Thermodynamic\+Average}} (double beta) const
+\begin{DoxyCompactList}\small\item\em Computes the thermodynamic average for the current sliding window. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classmc_1_1ThermodynamicAveraging_a37c7d358cb7be39b15a76035a689a451}\label{classmc_1_1ThermodynamicAveraging_a37c7d358cb7be39b15a76035a689a451} 
+\index{mc::ThermodynamicAveraging@{mc::ThermodynamicAveraging}!ThermodynamicAveraging@{ThermodynamicAveraging}}
+\index{ThermodynamicAveraging@{ThermodynamicAveraging}!mc::ThermodynamicAveraging@{mc::ThermodynamicAveraging}}
+\doxysubsubsection{\texorpdfstring{ThermodynamicAveraging()}{ThermodynamicAveraging()}}
+{\footnotesize\ttfamily mc\+::\+Thermodynamic\+Averaging\+::\+Thermodynamic\+Averaging (\begin{DoxyParamCaption}\item[{size\+\_\+t}]{size }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [explicit]}}
+
+
+
+Constructs a \doxylink{classmc_1_1ThermodynamicAveraging}{Thermodynamic\+Averaging} object. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em size} & The maximum size of the sliding window for averaging. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classmc_1_1ThermodynamicAveraging_aa3fe3cfa621d2c0db24f9efcc72d0028}\label{classmc_1_1ThermodynamicAveraging_aa3fe3cfa621d2c0db24f9efcc72d0028} 
+\index{mc::ThermodynamicAveraging@{mc::ThermodynamicAveraging}!AddEnergy@{AddEnergy}}
+\index{AddEnergy@{AddEnergy}!mc::ThermodynamicAveraging@{mc::ThermodynamicAveraging}}
+\doxysubsubsection{\texorpdfstring{AddEnergy()}{AddEnergy()}}
+{\footnotesize\ttfamily void mc\+::\+Thermodynamic\+Averaging\+::\+Add\+Energy (\begin{DoxyParamCaption}\item[{double}]{value }\end{DoxyParamCaption})}
+
+
+
+Adds a new energy value. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em value} & The energy value to be added. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classmc_1_1ThermodynamicAveraging_a65964226ca262062504fcacb1471c331}\label{classmc_1_1ThermodynamicAveraging_a65964226ca262062504fcacb1471c331} 
+\index{mc::ThermodynamicAveraging@{mc::ThermodynamicAveraging}!GetThermodynamicAverage@{GetThermodynamicAverage}}
+\index{GetThermodynamicAverage@{GetThermodynamicAverage}!mc::ThermodynamicAveraging@{mc::ThermodynamicAveraging}}
+\doxysubsubsection{\texorpdfstring{GetThermodynamicAverage()}{GetThermodynamicAverage()}}
+{\footnotesize\ttfamily double mc\+::\+Thermodynamic\+Averaging\+::\+Get\+Thermodynamic\+Average (\begin{DoxyParamCaption}\item[{double}]{beta }\end{DoxyParamCaption}) const}
+
+
+
+Computes the thermodynamic average for the current sliding window. 
+
+This method calculates the weighted average of energy values using a Boltzmann-\/like distribution. It incorporates the inverse temperature ({\ttfamily beta}) and normalizes by the partition function.
+
+
+\begin{DoxyParams}{Parameters}
+{\em beta} & The inverse temperature (1/kT) for weighting the average. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The computed thermodynamic average. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+lmc/mc/include/\mbox{\hyperlink{ThermodynamicAveraging_8h}{Thermodynamic\+Averaging.\+h}}\item 
+lmc/mc/src/Thermodynamic\+Averaging.\+cpp\end{DoxyCompactItemize}

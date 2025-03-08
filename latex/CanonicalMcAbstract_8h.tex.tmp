@@ -1,0 +1,26 @@
+\doxysection{lmc/mc/include/\+Canonical\+Mc\+Abstract.h File Reference}
+\hypertarget{CanonicalMcAbstract_8h}{}\label{CanonicalMcAbstract_8h}\index{lmc/mc/include/CanonicalMcAbstract.h@{lmc/mc/include/CanonicalMcAbstract.h}}
+
+
+File for Canonical\+Mc\+Abstract class declaration.  
+
+
+{\ttfamily \#include $<$random$>$}\newline
+{\ttfamily \#include $<$mpi.\+h$>$}\newline
+{\ttfamily \#include $<$omp.\+h$>$}\newline
+{\ttfamily \#include "{}Mc\+Abstract.\+h"{}}\newline
+{\ttfamily \#include "{}Potential\+Energy\+Estimator.\+h"{}}\newline
+Include dependency graph for Canonical\+Mc\+Abstract.\+h\+:
+% FIG 0
+This graph shows which files directly or indirectly include this file\+:
+% FIG 1
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classmc_1_1CanonicalMcAbstract}{mc\+::\+Canonical\+Mc\+Abstract}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+File for Canonical\+Mc\+Abstract class declaration. 
+

@@ -1,0 +1,82 @@
+\doxysection{Mc\+Abstract.\+h}
+\hypertarget{McAbstract_8h_source}{}\label{McAbstract_8h_source}\index{lmc/mc/include/McAbstract.h@{lmc/mc/include/McAbstract.h}}
+\mbox{\hyperlink{McAbstract_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/**************************************************************************************************}}
+\DoxyCodeLine{00002\ \textcolor{comment}{\ *\ Copyright\ (c)\ 2023-\/2024.\ All\ rights\ reserved.\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\ *\ @Author:\ Zhucong\ Xi\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ *\ @Date:\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ *\ @Last\ Modified\ by:\ pravendra12\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00006\ \textcolor{comment}{\ *\ @Last\ Modified\ time:\ 12/02/24\ 9:26\ AM\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ **************************************************************************************************/}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00013\ \textcolor{preprocessor}{\#ifndef\ LMC\_MC\_INCLUDE\_MCABSTRACT\_H\_}}
+\DoxyCodeLine{00014\ \textcolor{preprocessor}{\#define\ LMC\_MC\_INCLUDE\_MCABSTRACT\_H\_}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#include\ <random>}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#include\ <omp.h>}}
+\DoxyCodeLine{00017\ \textcolor{preprocessor}{\#include\ <mpi.h>}}
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{Config_8h}{Config.h}}"{}}}
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{ThermodynamicAveraging_8h}{ThermodynamicAveraging.h}}"{}}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classMcAbstract}{McAbstract}}\ \{}
+\DoxyCodeLine{00022\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00023\ \ \ }
+\DoxyCodeLine{00055\ \ \ \mbox{\hyperlink{classMcAbstract}{McAbstract}}(\mbox{\hyperlink{classConfig}{Config}}\ config,}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classConfig}{Config}}\ supercell\_config,}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{int}\ log\_dump\_steps,}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{int}\ config\_dump\_steps,}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{int}\ maximum\_steps,}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{int}\ thermodynamic\_averaging\_steps,}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{int}\ restart\_steps,}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ restart\_energy,}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ restart\_time,}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ temperature,}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::set<Element>\ \&element\_set,}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ max\_cluster\_size,}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ max\_bond\_order,}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::string\ \&json\_coefficients\_filename,}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::string\ \&log\_filename);}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00074\ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{classMcAbstract_a9287187523e6c0e32e5eb993c8776ba8}{\string~McAbstract}}();}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00079\ \ \ \mbox{\hyperlink{classMcAbstract_a8ff79a70a2e4f847a737a8c316b76c38}{McAbstract}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classMcAbstract}{McAbstract}}\ \&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00084\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classMcAbstract_a57e3ac40baecece9345ea5602127417d}{operator=}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classMcAbstract}{McAbstract}}\ \&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00089\ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classMcAbstract_aa56c01acf853d56e20beb33754aed90a}{Simulate}}()\ =\ 0;}
+\DoxyCodeLine{00090\ }
+\DoxyCodeLine{00091\ \ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00094\ \ \ \mbox{\hyperlink{classConfig}{Config}}\ \mbox{\hyperlink{classMcAbstract_a64cbcce194b0026761251e2cb61ae69d}{config\_}};}
+\DoxyCodeLine{00095\ }
+\DoxyCodeLine{00096\ \ \ \textcolor{comment}{//\ simulation\ parameters}}
+\DoxyCodeLine{00097\ }
+\DoxyCodeLine{00099\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classMcAbstract_accaea3340825abcb3bfef10933cddde0}{log\_dump\_steps\_}};}
+\DoxyCodeLine{00100\ }
+\DoxyCodeLine{00102\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classMcAbstract_a70fe7d47746ae2eb7ed6b045a0e05a43}{config\_dump\_steps\_}};}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00105\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classMcAbstract_ad6a2e408e9f87bf1d90d6caf24176003}{maximum\_steps\_}};}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ \ \ \textcolor{comment}{//\ simulation\ statistics}}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00109\ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{int}\ steps\_;}
+\DoxyCodeLine{00110\ \ \ \textcolor{keywordtype}{double}\ energy\_;}
+\DoxyCodeLine{00111\ \ \ \textcolor{keywordtype}{double}\ absolute\_energy\_;}
+\DoxyCodeLine{00112\ \ \ \textcolor{keywordtype}{double}\ time\_;}
+\DoxyCodeLine{00113\ \ \ \textcolor{keywordtype}{double}\ temperature\_;}
+\DoxyCodeLine{00114\ \ \ \textcolor{keywordtype}{double}\ beta\_;}
+\DoxyCodeLine{00115\ \ \ \textcolor{keyword}{mutable}\ \textcolor{keywordtype}{bool}\ is\_restarted\_;}
+\DoxyCodeLine{00116\ }
+\DoxyCodeLine{00117\ \ \ \textcolor{comment}{//\ helpful\ properties}}
+\DoxyCodeLine{00118\ \ \ \textcolor{comment}{//\ mc::ThermodynamicAveraging\ thermodynamic\_averaging\_;}}
+\DoxyCodeLine{00119\ \ \ \textcolor{keyword}{mutable}\ std::mt19937\_64\ generator\_;}
+\DoxyCodeLine{00120\ \ \ \textcolor{keyword}{mutable}\ std::uniform\_real\_distribution<double>\ unit\_distribution\_;}
+\DoxyCodeLine{00121\ \ \ \textcolor{keyword}{mutable}\ std::ofstream\ ofs\_;}
+\DoxyCodeLine{00122\ }
+\DoxyCodeLine{00123\ \ \ \textcolor{keywordtype}{int}\ world\_rank\_\{-\/1\};}
+\DoxyCodeLine{00124\ \ \ \textcolor{keywordtype}{int}\ world\_size\_\{-\/1\};}
+\DoxyCodeLine{00125\ \};}
+\DoxyCodeLine{00126\ }
+\DoxyCodeLine{00127\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//LMC\_MC\_INCLUDE\_MCABSTRACT\_H\_}}
+
+\end{DoxyCode}

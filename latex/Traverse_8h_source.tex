@@ -1,0 +1,47 @@
+\doxysection{Traverse.\+h}
+\hypertarget{Traverse_8h_source}{}\label{Traverse_8h_source}\index{lmc/ansys/include/Traverse.h@{lmc/ansys/include/Traverse.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#ifndef\ LMC\_LMC\_ANSYS\_INCLUDE\_TRAVERSE\_H\_}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#define\ LMC\_LMC\_ANSYS\_INCLUDE\_TRAVERSE\_H\_}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}ShortRangeOrder.h"{}}}
+\DoxyCodeLine{00004\ }
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <nlohmann/json.hpp>}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ \textcolor{keyword}{namespace\ }ansys\ \{}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classansys_1_1Traverse}{Traverse}}\ \{}
+\DoxyCodeLine{00010\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00011\ \ \ \mbox{\hyperlink{classansys_1_1Traverse}{Traverse}}(\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{int}\ initial\_steps,}
+\DoxyCodeLine{00012\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{int}\ increment\_steps,}
+\DoxyCodeLine{00013\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::vector<double>\ cutoffs,}
+\DoxyCodeLine{00014\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::string\ log\_type,}
+\DoxyCodeLine{00015\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::string\ config\_type);}
+\DoxyCodeLine{00016\ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{classansys_1_1Traverse}{\string~Traverse}}();}
+\DoxyCodeLine{00017\ \ \ \textcolor{keywordtype}{void}\ RunAnsys()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00018\ \textcolor{comment}{//\ \ void\ RunReformat()\ const;}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00021\ \ \ std::string\ GetHeaderFrameString(\textcolor{keyword}{const}\ std::set<Element>\ \&element\_set)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ initial\_steps\_;}
+\DoxyCodeLine{00024\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ increment\_steps\_;}
+\DoxyCodeLine{00025\ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ final\_steps\_;}
+\DoxyCodeLine{00026\ \ \ std::vector<double>\ cutoffs\_;}
+\DoxyCodeLine{00027\ \ \ \textcolor{keyword}{const}\ std::string\ log\_type\_;}
+\DoxyCodeLine{00028\ \ \ \textcolor{keyword}{const}\ std::string\ config\_type\_;}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \ \ \textcolor{keyword}{using\ }MapVariant\ =}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ std::variant<std::unordered\_map<unsigned\ long\ long,\ double>,\ std::unordered\_map<unsigned\ long\ long,\ std::string>>;}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \ \ std::unordered\_map<std::string,\ MapVariant>\ log\_map\_;}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \ \ \textcolor{keyword}{mutable}\ std::ofstream\ frame\_ofs\_;}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \};}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00039\ \}\ \ \ \ \textcolor{comment}{//\ namespace\ ansys}}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \textcolor{preprocessor}{\#endif\ \ \ \ }\textcolor{comment}{//LMC\_LMC\_ANSYS\_INCLUDE\_TRAVERSE\_H\_}}
+
+\end{DoxyCode}

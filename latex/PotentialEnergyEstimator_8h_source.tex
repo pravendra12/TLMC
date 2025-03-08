@@ -1,0 +1,63 @@
+\doxysection{Potential\+Energy\+Estimator.\+h}
+\hypertarget{PotentialEnergyEstimator_8h_source}{}\label{PotentialEnergyEstimator_8h_source}\index{lmc/pred/include/PotentialEnergyEstimator.h@{lmc/pred/include/PotentialEnergyEstimator.h}}
+\mbox{\hyperlink{PotentialEnergyEstimator_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#ifndef\ LMC\_PRED\_INCLUDE\_POTENTIALENERGYESTIMATOR\_H\_}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#define\ LMC\_PRED\_INCLUDE\_POTENTIALENERGYESTIMATOR\_H\_}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <set>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <numeric>}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <algorithm>}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ <eigen3/Eigen/Dense>}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{ClusterExpansion_8h}{ClusterExpansion.h}}"{}}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}JsonUtility.h"{}}}
+\DoxyCodeLine{00010\ \textcolor{keyword}{using\ namespace\ }std;}
+\DoxyCodeLine{00011\ \textcolor{keyword}{using\ namespace\ }Eigen;}
+\DoxyCodeLine{00012\ }
+\DoxyCodeLine{00024\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classPotentialEnergyEstimator}{PotentialEnergyEstimator}}\ \{}
+\DoxyCodeLine{00025\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00026\ \ \ \mbox{\hyperlink{classPotentialEnergyEstimator}{PotentialEnergyEstimator}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{string}\ \&predictor\_filename,}
+\DoxyCodeLine{00027\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classConfig}{Config}}\ \&reference\_config,}
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classConfig}{Config}}\ \&supercell\_config,}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ set<Element>\ \&element\_set,}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ max\_cluster\_size,}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ max\_bond\_order);}
+\DoxyCodeLine{00032\ \ \ \mbox{\hyperlink{classPotentialEnergyEstimator}{\string~PotentialEnergyEstimator}}();}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00039\ \ \ [[nodiscard]]\ VectorXd\ \mbox{\hyperlink{classPotentialEnergyEstimator_a797dd406947aac87bb098e8675d128be}{GetEncodeVector}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classConfig}{Config}}\ \&config)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00040\ \ \ }
+\DoxyCodeLine{00047\ \ \ [[nodiscard]]\ VectorXd\ \mbox{\hyperlink{classPotentialEnergyEstimator_a7cac9d31af53db97078fbc7877f35e38}{GetEncodeVectorOfCluster}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classConfig}{Config}}\ \&config,\ }
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ vector<size\_t>\ cluster)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00054\ \ \ [[nodiscard]]\ \textcolor{keywordtype}{double}\ \mbox{\hyperlink{classPotentialEnergyEstimator_a7bfb60ef245c5155d39b7fbbf56b2c8b}{GetEnergy}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classConfig}{Config}}\ \&config)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00061\ \ \ [[nodiscard]]\ \textcolor{keywordtype}{double}\ \mbox{\hyperlink{classPotentialEnergyEstimator_a8264cfd8b4c762d3dba4656f1bed5e82}{GetEnergyOfCluster}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classConfig}{Config}}\ \&config,}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ vector<size\_t>\ \&cluster)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00063\ \ \ }
+\DoxyCodeLine{00069\ \ \ [[nodiscard]]\ \textcolor{keywordtype}{double}\ \mbox{\hyperlink{classPotentialEnergyEstimator_acf665daa5e29445a514da7fa51a19bb4}{GetDe}}(\mbox{\hyperlink{classConfig}{Config}}\ \&config,\ \textcolor{keyword}{const}\ pair<size\_t,\ size\_t>\ \&lattice\_id\_pair)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00070\ \ \ [[nodiscard]]\ map<Element,\ double>\ GetChemicalPotential(Element\ solvent\_element)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00071\ \ \ }
+\DoxyCodeLine{00072\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00073\ \ \ \textcolor{keyword}{const}\ pair<VectorXd,\ double>\ ce\_fitted\_parameters\_\{\};}
+\DoxyCodeLine{00075\ \ \ \textcolor{keyword}{const}\ VectorXd\ adjusted\_beta\_ce\_\{\};}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00078\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{double}\ adjusted\_intercept\_ce\_;}
+\DoxyCodeLine{00079\ \ }
+\DoxyCodeLine{00081\ \ \ \textcolor{keyword}{const}\ set<Element>\ element\_set\_\{\};}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00084\ \ \ \textcolor{keyword}{const}\ set<ClusterType>\ initialized\_cluster\_type\_set\_\{\};\ \ \ }
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00088\ \ \ \textcolor{keyword}{const}\ unordered\_map<\mbox{\hyperlink{classLatticeClusterType}{LatticeClusterType}},\ size\_t,\ }
+\DoxyCodeLine{00089\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ boost::hash<LatticeClusterType>>\ lattice\_cluster\_type\_count\_\{\};}
+\DoxyCodeLine{00090\ \ \ }
+\DoxyCodeLine{00092\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ max\_cluster\_size\_\{\};}
+\DoxyCodeLine{00093\ }
+\DoxyCodeLine{00095\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ max\_bond\_order\_\{\};}
+\DoxyCodeLine{00096\ }
+\DoxyCodeLine{00097\ \ \ }
+\DoxyCodeLine{00098\ \};}
+\DoxyCodeLine{00099\ }
+\DoxyCodeLine{00100\ \ \ }
+\DoxyCodeLine{00101\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//LMC\_PRED\_INCLUDE\_POTENTIALENERGYESTIMATOR\_H\_}}
+
+\end{DoxyCode}

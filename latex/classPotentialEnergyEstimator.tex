@@ -1,0 +1,146 @@
+\doxysection{Potential\+Energy\+Estimator Class Reference}
+\hypertarget{classPotentialEnergyEstimator}{}\label{classPotentialEnergyEstimator}\index{PotentialEnergyEstimator@{PotentialEnergyEstimator}}
+
+
+Class for defining Cluster Expansion Hamiltonian.  
+
+
+
+
+{\ttfamily \#include $<$Potential\+Energy\+Estimator.\+h$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classPotentialEnergyEstimator_a5584af59ff3337782def9b97ceff00cc}{Potential\+Energy\+Estimator}} (const string \&predictor\+\_\+filename, const \mbox{\hyperlink{classConfig}{Config}} \&reference\+\_\+config, const \mbox{\hyperlink{classConfig}{Config}} \&supercell\+\_\+config, const set$<$ Element $>$ \&element\+\_\+set, size\+\_\+t max\+\_\+cluster\+\_\+size, size\+\_\+t max\+\_\+bond\+\_\+order)
+\item 
+Vector\+Xd \mbox{\hyperlink{classPotentialEnergyEstimator_a797dd406947aac87bb098e8675d128be}{Get\+Encode\+Vector}} (const \mbox{\hyperlink{classConfig}{Config}} \&config) const
+\begin{DoxyCompactList}\small\item\em Get the encode vector of the configuration, which is the number of appearance of each cluster types plus void cluster. \end{DoxyCompactList}\item 
+Vector\+Xd \mbox{\hyperlink{classPotentialEnergyEstimator_a7cac9d31af53db97078fbc7877f35e38}{Get\+Encode\+Vector\+Of\+Cluster}} (const \mbox{\hyperlink{classConfig}{Config}} \&config, vector$<$ size\+\_\+t $>$ cluster) const
+\begin{DoxyCompactList}\small\item\em Get the encoded vector of the configuration, representing the count of each cluster type, including void clusters. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classPotentialEnergyEstimator_a7bfb60ef245c5155d39b7fbbf56b2c8b}{Get\+Energy}} (const \mbox{\hyperlink{classConfig}{Config}} \&config) const
+\begin{DoxyCompactList}\small\item\em Get the Energy of the configuration. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classPotentialEnergyEstimator_a8264cfd8b4c762d3dba4656f1bed5e82}{Get\+Energy\+Of\+Cluster}} (const \mbox{\hyperlink{classConfig}{Config}} \&config, const vector$<$ size\+\_\+t $>$ \&cluster) const
+\begin{DoxyCompactList}\small\item\em Get the energy of the cluster. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classPotentialEnergyEstimator_acf665daa5e29445a514da7fa51a19bb4}{Get\+De}} (\mbox{\hyperlink{classConfig}{Config}} \&config, const pair$<$ size\+\_\+t, size\+\_\+t $>$ \&lattice\+\_\+id\+\_\+pair) const
+\begin{DoxyCompactList}\small\item\em Get the energy change due to atom jump. \end{DoxyCompactList}\item 
+\Hypertarget{classPotentialEnergyEstimator_af991bdedc4b8374cefa61a62025de678}\label{classPotentialEnergyEstimator_af991bdedc4b8374cefa61a62025de678} 
+map$<$ Element, double $>$ {\bfseries Get\+Chemical\+Potential} (Element solvent\+\_\+element) const
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class for defining Cluster Expansion Hamiltonian. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classPotentialEnergyEstimator_a5584af59ff3337782def9b97ceff00cc}\label{classPotentialEnergyEstimator_a5584af59ff3337782def9b97ceff00cc} 
+\index{PotentialEnergyEstimator@{PotentialEnergyEstimator}!PotentialEnergyEstimator@{PotentialEnergyEstimator}}
+\index{PotentialEnergyEstimator@{PotentialEnergyEstimator}!PotentialEnergyEstimator@{PotentialEnergyEstimator}}
+\doxysubsubsection{\texorpdfstring{PotentialEnergyEstimator()}{PotentialEnergyEstimator()}}
+{\footnotesize\ttfamily Potential\+Energy\+Estimator\+::\+Potential\+Energy\+Estimator (\begin{DoxyParamCaption}\item[{const string \&}]{predictor\+\_\+filename,  }\item[{const \mbox{\hyperlink{classConfig}{Config}} \&}]{reference\+\_\+config,  }\item[{const \mbox{\hyperlink{classConfig}{Config}} \&}]{supercell\+\_\+config,  }\item[{const set$<$ Element $>$ \&}]{element\+\_\+set,  }\item[{size\+\_\+t}]{max\+\_\+cluster\+\_\+size,  }\item[{size\+\_\+t}]{max\+\_\+bond\+\_\+order }\end{DoxyParamCaption})}
+
+Todo \+: check the size of the effective\+\_\+cluster\+\_\+interaction\+\_\+ and initialized\+\_\+cluster\+\_\+type\+\_\+set\+\_\+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classPotentialEnergyEstimator_acf665daa5e29445a514da7fa51a19bb4}\label{classPotentialEnergyEstimator_acf665daa5e29445a514da7fa51a19bb4} 
+\index{PotentialEnergyEstimator@{PotentialEnergyEstimator}!GetDe@{GetDe}}
+\index{GetDe@{GetDe}!PotentialEnergyEstimator@{PotentialEnergyEstimator}}
+\doxysubsubsection{\texorpdfstring{GetDe()}{GetDe()}}
+{\footnotesize\ttfamily double Potential\+Energy\+Estimator\+::\+Get\+De (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classConfig}{Config}} \&}]{config,  }\item[{const pair$<$ size\+\_\+t, size\+\_\+t $>$ \&}]{lattice\+\_\+id\+\_\+pair }\end{DoxyParamCaption}) const}
+
+
+
+Get the energy change due to atom jump. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em config} & The configuration to analyze. \\
+\hline
+{\em lattice\+\_\+id\+\_\+pair} & Lattice Id jump pair. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Change in energy due to atom jump. 
+\end{DoxyReturn}
+\Hypertarget{classPotentialEnergyEstimator_a797dd406947aac87bb098e8675d128be}\label{classPotentialEnergyEstimator_a797dd406947aac87bb098e8675d128be} 
+\index{PotentialEnergyEstimator@{PotentialEnergyEstimator}!GetEncodeVector@{GetEncodeVector}}
+\index{GetEncodeVector@{GetEncodeVector}!PotentialEnergyEstimator@{PotentialEnergyEstimator}}
+\doxysubsubsection{\texorpdfstring{GetEncodeVector()}{GetEncodeVector()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector\+Xd Potential\+Energy\+Estimator\+::\+Get\+Encode\+Vector (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classConfig}{Config}} \&}]{config }\end{DoxyParamCaption}) const}
+
+
+
+Get the encode vector of the configuration, which is the number of appearance of each cluster types plus void cluster. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em config} & The configuration the code works on \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The encode vector 
+\end{DoxyReturn}
+\Hypertarget{classPotentialEnergyEstimator_a7cac9d31af53db97078fbc7877f35e38}\label{classPotentialEnergyEstimator_a7cac9d31af53db97078fbc7877f35e38} 
+\index{PotentialEnergyEstimator@{PotentialEnergyEstimator}!GetEncodeVectorOfCluster@{GetEncodeVectorOfCluster}}
+\index{GetEncodeVectorOfCluster@{GetEncodeVectorOfCluster}!PotentialEnergyEstimator@{PotentialEnergyEstimator}}
+\doxysubsubsection{\texorpdfstring{GetEncodeVectorOfCluster()}{GetEncodeVectorOfCluster()}}
+{\footnotesize\ttfamily Eigen\+::\+Vector\+Xd Potential\+Energy\+Estimator\+::\+Get\+Encode\+Vector\+Of\+Cluster (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classConfig}{Config}} \&}]{config,  }\item[{vector$<$ size\+\_\+t $>$}]{cluster }\end{DoxyParamCaption}) const}
+
+
+
+Get the encoded vector of the configuration, representing the count of each cluster type, including void clusters. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em config} & The configuration to analyze. \\
+\hline
+{\em lattice\+\_\+cluster} & Vector containing lattice site IDs for the cluster. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A vector representing the encoded cluster type counts. 
+\end{DoxyReturn}
+\Hypertarget{classPotentialEnergyEstimator_a7bfb60ef245c5155d39b7fbbf56b2c8b}\label{classPotentialEnergyEstimator_a7bfb60ef245c5155d39b7fbbf56b2c8b} 
+\index{PotentialEnergyEstimator@{PotentialEnergyEstimator}!GetEnergy@{GetEnergy}}
+\index{GetEnergy@{GetEnergy}!PotentialEnergyEstimator@{PotentialEnergyEstimator}}
+\doxysubsubsection{\texorpdfstring{GetEnergy()}{GetEnergy()}}
+{\footnotesize\ttfamily double Potential\+Energy\+Estimator\+::\+Get\+Energy (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classConfig}{Config}} \&}]{config }\end{DoxyParamCaption}) const}
+
+
+
+Get the Energy of the configuration. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em config} & The configuration to analyze. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Energy of the configuration. 
+\end{DoxyReturn}
+\Hypertarget{classPotentialEnergyEstimator_a8264cfd8b4c762d3dba4656f1bed5e82}\label{classPotentialEnergyEstimator_a8264cfd8b4c762d3dba4656f1bed5e82} 
+\index{PotentialEnergyEstimator@{PotentialEnergyEstimator}!GetEnergyOfCluster@{GetEnergyOfCluster}}
+\index{GetEnergyOfCluster@{GetEnergyOfCluster}!PotentialEnergyEstimator@{PotentialEnergyEstimator}}
+\doxysubsubsection{\texorpdfstring{GetEnergyOfCluster()}{GetEnergyOfCluster()}}
+{\footnotesize\ttfamily double Potential\+Energy\+Estimator\+::\+Get\+Energy\+Of\+Cluster (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classConfig}{Config}} \&}]{config,  }\item[{const vector$<$ size\+\_\+t $>$ \&}]{cluster }\end{DoxyParamCaption}) const}
+
+
+
+Get the energy of the cluster. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em config} & The configuration to analyze. \\
+\hline
+{\em cluster} & Vector containing lattice site IDs for the cluster. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Energy of the cluster. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+lmc/pred/include/\mbox{\hyperlink{PotentialEnergyEstimator_8h}{Potential\+Energy\+Estimator.\+h}}\item 
+lmc/pred/src/\mbox{\hyperlink{PotentialEnergyEstimator_8cpp}{Potential\+Energy\+Estimator.\+cpp}}\end{DoxyCompactItemize}

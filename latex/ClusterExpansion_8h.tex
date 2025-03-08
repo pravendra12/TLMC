@@ -1,0 +1,235 @@
+\doxysection{lmc/ce/include/\+Cluster\+Expansion.h File Reference}
+\hypertarget{ClusterExpansion_8h}{}\label{ClusterExpansion_8h}\index{lmc/ce/include/ClusterExpansion.h@{lmc/ce/include/ClusterExpansion.h}}
+
+
+File for functions of Cluster\+Expansion methods.  
+
+
+{\ttfamily \#include $<$set$>$}\newline
+{\ttfamily \#include $<$numeric$>$}\newline
+{\ttfamily \#include $<$algorithm$>$}\newline
+{\ttfamily \#include "{}eigen3/\+Eigen/\+Dense"{}}\newline
+{\ttfamily \#include "{}Lattice\+Cluster.\+hpp"{}}\newline
+{\ttfamily \#include "{}Atom\+Cluster.\+hpp"{}}\newline
+{\ttfamily \#include "{}Cluster\+Type.\+hpp"{}}\newline
+Include dependency graph for Cluster\+Expansion.\+h\+:
+% FIG 0
+This graph shows which files directly or indirectly include this file\+:
+% FIG 1
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classLatticeClusterType}{Lattice\+Cluster\+Type}} \mbox{\hyperlink{ClusterExpansion_8h_a0b48617d1575f4558d6eb67b77b3f649}{Indentify\+Lattice\+Cluster\+Type}} (const \mbox{\hyperlink{classConfig}{Config}} \&reference\+\_\+config, const std\+::vector$<$ size\+\_\+t $>$ \&cluster)
+\begin{DoxyCompactList}\small\item\em Identify the type of a lattice cluster. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classAtomClusterType}{Atom\+Cluster\+Type}} \mbox{\hyperlink{ClusterExpansion_8h_ac6e468dcadbc3ab3c895b328fb648c0c}{Indentify\+Atom\+Cluster\+Type}} (const \mbox{\hyperlink{classConfig}{Config}} \&reference\+\_\+config, const std\+::vector$<$ size\+\_\+t $>$ \&cluster)
+\begin{DoxyCompactList}\small\item\em Indentify the type of a atom cluster. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classClusterType}{Cluster\+Type}} \mbox{\hyperlink{ClusterExpansion_8h_ad6092d14ab7332c7d1614ce28d78b522}{Indentify\+Cluster\+Type}} (const \mbox{\hyperlink{classConfig}{Config}} \&reference\+\_\+config, const std\+::vector$<$ size\+\_\+t $>$ \&cluster)
+\begin{DoxyCompactList}\small\item\em Indentify the type of a cluster. \end{DoxyCompactList}\item 
+std\+::set$<$ \mbox{\hyperlink{classLatticeClusterType}{Lattice\+Cluster\+Type}} $>$ \mbox{\hyperlink{ClusterExpansion_8h_ae3121f13a469175862594080c9bc4c29}{Initialize\+Lattice\+Cluster\+Type\+Set}} (const \mbox{\hyperlink{classConfig}{Config}} \&reference\+\_\+config, size\+\_\+t max\+\_\+cluster\+\_\+size, size\+\_\+t max\+\_\+bond\+\_\+order)
+\begin{DoxyCompactList}\small\item\em Create a set that contains all available lattice cluster types. \end{DoxyCompactList}\item 
+std\+::set$<$ \mbox{\hyperlink{classAtomClusterType}{Atom\+Cluster\+Type}} $>$ \mbox{\hyperlink{ClusterExpansion_8h_acc00572c33b1306f76d6f31d3d20aa5d}{Initialize\+Atom\+Cluster\+Type\+Set}} (const std\+::set$<$ Element $>$ \&element\+\_\+set, size\+\_\+t max\+\_\+cluster\+\_\+size)
+\begin{DoxyCompactList}\small\item\em Create a set that contains all available atom cluster types. \end{DoxyCompactList}\item 
+std\+::set$<$ \mbox{\hyperlink{classClusterType}{Cluster\+Type}} $>$ \mbox{\hyperlink{ClusterExpansion_8h_a4fc566c2507203599db7ccedcabdc544}{Initialize\+Cluster\+Type\+Set}} (const \mbox{\hyperlink{classConfig}{Config}} \&reference\+\_\+config, const std\+::set$<$ Element $>$ \&element\+\_\+set, size\+\_\+t max\+\_\+cluster\+\_\+size, size\+\_\+t max\+\_\+bond\+\_\+order)
+\begin{DoxyCompactList}\small\item\em Create a set that contains all available cluster types. \end{DoxyCompactList}\item 
+std\+::unordered\+\_\+set$<$ \mbox{\hyperlink{classLatticeCluster}{Lattice\+Cluster}}, boost\+::hash$<$ \mbox{\hyperlink{classLatticeCluster}{Lattice\+Cluster}} $>$ $>$ \mbox{\hyperlink{ClusterExpansion_8h_a8fed1f893e74ae7eeec87ea9441c222c}{Find\+All\+Lattice\+Clusters}} (const \mbox{\hyperlink{classConfig}{Config}} \&reference\+\_\+config, size\+\_\+t max\+\_\+cluster\+\_\+size, size\+\_\+t max\+\_\+bond\+\_\+order, const std\+::vector$<$ size\+\_\+t $>$ \&lattice\+\_\+id\+\_\+vector)
+\begin{DoxyCompactList}\small\item\em Create a hashset that contains all available lattice clusters related to the given lattice id vector. \end{DoxyCompactList}\item 
+std\+::unordered\+\_\+map$<$ \mbox{\hyperlink{classLatticeClusterType}{Lattice\+Cluster\+Type}}, size\+\_\+t, boost\+::hash$<$ \mbox{\hyperlink{classLatticeClusterType}{Lattice\+Cluster\+Type}} $>$ $>$ \mbox{\hyperlink{ClusterExpansion_8h_ae3660ccaacb16f96205c4e0f9e471f9f}{Count\+Lattice\+Cluster\+Types}} (const \mbox{\hyperlink{classConfig}{Config}} \&reference\+\_\+config, const size\+\_\+t max\+\_\+cluster\+\_\+size, const size\+\_\+t max\+\_\+bond\+\_\+order)
+\begin{DoxyCompactList}\small\item\em Count how many lattice clusters of each type appears in the configuration. \end{DoxyCompactList}\item 
+\Hypertarget{ClusterExpansion_8h_ad55beeabc91dce0ba0918b5ceda70267}\label{ClusterExpansion_8h_ad55beeabc91dce0ba0918b5ceda70267} 
+std\+::unordered\+\_\+map$<$ \mbox{\hyperlink{classLatticeClusterType}{Lattice\+Cluster\+Type}}, size\+\_\+t, boost\+::hash$<$ \mbox{\hyperlink{classLatticeClusterType}{Lattice\+Cluster\+Type}} $>$ $>$ {\bfseries Count\+Lattice\+Site} (const \mbox{\hyperlink{classConfig}{Config}} \&reference\+\_\+config, const size\+\_\+t max\+\_\+cluster\+\_\+size, const size\+\_\+t max\+\_\+bond\+\_\+order)
+\item 
+\Hypertarget{ClusterExpansion_8h_a8dd6e958634d366601800b398aaa8163}\label{ClusterExpansion_8h_a8dd6e958634d366601800b398aaa8163} 
+std\+::unordered\+\_\+map$<$ \mbox{\hyperlink{classLatticeClusterType}{Lattice\+Cluster\+Type}}, std\+::unordered\+\_\+set$<$ \mbox{\hyperlink{classLatticeCluster}{Lattice\+Cluster}}, boost\+::hash$<$ \mbox{\hyperlink{classLatticeCluster}{Lattice\+Cluster}} $>$ $>$, boost\+::hash$<$ \mbox{\hyperlink{classLatticeClusterType}{Lattice\+Cluster\+Type}} $>$ $>$ {\bfseries Lattice\+Site\+Hash\+Map} (const \mbox{\hyperlink{classConfig}{Config}} \&reference\+\_\+config, const size\+\_\+t max\+\_\+cluster\+\_\+size, const size\+\_\+t max\+\_\+bond\+\_\+order)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+File for functions of Cluster\+Expansion methods. 
+
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{ClusterExpansion_8h_ae3660ccaacb16f96205c4e0f9e471f9f}\label{ClusterExpansion_8h_ae3660ccaacb16f96205c4e0f9e471f9f} 
+\index{ClusterExpansion.h@{ClusterExpansion.h}!CountLatticeClusterTypes@{CountLatticeClusterTypes}}
+\index{CountLatticeClusterTypes@{CountLatticeClusterTypes}!ClusterExpansion.h@{ClusterExpansion.h}}
+\doxysubsubsection{\texorpdfstring{CountLatticeClusterTypes()}{CountLatticeClusterTypes()}}
+{\footnotesize\ttfamily std\+::unordered\+\_\+map$<$ \mbox{\hyperlink{classLatticeClusterType}{Lattice\+Cluster\+Type}}, size\+\_\+t, boost\+::hash$<$ \mbox{\hyperlink{classLatticeClusterType}{Lattice\+Cluster\+Type}} $>$ $>$ Count\+Lattice\+Cluster\+Types (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classConfig}{Config}} \&}]{reference\+\_\+config,  }\item[{const size\+\_\+t}]{max\+\_\+cluster\+\_\+size,  }\item[{const size\+\_\+t}]{max\+\_\+bond\+\_\+order }\end{DoxyParamCaption})}
+
+
+
+Count how many lattice clusters of each type appears in the configuration. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em reference\+\_\+config} & The configuration the code works on \\
+\hline
+{\em max\+\_\+cluster\+\_\+size} & The maximum cluster size \\
+\hline
+{\em max\+\_\+bond\+\_\+order} & The cutoff bond distance order applied \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A hashmap that maps the lattice cluster type to its count 
+\end{DoxyReturn}
+\Hypertarget{ClusterExpansion_8h_a8fed1f893e74ae7eeec87ea9441c222c}\label{ClusterExpansion_8h_a8fed1f893e74ae7eeec87ea9441c222c} 
+\index{ClusterExpansion.h@{ClusterExpansion.h}!FindAllLatticeClusters@{FindAllLatticeClusters}}
+\index{FindAllLatticeClusters@{FindAllLatticeClusters}!ClusterExpansion.h@{ClusterExpansion.h}}
+\doxysubsubsection{\texorpdfstring{FindAllLatticeClusters()}{FindAllLatticeClusters()}}
+{\footnotesize\ttfamily std\+::unordered\+\_\+set$<$ \mbox{\hyperlink{classLatticeCluster}{Lattice\+Cluster}}, boost\+::hash$<$ \mbox{\hyperlink{classLatticeCluster}{Lattice\+Cluster}} $>$ $>$ Find\+All\+Lattice\+Clusters (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classConfig}{Config}} \&}]{reference\+\_\+config,  }\item[{size\+\_\+t}]{max\+\_\+cluster\+\_\+size,  }\item[{size\+\_\+t}]{max\+\_\+bond\+\_\+order,  }\item[{const std\+::vector$<$ size\+\_\+t $>$ \&}]{lattice\+\_\+id\+\_\+vector }\end{DoxyParamCaption})}
+
+
+
+Create a hashset that contains all available lattice clusters related to the given lattice id vector. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em reference\+\_\+config} & The configuration the code works on \\
+\hline
+{\em max\+\_\+cluster\+\_\+size} & The maximum cluster size \\
+\hline
+{\em max\+\_\+bond\+\_\+order} & The cutoff bond distance order applied \\
+\hline
+{\em lattice\+\_\+id\+\_\+vector} & The vector of lattice ids \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A hashset of lattice clusters 
+\end{DoxyReturn}
+\Hypertarget{ClusterExpansion_8h_ac6e468dcadbc3ab3c895b328fb648c0c}\label{ClusterExpansion_8h_ac6e468dcadbc3ab3c895b328fb648c0c} 
+\index{ClusterExpansion.h@{ClusterExpansion.h}!IndentifyAtomClusterType@{IndentifyAtomClusterType}}
+\index{IndentifyAtomClusterType@{IndentifyAtomClusterType}!ClusterExpansion.h@{ClusterExpansion.h}}
+\doxysubsubsection{\texorpdfstring{IndentifyAtomClusterType()}{IndentifyAtomClusterType()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classAtomClusterType}{Atom\+Cluster\+Type}} Indentify\+Atom\+Cluster\+Type (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classConfig}{Config}} \&}]{reference\+\_\+config,  }\item[{const std\+::vector$<$ size\+\_\+t $>$ \&}]{cluster }\end{DoxyParamCaption})}
+
+
+
+Indentify the type of a atom cluster. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em reference\+\_\+config} & The configuration the code works on \\
+\hline
+{\em cluster} & The input cluster, of lattice ids \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The atom type of the cluster 
+\end{DoxyReturn}
+\Hypertarget{ClusterExpansion_8h_ad6092d14ab7332c7d1614ce28d78b522}\label{ClusterExpansion_8h_ad6092d14ab7332c7d1614ce28d78b522} 
+\index{ClusterExpansion.h@{ClusterExpansion.h}!IndentifyClusterType@{IndentifyClusterType}}
+\index{IndentifyClusterType@{IndentifyClusterType}!ClusterExpansion.h@{ClusterExpansion.h}}
+\doxysubsubsection{\texorpdfstring{IndentifyClusterType()}{IndentifyClusterType()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classClusterType}{Cluster\+Type}} Indentify\+Cluster\+Type (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classConfig}{Config}} \&}]{reference\+\_\+config,  }\item[{const std\+::vector$<$ size\+\_\+t $>$ \&}]{cluster }\end{DoxyParamCaption})}
+
+
+
+Indentify the type of a cluster. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em reference\+\_\+config} & The configuration the code works on \\
+\hline
+{\em cluster} & The input cluster \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The type of the cluster 
+\end{DoxyReturn}
+\Hypertarget{ClusterExpansion_8h_a0b48617d1575f4558d6eb67b77b3f649}\label{ClusterExpansion_8h_a0b48617d1575f4558d6eb67b77b3f649} 
+\index{ClusterExpansion.h@{ClusterExpansion.h}!IndentifyLatticeClusterType@{IndentifyLatticeClusterType}}
+\index{IndentifyLatticeClusterType@{IndentifyLatticeClusterType}!ClusterExpansion.h@{ClusterExpansion.h}}
+\doxysubsubsection{\texorpdfstring{IndentifyLatticeClusterType()}{IndentifyLatticeClusterType()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classLatticeClusterType}{Lattice\+Cluster\+Type}} Indentify\+Lattice\+Cluster\+Type (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classConfig}{Config}} \&}]{reference\+\_\+config,  }\item[{const std\+::vector$<$ size\+\_\+t $>$ \&}]{cluster }\end{DoxyParamCaption})}
+
+
+
+Identify the type of a lattice cluster. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em reference\+\_\+config} & The configuration the code works on \\
+\hline
+{\em cluster} & The input cluster, of lattice ids \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The lattice type of the cluster
+\end{DoxyReturn}
+Identify the type of a lattice cluster.
+
+
+\begin{DoxyParams}{Parameters}
+{\em reference\+\_\+config} & \+: The configuration the code works on \\
+\hline
+{\em max\+\_\+bond\+\_\+order} & \+: The cutoff bond distance order applied \\
+\hline
+{\em old\+\_\+clusters} & \+: The input cluster list \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\+: The output cluster list 
+\end{DoxyReturn}
+\Hypertarget{ClusterExpansion_8h_acc00572c33b1306f76d6f31d3d20aa5d}\label{ClusterExpansion_8h_acc00572c33b1306f76d6f31d3d20aa5d} 
+\index{ClusterExpansion.h@{ClusterExpansion.h}!InitializeAtomClusterTypeSet@{InitializeAtomClusterTypeSet}}
+\index{InitializeAtomClusterTypeSet@{InitializeAtomClusterTypeSet}!ClusterExpansion.h@{ClusterExpansion.h}}
+\doxysubsubsection{\texorpdfstring{InitializeAtomClusterTypeSet()}{InitializeAtomClusterTypeSet()}}
+{\footnotesize\ttfamily std\+::set$<$ \mbox{\hyperlink{classAtomClusterType}{Atom\+Cluster\+Type}} $>$ Initialize\+Atom\+Cluster\+Type\+Set (\begin{DoxyParamCaption}\item[{const std\+::set$<$ Element $>$ \&}]{element\+\_\+set,  }\item[{size\+\_\+t}]{max\+\_\+cluster\+\_\+size }\end{DoxyParamCaption})}
+
+
+
+Create a set that contains all available atom cluster types. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em element\+\_\+set} & The set of elements \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A set of atom cluster types 
+\end{DoxyReturn}
+\Hypertarget{ClusterExpansion_8h_a4fc566c2507203599db7ccedcabdc544}\label{ClusterExpansion_8h_a4fc566c2507203599db7ccedcabdc544} 
+\index{ClusterExpansion.h@{ClusterExpansion.h}!InitializeClusterTypeSet@{InitializeClusterTypeSet}}
+\index{InitializeClusterTypeSet@{InitializeClusterTypeSet}!ClusterExpansion.h@{ClusterExpansion.h}}
+\doxysubsubsection{\texorpdfstring{InitializeClusterTypeSet()}{InitializeClusterTypeSet()}}
+{\footnotesize\ttfamily std\+::set$<$ \mbox{\hyperlink{classClusterType}{Cluster\+Type}} $>$ Initialize\+Cluster\+Type\+Set (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classConfig}{Config}} \&}]{reference\+\_\+config,  }\item[{const std\+::set$<$ Element $>$ \&}]{element\+\_\+set,  }\item[{size\+\_\+t}]{max\+\_\+cluster\+\_\+size,  }\item[{size\+\_\+t}]{max\+\_\+bond\+\_\+order }\end{DoxyParamCaption})}
+
+
+
+Create a set that contains all available cluster types. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em reference\+\_\+config} & The configuration the code works on \\
+\hline
+{\em element\+\_\+set} & The set of elements \\
+\hline
+{\em max\+\_\+cluster\+\_\+size} & The maximum cluster size \\
+\hline
+{\em max\+\_\+bond\+\_\+order} & The cutoff bond distance order applied \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A set of cluster types 
+\end{DoxyReturn}
+\Hypertarget{ClusterExpansion_8h_ae3121f13a469175862594080c9bc4c29}\label{ClusterExpansion_8h_ae3121f13a469175862594080c9bc4c29} 
+\index{ClusterExpansion.h@{ClusterExpansion.h}!InitializeLatticeClusterTypeSet@{InitializeLatticeClusterTypeSet}}
+\index{InitializeLatticeClusterTypeSet@{InitializeLatticeClusterTypeSet}!ClusterExpansion.h@{ClusterExpansion.h}}
+\doxysubsubsection{\texorpdfstring{InitializeLatticeClusterTypeSet()}{InitializeLatticeClusterTypeSet()}}
+{\footnotesize\ttfamily std\+::set$<$ \mbox{\hyperlink{classLatticeClusterType}{Lattice\+Cluster\+Type}} $>$ Initialize\+Lattice\+Cluster\+Type\+Set (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classConfig}{Config}} \&}]{reference\+\_\+config,  }\item[{size\+\_\+t}]{max\+\_\+cluster\+\_\+size,  }\item[{size\+\_\+t}]{max\+\_\+bond\+\_\+order }\end{DoxyParamCaption})}
+
+
+
+Create a set that contains all available lattice cluster types. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em reference\+\_\+config} & The configuration the code works on \\
+\hline
+{\em max\+\_\+cluster\+\_\+size} & The maximum cluster size \\
+\hline
+{\em max\+\_\+bond\+\_\+order} & The cutoff bond distance order applied \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A set of lattice cluster types 
+\end{DoxyReturn}

@@ -1,0 +1,164 @@
+\doxysection{Lattice\+Cluster Class Reference}
+\hypertarget{classLatticeCluster}{}\label{classLatticeCluster}\index{LatticeCluster@{LatticeCluster}}
+
+
+Class for defining a cluster of lattice sites.  
+
+
+
+
+{\ttfamily \#include $<$Lattice\+Cluster.\+hpp$>$}
+
+
+
+Collaboration diagram for Lattice\+Cluster\+:
+% FIG 0
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classLatticeCluster_af51411a1e7b96c97f1b32ade4da8fe1a}\label{classLatticeCluster_af51411a1e7b96c97f1b32ade4da8fe1a} 
+{\bfseries Lattice\+Cluster} ()=default
+\begin{DoxyCompactList}\small\item\em Default constructor for \doxylink{classLatticeCluster}{Lattice\+Cluster}. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classLatticeCluster_a52416526f1c419a069fd1ea15f2f2ac3}{Lattice\+Cluster}} (\mbox{\hyperlink{classLatticeClusterType}{Lattice\+Cluster\+Type}} lattice\+\_\+cluster\+\_\+type, std\+::vector$<$ size\+\_\+t $>$ lattice\+\_\+id\+\_\+vector)
+\begin{DoxyCompactList}\small\item\em Constructor for setting up the cluster of lattice sites. \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename ... Id$>$ }\\\mbox{\hyperlink{classLatticeCluster_a809bfc266e6b960a63b127dcad04f650}{Lattice\+Cluster}} (\mbox{\hyperlink{classLatticeClusterType}{Lattice\+Cluster\+Type}} lattice\+\_\+cluster\+\_\+type, Id \&\&... lattice\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Constructor for setting up the cluster type. \end{DoxyCompactList}\item 
+\Hypertarget{classLatticeCluster_a70373191e0433ae5a911794dee61a962}\label{classLatticeCluster_a70373191e0433ae5a911794dee61a962} 
+virtual {\bfseries \texorpdfstring{$\sim$}{\string~}\+Lattice\+Cluster} ()=default
+\begin{DoxyCompactList}\small\item\em Default destructor for \doxylink{classLatticeCluster}{Lattice\+Cluster}. \end{DoxyCompactList}\item 
+const std\+::vector$<$ size\+\_\+t $>$ \& \mbox{\hyperlink{classLatticeCluster_ae496f4dbc2fb42fadd7ca84756becf79}{Get\+Lattice\+Id\+Vector}} () const
+\begin{DoxyCompactList}\small\item\em Query for the vector of id index of lattice sites. \end{DoxyCompactList}\item 
+const \mbox{\hyperlink{classLatticeClusterType}{Lattice\+Cluster\+Type}} \& \mbox{\hyperlink{classLatticeCluster_a0f0f8c98dda5cc9845f417604e8dae7c}{Get\+Cluster\+Type}} () const
+\begin{DoxyCompactList}\small\item\em Query for the type of the cluster. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classLatticeCluster_a3f24aaf119a8684120c621e035eb2717}\label{classLatticeCluster_a3f24aaf119a8684120c621e035eb2717} 
+\mbox{\hyperlink{classLatticeClusterType}{Lattice\+Cluster\+Type}} {\bfseries cluster\+\_\+type\+\_\+}
+\begin{DoxyCompactList}\small\item\em The type of the cluster. \end{DoxyCompactList}\item 
+\Hypertarget{classLatticeCluster_af17ba0151bf623b6bd99ae82e3a22042}\label{classLatticeCluster_af17ba0151bf623b6bd99ae82e3a22042} 
+std\+::vector$<$ size\+\_\+t $>$ {\bfseries lattice\+\_\+id\+\_\+vector\+\_\+}
+\begin{DoxyCompactList}\small\item\em The vector of id index of lattice sites. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+bool \mbox{\hyperlink{classLatticeCluster_ad2b03d6b906a9784fa0767bbd88ff717}{operator==}} (const \mbox{\hyperlink{classLatticeCluster}{Lattice\+Cluster}} \&lhs, const \mbox{\hyperlink{classLatticeCluster}{Lattice\+Cluster}} \&rhs)
+\begin{DoxyCompactList}\small\item\em \textquotesingle{}equals\textquotesingle{} operator. \end{DoxyCompactList}\item 
+size\+\_\+t \mbox{\hyperlink{classLatticeCluster_abb47375fb9c231d839f3cfae1d850b1f}{hash\+\_\+value}} (const \mbox{\hyperlink{classLatticeCluster}{Lattice\+Cluster}} \&cluster)
+\begin{DoxyCompactList}\small\item\em Generate the hash of a \doxylink{classLatticeCluster}{Lattice\+Cluster}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class for defining a cluster of lattice sites. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classLatticeCluster_a52416526f1c419a069fd1ea15f2f2ac3}\label{classLatticeCluster_a52416526f1c419a069fd1ea15f2f2ac3} 
+\index{LatticeCluster@{LatticeCluster}!LatticeCluster@{LatticeCluster}}
+\index{LatticeCluster@{LatticeCluster}!LatticeCluster@{LatticeCluster}}
+\doxysubsubsection{\texorpdfstring{LatticeCluster()}{LatticeCluster()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily Lattice\+Cluster\+::\+Lattice\+Cluster (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classLatticeClusterType}{Lattice\+Cluster\+Type}}}]{lattice\+\_\+cluster\+\_\+type,  }\item[{std\+::vector$<$ size\+\_\+t $>$}]{lattice\+\_\+id\+\_\+vector }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Constructor for setting up the cluster of lattice sites. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em lattice\+\_\+cluster\+\_\+type} & \+: The cluster type. \\
+\hline
+{\em lattice\+\_\+id\+\_\+vector} & \+: The lattice id vector of the cluster \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classLatticeCluster_a809bfc266e6b960a63b127dcad04f650}\label{classLatticeCluster_a809bfc266e6b960a63b127dcad04f650} 
+\index{LatticeCluster@{LatticeCluster}!LatticeCluster@{LatticeCluster}}
+\index{LatticeCluster@{LatticeCluster}!LatticeCluster@{LatticeCluster}}
+\doxysubsubsection{\texorpdfstring{LatticeCluster()}{LatticeCluster()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename ... Id$>$ \\
+Lattice\+Cluster\+::\+Lattice\+Cluster (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classLatticeClusterType}{Lattice\+Cluster\+Type}}}]{lattice\+\_\+cluster\+\_\+type,  }\item[{Id \&\&...}]{lattice\+\_\+id }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [explicit]}}
+
+
+
+Constructor for setting up the cluster type. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em lattice\+\_\+cluster\+\_\+type} & \+: The cluster type. \\
+\hline
+{\em lattice\+\_\+id} & \+: The bond distance index. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classLatticeCluster_a0f0f8c98dda5cc9845f417604e8dae7c}\label{classLatticeCluster_a0f0f8c98dda5cc9845f417604e8dae7c} 
+\index{LatticeCluster@{LatticeCluster}!GetClusterType@{GetClusterType}}
+\index{GetClusterType@{GetClusterType}!LatticeCluster@{LatticeCluster}}
+\doxysubsubsection{\texorpdfstring{GetClusterType()}{GetClusterType()}}
+{\footnotesize\ttfamily const \mbox{\hyperlink{classLatticeClusterType}{Lattice\+Cluster\+Type}} \& Lattice\+Cluster\+::\+Get\+Cluster\+Type (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Query for the type of the cluster. 
+
+\begin{DoxyReturn}{Returns}
+\+: The type of the cluster. 
+\end{DoxyReturn}
+\Hypertarget{classLatticeCluster_ae496f4dbc2fb42fadd7ca84756becf79}\label{classLatticeCluster_ae496f4dbc2fb42fadd7ca84756becf79} 
+\index{LatticeCluster@{LatticeCluster}!GetLatticeIdVector@{GetLatticeIdVector}}
+\index{GetLatticeIdVector@{GetLatticeIdVector}!LatticeCluster@{LatticeCluster}}
+\doxysubsubsection{\texorpdfstring{GetLatticeIdVector()}{GetLatticeIdVector()}}
+{\footnotesize\ttfamily const std\+::vector$<$ size\+\_\+t $>$ \& Lattice\+Cluster\+::\+Get\+Lattice\+Id\+Vector (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Query for the vector of id index of lattice sites. 
+
+\begin{DoxyReturn}{Returns}
+\+: The vector of id index of lattice sites. 
+\end{DoxyReturn}
+
+
+\doxysubsection{Friends And Related Symbol Documentation}
+\Hypertarget{classLatticeCluster_abb47375fb9c231d839f3cfae1d850b1f}\label{classLatticeCluster_abb47375fb9c231d839f3cfae1d850b1f} 
+\index{LatticeCluster@{LatticeCluster}!hash\_value@{hash\_value}}
+\index{hash\_value@{hash\_value}!LatticeCluster@{LatticeCluster}}
+\doxysubsubsection{\texorpdfstring{hash\_value}{hash\_value}}
+{\footnotesize\ttfamily size\+\_\+t hash\+\_\+value (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classLatticeCluster}{Lattice\+Cluster}} \&}]{cluster }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Generate the hash of a \doxylink{classLatticeCluster}{Lattice\+Cluster}. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em cluster} & \+: The \doxylink{classLatticeCluster}{Lattice\+Cluster} to be hashed. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\+: The hash value of the \doxylink{classLatticeCluster}{Lattice\+Cluster}. 
+\end{DoxyReturn}
+\Hypertarget{classLatticeCluster_ad2b03d6b906a9784fa0767bbd88ff717}\label{classLatticeCluster_ad2b03d6b906a9784fa0767bbd88ff717} 
+\index{LatticeCluster@{LatticeCluster}!operator==@{operator==}}
+\index{operator==@{operator==}!LatticeCluster@{LatticeCluster}}
+\doxysubsubsection{\texorpdfstring{operator==}{operator==}}
+{\footnotesize\ttfamily bool operator== (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{classLatticeCluster}{Lattice\+Cluster}} \&}]{lhs,  }\item[{const \mbox{\hyperlink{classLatticeCluster}{Lattice\+Cluster}} \&}]{rhs }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+\textquotesingle{}equals\textquotesingle{} operator. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em lhs} & \+: The left hand side \doxylink{classLatticeCluster}{Lattice\+Cluster}. \\
+\hline
+{\em rhs} & \+: The right hand side \doxylink{classLatticeCluster}{Lattice\+Cluster}. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\+: lhs == rhs 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+lmc/ce/include/Lattice\+Cluster.\+hpp\end{DoxyCompactItemize}

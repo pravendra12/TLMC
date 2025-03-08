@@ -1,0 +1,62 @@
+\doxysection{Cluster\+Expansion.\+h}
+\hypertarget{ClusterExpansion_8h_source}{}\label{ClusterExpansion_8h_source}\index{lmc/ce/include/ClusterExpansion.h@{lmc/ce/include/ClusterExpansion.h}}
+\mbox{\hyperlink{ClusterExpansion_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/**************************************************************************************************}}
+\DoxyCodeLine{00002\ \textcolor{comment}{\ *\ Copyright\ (c)\ 2023-\/2023.\ All\ rights\ reserved.\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\ *\ @Author:\ Zhucong\ Xi\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ *\ @Date:\ 7/3/23\ 11:31\ AM\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ *\ @Last\ Modified\ by:\ pravendra\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00006\ \textcolor{comment}{\ *\ @Last\ Modified\ time:\ 11/26/24\ 4:30\ PM\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ **************************************************************************************************/}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00013\ \textcolor{preprocessor}{\#ifndef\ LMC\_CE\_INCLUDE\_CLUSTEREXPANSION\_H\_}}
+\DoxyCodeLine{00014\ \textcolor{preprocessor}{\#define\ LMC\_CE\_INCLUDE\_CLUSTEREXPANSION\_H\_}}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#include\ <set>}}
+\DoxyCodeLine{00017\ \textcolor{preprocessor}{\#include\ <numeric>}}
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ <algorithm>}}
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#include\ "{}eigen3/Eigen/Dense"{}}}
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#include\ "{}LatticeCluster.hpp"{}}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ "{}AtomCluster.hpp"{}}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#include\ "{}ClusterType.hpp"{}}}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00029\ \mbox{\hyperlink{classLatticeClusterType}{LatticeClusterType}}\ \mbox{\hyperlink{ClusterExpansion_8h_a0b48617d1575f4558d6eb67b77b3f649}{IndentifyLatticeClusterType}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classConfig}{Config}}\ \&reference\_config,}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::vector<size\_t>\ \&cluster);}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00037\ \mbox{\hyperlink{classAtomClusterType}{AtomClusterType}}\ \mbox{\hyperlink{ClusterExpansion_8h_ac6e468dcadbc3ab3c895b328fb648c0c}{IndentifyAtomClusterType}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classConfig}{Config}}\ \&reference\_config,}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::vector<size\_t>\ \&cluster);}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00045\ \mbox{\hyperlink{classClusterType}{ClusterType}}\ \mbox{\hyperlink{ClusterExpansion_8h_ad6092d14ab7332c7d1614ce28d78b522}{IndentifyClusterType}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classConfig}{Config}}\ \&reference\_config,}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::vector<size\_t>\ \&cluster);}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00054\ std::set<LatticeClusterType>\ \mbox{\hyperlink{ClusterExpansion_8h_ae3121f13a469175862594080c9bc4c29}{InitializeLatticeClusterTypeSet}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classConfig}{Config}}\ \&reference\_config,}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ max\_cluster\_size,}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ max\_bond\_order);}
+\DoxyCodeLine{00061\ std::set<AtomClusterType>\ \mbox{\hyperlink{ClusterExpansion_8h_acc00572c33b1306f76d6f31d3d20aa5d}{InitializeAtomClusterTypeSet}}(\textcolor{keyword}{const}\ std::set<Element>\ \&element\_set,\ \textcolor{keywordtype}{size\_t}\ max\_cluster\_size);}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00071\ std::set<ClusterType>\ \mbox{\hyperlink{ClusterExpansion_8h_a4fc566c2507203599db7ccedcabdc544}{InitializeClusterTypeSet}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classConfig}{Config}}\ \&reference\_config,}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::set<Element>\ \&element\_set,}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ max\_cluster\_size,}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ max\_bond\_order);}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00085\ std::unordered\_set<LatticeCluster,\ boost::hash<LatticeCluster>>\ \mbox{\hyperlink{ClusterExpansion_8h_a8fed1f893e74ae7eeec87ea9441c222c}{FindAllLatticeClusters}}(}
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classConfig}{Config}}\ \&reference\_config,}
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ max\_cluster\_size,}
+\DoxyCodeLine{00088\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ max\_bond\_order,}
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{keyword}{const}\ std::vector<size\_t>\ \&lattice\_id\_vector);}
+\DoxyCodeLine{00090\ }
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00099\ std::unordered\_map<\mbox{\hyperlink{classLatticeClusterType}{LatticeClusterType}},\ }
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ size\_t,\ boost::hash<LatticeClusterType>>\ }
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{ClusterExpansion_8h_ae3660ccaacb16f96205c4e0f9e471f9f}{CountLatticeClusterTypes}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classConfig}{Config}}\ \&reference\_config,\ }
+\DoxyCodeLine{00102\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ max\_cluster\_size,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ max\_bond\_order);}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00104\ std::unordered\_map<LatticeClusterType,\ size\_t,\ boost::hash<LatticeClusterType>>\ CountLatticeSite(\textcolor{keyword}{const}\ \mbox{\hyperlink{classConfig}{Config}}\ \&reference\_config,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ max\_cluster\_size,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ max\_bond\_order);}
+\DoxyCodeLine{00105\ }
+\DoxyCodeLine{00106\ std::unordered\_map<LatticeClusterType,\ std::unordered\_set<LatticeCluster,\ boost::hash<LatticeCluster>>,\ boost::hash<LatticeClusterType>>\ LatticeSiteHashMap(\textcolor{keyword}{const}\ \mbox{\hyperlink{classConfig}{Config}}\ \&reference\_config,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ max\_cluster\_size,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ max\_bond\_order);}
+\DoxyCodeLine{00107\ }
+\DoxyCodeLine{00108\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//LMC\_CE\_INCLUDE\_CLUSTEREXPANSION\_H\_}}
+
+\end{DoxyCode}

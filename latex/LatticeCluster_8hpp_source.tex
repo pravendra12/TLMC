@@ -1,0 +1,72 @@
+\doxysection{Lattice\+Cluster.\+hpp}
+\hypertarget{LatticeCluster_8hpp_source}{}\label{LatticeCluster_8hpp_source}\index{lmc/ce/include/LatticeCluster.hpp@{lmc/ce/include/LatticeCluster.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/**************************************************************************************************}}
+\DoxyCodeLine{00002\ \textcolor{comment}{\ *\ Copyright\ (c)\ 2021-\/2023.\ All\ rights\ reserved.\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\ *\ @Author:\ Zhucong\ Xi\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ *\ @Date:\ 12/6/21\ 8:55\ PM\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ *\ @Last\ Modified\ by:\ zhucongx\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00006\ \textcolor{comment}{\ *\ @Last\ Modified\ time:\ 9/27/23\ 1:09\ PM\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ **************************************************************************************************/}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00013\ \textcolor{preprocessor}{\#ifndef\ LMC\_CE\_INCLUDE\_LATTICECLUSTER\_HPP\_}}
+\DoxyCodeLine{00014\ \textcolor{preprocessor}{\#define\ LMC\_CE\_INCLUDE\_LATTICECLUSTER\_HPP\_}}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#include\ <utility>}}
+\DoxyCodeLine{00017\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ <boost/functional/hash.hpp>}}
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#include\ "{}eigen3/Eigen/Dense"{}}}
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#include\ "{}LatticeClusterType.hpp"{}}}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00024\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classLatticeCluster}{LatticeCluster}}\ \{}
+\DoxyCodeLine{00025\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00028\ \ \ \mbox{\hyperlink{classLatticeCluster_af51411a1e7b96c97f1b32ade4da8fe1a}{LatticeCluster}}()\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00034\ \ \ \mbox{\hyperlink{classLatticeCluster_a52416526f1c419a069fd1ea15f2f2ac3}{LatticeCluster}}(\mbox{\hyperlink{classLatticeClusterType}{LatticeClusterType}}\ lattice\_cluster\_type,\ std::vector<size\_t>\ lattice\_id\_vector)}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ :\ \mbox{\hyperlink{classLatticeCluster_a3f24aaf119a8684120c621e035eb2717}{cluster\_type\_}}(std::move(lattice\_cluster\_type)),\ \mbox{\hyperlink{classLatticeCluster_af17ba0151bf623b6bd99ae82e3a22042}{lattice\_id\_vector\_}}(std::move(lattice\_id\_vector))\ \{}
+\DoxyCodeLine{00036\ \ \ \ \ std::sort(\mbox{\hyperlink{classLatticeCluster_af17ba0151bf623b6bd99ae82e3a22042}{lattice\_id\_vector\_}}.begin(),\ \mbox{\hyperlink{classLatticeCluster_af17ba0151bf623b6bd99ae82e3a22042}{lattice\_id\_vector\_}}.end());}
+\DoxyCodeLine{00037\ \ \ \}}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00043\ \ \ \textcolor{keyword}{template}<\textcolor{keyword}{typename}\ ...\ Id>}
+\DoxyCodeLine{00044\ \ \ \textcolor{keyword}{explicit}\ \mbox{\hyperlink{classLatticeCluster_a809bfc266e6b960a63b127dcad04f650}{LatticeCluster}}(\mbox{\hyperlink{classLatticeClusterType}{LatticeClusterType}}\ lattice\_cluster\_type,\ Id\ \&\&...\ lattice\_id)}
+\DoxyCodeLine{00045\ \ \ \ \ \ \ :\ \mbox{\hyperlink{classLatticeCluster_a3f24aaf119a8684120c621e035eb2717}{cluster\_type\_}}(std::move(lattice\_cluster\_type)),\ \mbox{\hyperlink{classLatticeCluster_af17ba0151bf623b6bd99ae82e3a22042}{lattice\_id\_vector\_}}\{std::forward<Id>(lattice\_id)...\}\ \{}
+\DoxyCodeLine{00046\ \ \ \ \ std::sort(\mbox{\hyperlink{classLatticeCluster_af17ba0151bf623b6bd99ae82e3a22042}{lattice\_id\_vector\_}}.begin(),\ \mbox{\hyperlink{classLatticeCluster_af17ba0151bf623b6bd99ae82e3a22042}{lattice\_id\_vector\_}}.end());}
+\DoxyCodeLine{00047\ \ \ \}}
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00051\ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{classLatticeCluster_a70373191e0433ae5a911794dee61a962}{\string~LatticeCluster}}()\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00056\ \ \ [[nodiscard]]\ \textcolor{keyword}{const}\ std::vector<size\_t>\ \&\mbox{\hyperlink{classLatticeCluster_ae496f4dbc2fb42fadd7ca84756becf79}{GetLatticeIdVector}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classLatticeCluster_af17ba0151bf623b6bd99ae82e3a22042}{lattice\_id\_vector\_}};}
+\DoxyCodeLine{00058\ \ \ \}}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00063\ \ \ [[nodiscard]]\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classLatticeClusterType}{LatticeClusterType}}\ \&\mbox{\hyperlink{classLatticeCluster_a0f0f8c98dda5cc9845f417604e8dae7c}{GetClusterType}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00064\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classLatticeCluster_a3f24aaf119a8684120c621e035eb2717}{cluster\_type\_}};}
+\DoxyCodeLine{00065\ \ \ \}}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00072\ \ \ \textcolor{keyword}{friend}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classLatticeCluster_ad2b03d6b906a9784fa0767bbd88ff717}{operator==}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classLatticeCluster}{LatticeCluster}}\ \&lhs,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classLatticeCluster}{LatticeCluster}}\ \&rhs)\ \{}
+\DoxyCodeLine{00073\ \ \ \ \ \textcolor{comment}{//\ if\ (lhs.cluster\_type\_\ !=\ rhs.cluster\_type\_)\ \{\ return\ false;\ \}\ //\ not\ necessary}}
+\DoxyCodeLine{00074\ \ \ \ \ \textcolor{keywordflow}{if}\ (lhs.\mbox{\hyperlink{classLatticeCluster_af17ba0151bf623b6bd99ae82e3a22042}{lattice\_id\_vector\_}}.size()\ !=\ rhs.\mbox{\hyperlink{classLatticeCluster_af17ba0151bf623b6bd99ae82e3a22042}{lattice\_id\_vector\_}}.size())\ \{\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};\ \}}
+\DoxyCodeLine{00075\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ lhs.\mbox{\hyperlink{classLatticeCluster_af17ba0151bf623b6bd99ae82e3a22042}{lattice\_id\_vector\_}}.size();\ ++i)\ \{}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (lhs.\mbox{\hyperlink{classLatticeCluster_af17ba0151bf623b6bd99ae82e3a22042}{lattice\_id\_vector\_}}[i]\ !=\ rhs.\mbox{\hyperlink{classLatticeCluster_af17ba0151bf623b6bd99ae82e3a22042}{lattice\_id\_vector\_}}[i])\ \{\ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};\ \}}
+\DoxyCodeLine{00077\ \ \ \ \ \}}
+\DoxyCodeLine{00078\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00079\ \ \ \}}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00085\ \ \ \textcolor{keyword}{friend}\ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{classLatticeCluster_abb47375fb9c231d839f3cfae1d850b1f}{hash\_value}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classLatticeCluster}{LatticeCluster}}\ \&cluster)\ \{}
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ seed\ =\ 0;}
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ :\ cluster.\mbox{\hyperlink{classLatticeCluster_af17ba0151bf623b6bd99ae82e3a22042}{lattice\_id\_vector\_}})\ \{}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ boost::hash\_combine(seed,\ i);}
+\DoxyCodeLine{00089\ \ \ \ \ \}}
+\DoxyCodeLine{00090\ \ \ \ \ \textcolor{keywordflow}{return}\ seed;}
+\DoxyCodeLine{00091\ \ \ \}}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ \ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00095\ \ \ \mbox{\hyperlink{classLatticeClusterType}{LatticeClusterType}}\ \mbox{\hyperlink{classLatticeCluster_a3f24aaf119a8684120c621e035eb2717}{cluster\_type\_}};}
+\DoxyCodeLine{00097\ \ \ std::vector<size\_t>\ \mbox{\hyperlink{classLatticeCluster_af17ba0151bf623b6bd99ae82e3a22042}{lattice\_id\_vector\_}};}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \};}
+\DoxyCodeLine{00100\ }
+\DoxyCodeLine{00101\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//LMC\_CE\_INCLUDE\_LATTICECLUSTER\_HPP\_}}
+
+\end{DoxyCode}

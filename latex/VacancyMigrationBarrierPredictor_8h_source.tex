@@ -1,0 +1,68 @@
+\doxysection{Vacancy\+Migration\+Barrier\+Predictor.\+h}
+\hypertarget{VacancyMigrationBarrierPredictor_8h_source}{}\label{VacancyMigrationBarrierPredictor_8h_source}\index{lmc/pred/include/VacancyMigrationBarrierPredictor.h@{lmc/pred/include/VacancyMigrationBarrierPredictor.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#ifndef\ LMC\_LMC\_PRED\_INCLUDE\_VACANCYMIGRATIONBARRIERPREDICTOR\_H\_}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#define\ LMC\_LMC\_PRED\_INCLUDE\_VACANCYMIGRATIONBARRIERPREDICTOR\_H\_}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{Config_8h}{Config.h}}"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}JsonUtility.h"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}Symmetry.h"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}EncodingUtility.h"{}}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ <omp.h>}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ <mutex>}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ <unordered\_map>}}
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#include\ <eigen3/Eigen/Dense>}}
+\DoxyCodeLine{00012\ \textcolor{preprocessor}{\#include\ <boost/functional/hash.hpp>}}
+\DoxyCodeLine{00013\ \textcolor{keyword}{using\ namespace\ }std;}
+\DoxyCodeLine{00014\ \textcolor{keyword}{using\ namespace\ }Eigen;}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classVacancyMigrationBarrierPredictor}{VacancyMigrationBarrierPredictor}}\ \{}
+\DoxyCodeLine{00017\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00018\ \ }
+\DoxyCodeLine{00019\ \ \ \textcolor{comment}{//\ Constructor}}
+\DoxyCodeLine{00020\ \ \ \mbox{\hyperlink{classVacancyMigrationBarrierPredictor}{VacancyMigrationBarrierPredictor}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classConfig}{Config}}\ \&config,\ }
+\DoxyCodeLine{00021\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ set<Element>\ \&elementSet,}
+\DoxyCodeLine{00022\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ \&maxBondOrder,}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{string}\ \&predictorFilename);}
+\DoxyCodeLine{00024\ \ \ }
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00031\ \ \ [[nodiscard]]\ \textcolor{keywordtype}{double}\ \mbox{\hyperlink{classVacancyMigrationBarrierPredictor_a646c34521a0cfa418560f7e800681550}{GetBarrier}}(}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{classConfig}{Config}}\ \&config,\ }
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ pair<size\_t,\ size\_t>\ \&latticeIdJumpPair)\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00036\ \ \ \ \ \textcolor{keyword}{const}\ pair<VectorXd,\ double>\ barrier\_fitted\_parameters\_\{\};}
+\DoxyCodeLine{00037\ \ \ \ \ }
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{keyword}{const}\ VectorXd\ adjusted\_beta\_barrier\_\{\};}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{double}\ adjusted\_intercept\_barrier\_\{\};}
+\DoxyCodeLine{00043\ \ \ \ \ }
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{keyword}{const}\ unordered\_map<string,\ RowVectorXd>\ oneHotEncodingMap\_\{\};}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{keyword}{const}\ vector<vector<size\_t>>\ encoding3FoldRotation\_\{\};}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{comment}{//\ Future}}
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{comment}{//\ For\ efficieny}}
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{comment}{//\ Store\ all\ the\ symmetrically\ sorted\ vector\ once\ in\ a\ map}}
+\DoxyCodeLine{00054\ \ \ \ \ unordered\_map<pair<size\_t,\ size\_t>,\ }
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ vector<size\_t>,\ }
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ boost::hash<std::pair<size\_t,\ size\_t>>>\ symmetricallySortedVectorMap\_\{\};}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \ \ \ \ \textcolor{comment}{//\ Currently\ considers\ neighbours\ upto\ 2nd\ bond\ order\ for\ the\ jump\ pair}}
+\DoxyCodeLine{00060\ \ \ \ \ \textcolor{comment}{//\ Neighbors\ upto\ maxBondOrder\_\ are\ currently\ considered\ for\ making\ the\ }}
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{comment}{//\ barrier\ prediction}}
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ maxBondOrderForBarrierPrediction\_\ =\ 2;\ \ }
+\DoxyCodeLine{00063\ \};\ }
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00076\ \textcolor{keywordtype}{void}\ ComputeSymmetricallySortedVectorMap(\textcolor{keyword}{const}\ \mbox{\hyperlink{classConfig}{Config}}\ \&config,\ }
+\DoxyCodeLine{00077\ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ maxBondOrder,\ }
+\DoxyCodeLine{00078\ \ \ unordered\_map<pair<size\_t,\ size\_t>,\ vector<size\_t>,\ }
+\DoxyCodeLine{00079\ \ \ boost::hash<pair<size\_t,\ size\_t>>>\ \&symmetricallySortedVectorMap);}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00081\ \textcolor{preprocessor}{\#endif\ \ \ \ }\textcolor{comment}{//LMC\_LMC\_PRED\_INCLUDE\_VACANCYMIGRATIONPREDICTOR\_H\_}}
+\DoxyCodeLine{00082\ }
+
+\end{DoxyCode}

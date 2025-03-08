@@ -1,0 +1,246 @@
+\doxysection{Cluster\+Type.\+hpp}
+\hypertarget{ClusterType_8hpp_source}{}\label{ClusterType_8hpp_source}\index{lmc/ce/include/ClusterType.hpp@{lmc/ce/include/ClusterType.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/**************************************************************************************************}}
+\DoxyCodeLine{00002\ \textcolor{comment}{\ *\ Copyright\ (c)\ 2021-\/2023.\ All\ rights\ reserved.\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\ *\ @Author:\ Zhucong\ Xi\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ *\ @Date:\ 12/6/21\ 8:55\ PM\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ *\ @Last\ Modified\ by:\ zhucongx\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00006\ \textcolor{comment}{\ *\ @Last\ Modified\ time:\ 8/27/23\ 10:51\ PM\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ **************************************************************************************************/}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00013\ \textcolor{preprocessor}{\#ifndef\ LMC\_CFG\_INCLUDE\_CLUSTERTYPE\_HPP\_}}
+\DoxyCodeLine{00014\ \textcolor{preprocessor}{\#define\ LMC\_CFG\_INCLUDE\_CLUSTERTYPE\_HPP\_}}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#include\ <utility>}}
+\DoxyCodeLine{00017\ \textcolor{preprocessor}{\#include\ <string>}}
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00019\ \textcolor{preprocessor}{\#include\ <map>}}
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#include\ <set>}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ <unordered\_set>}}
+\DoxyCodeLine{00022\ \textcolor{preprocessor}{\#include\ <unordered\_map>}}
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#include\ <algorithm>}}
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#include\ <type\_traits>}}
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#include\ <boost/functional/hash.hpp>}}
+\DoxyCodeLine{00026\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{Config_8h}{Config.h}}"{}}}
+\DoxyCodeLine{00027\ \textcolor{preprocessor}{\#include\ "{}AtomClusterType.hpp"{}}}
+\DoxyCodeLine{00028\ \textcolor{preprocessor}{\#include\ "{}LatticeClusterType.hpp"{}}}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00032\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classClusterType}{ClusterType}}\ \{}
+\DoxyCodeLine{00033\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00034\ \ \ \mbox{\hyperlink{classClusterType}{ClusterType}}()\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00036\ \ \ \mbox{\hyperlink{classClusterType}{ClusterType}}(\mbox{\hyperlink{classAtomClusterType}{AtomClusterType}}\ atom\_cluster\_type,\ \mbox{\hyperlink{classLatticeClusterType}{LatticeClusterType}}\ lattice\_cluster\_type)}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ :\ atom\_cluster\_type\_(std::move(atom\_cluster\_type)),\ lattice\_cluster\_type\_(std::move(lattice\_cluster\_type))\ \{}
+\DoxyCodeLine{00038\ \ \ \ \ \textcolor{keywordflow}{if}\ (lattice\_cluster\_type\_.\mbox{\hyperlink{classLatticeClusterType_acd6f1a7b03d017e6c729ede1c936b67a}{GetSize}}()\ !=\ atom\_cluster\_type\_.\mbox{\hyperlink{classAtomClusterType_a0b79aa8a23bf67efce9ca684b9aee503}{GetSize}}())\ \{}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ std::invalid\_argument(\textcolor{stringliteral}{"{}The\ size\ of\ the\ lattice\ cluster\ and\ the\ atom\ cluster\ are\ not\ compatible."{}});}
+\DoxyCodeLine{00040\ \ \ \ \ \}}
+\DoxyCodeLine{00041\ \ \ \}}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \ \ \textcolor{keyword}{friend}\ \textcolor{keywordtype}{bool}\ operator==(\textcolor{keyword}{const}\ \mbox{\hyperlink{classClusterType}{ClusterType}}\ \&lhs,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classClusterType}{ClusterType}}\ \&rhs)\ \{}
+\DoxyCodeLine{00044\ \ \ \ \ \textcolor{keywordflow}{return}\ lhs.atom\_cluster\_type\_\ ==\ rhs.atom\_cluster\_type\_\ \&\&}
+\DoxyCodeLine{00045\ \ \ \ \ \ \ \ \ lhs.lattice\_cluster\_type\_\ ==\ rhs.lattice\_cluster\_type\_;}
+\DoxyCodeLine{00046\ \ \ \}}
+\DoxyCodeLine{00047\ \ \ \textcolor{keyword}{friend}\ \textcolor{keywordtype}{bool}\ operator<(\textcolor{keyword}{const}\ \mbox{\hyperlink{classClusterType}{ClusterType}}\ \&lhs,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classClusterType}{ClusterType}}\ \&rhs)\ \{}
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{keywordflow}{if}\ (lhs.lattice\_cluster\_type\_\ <\ rhs.lattice\_cluster\_type\_)}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{keywordflow}{if}\ (rhs.lattice\_cluster\_type\_\ <\ lhs.lattice\_cluster\_type\_)}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{keywordflow}{return}\ lhs.atom\_cluster\_type\_\ <\ rhs.atom\_cluster\_type\_;}
+\DoxyCodeLine{00053\ \ \ \}}
+\DoxyCodeLine{00054\ \ \ \textcolor{keyword}{friend}\ std::size\_t\ hash\_value(\textcolor{keyword}{const}\ \mbox{\hyperlink{classClusterType}{ClusterType}}\ \&cluster\_type)\ \{}
+\DoxyCodeLine{00055\ \ \ \ \ std::size\_t\ seed\ =\ 0;}
+\DoxyCodeLine{00056\ \ \ \ \ boost::hash\_combine(seed,\ cluster\_type.atom\_cluster\_type\_);}
+\DoxyCodeLine{00057\ \ \ \ \ boost::hash\_combine(seed,\ cluster\_type.lattice\_cluster\_type\_);}
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{keywordflow}{return}\ seed;}
+\DoxyCodeLine{00059\ \ \ \}}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00066\ \ \ \textcolor{keyword}{friend}\ std::ostream\ \&\mbox{\hyperlink{classClusterType_af302f12f26df0ea2ec2e6eaef015c23a}{operator<<}}(std::ostream\ \&os,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{classClusterType}{ClusterType}}\ \&cluster\_type)\ \{}
+\DoxyCodeLine{00067\ \ \ \ \ os\ <<\ cluster\_type.lattice\_cluster\_type\_\ <<\ \textcolor{stringliteral}{"{}\ "{}}\ <<\ cluster\_type.atom\_cluster\_type\_;}
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{keywordflow}{return}\ os;}
+\DoxyCodeLine{00069\ \ \ \}}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \ \textcolor{comment}{//private:}}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \ \ \mbox{\hyperlink{classAtomClusterType}{AtomClusterType}}\ atom\_cluster\_type\_;}
+\DoxyCodeLine{00074\ \ \ \mbox{\hyperlink{classLatticeClusterType}{LatticeClusterType}}\ lattice\_cluster\_type\_;}
+\DoxyCodeLine{00075\ \};}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00077\ \textcolor{comment}{//\ inline\ bool\ PositionCompareState(const\ cfg::Lattice\ \&lhs,}}
+\DoxyCodeLine{00078\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ const\ cfg::Lattice\ \&rhs)\ \{}}
+\DoxyCodeLine{00079\ \textcolor{comment}{//\ \ \ const\ auto\ \&relative\_position\_lhs\ =\ lhs.GetRelativePosition();}}
+\DoxyCodeLine{00080\ \textcolor{comment}{//\ \ \ const\ auto\ \&relative\_position\_rhs\ =\ rhs.GetRelativePosition();}}
+\DoxyCodeLine{00081\ \textcolor{comment}{//\ \ \ const\ double\ diff\_x\ =\ relative\_position\_lhs[kXDimension]\ -\/\ relative\_position\_rhs[kXDimension];}}
+\DoxyCodeLine{00082\ \textcolor{comment}{//\ \ \ const\ double\ diff\_y\ =\ relative\_position\_lhs[kYDimension]\ -\/\ relative\_position\_rhs[kYDimension];}}
+\DoxyCodeLine{00083\ \textcolor{comment}{//\ \ \ const\ double\ diff\_z\ =\ relative\_position\_lhs[kZDimension]\ -\/\ relative\_position\_rhs[kZDimension];}}
+\DoxyCodeLine{00084\ \textcolor{comment}{//\ \ \ if\ (diff\_x\ <\ -\/kEpsilon)\ \{\ return\ true;\ \}}}
+\DoxyCodeLine{00085\ \textcolor{comment}{//\ \ \ if\ (diff\_x\ >\ kEpsilon)\ \{\ return\ false;\ \}}}
+\DoxyCodeLine{00086\ \textcolor{comment}{//\ \ \ if\ (diff\_y\ <\ -\/kEpsilon)\ \{\ return\ true;\ \}}}
+\DoxyCodeLine{00087\ \textcolor{comment}{//\ \ \ if\ (diff\_y\ >\ kEpsilon)\ \{\ return\ false;\ \}}}
+\DoxyCodeLine{00088\ \textcolor{comment}{//\ \ \ return\ diff\_z\ <\ -\/kEpsilon;}}
+\DoxyCodeLine{00089\ \textcolor{comment}{//\ \}}}
+\DoxyCodeLine{00090\ \textcolor{comment}{//}}
+\DoxyCodeLine{00091\ \textcolor{comment}{//\ inline\ bool\ GroupCompareMMM(const\ cfg::Lattice\ \&lhs,}}
+\DoxyCodeLine{00092\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ const\ cfg::Lattice\ \&rhs)\ \{}}
+\DoxyCodeLine{00093\ \textcolor{comment}{//\ \ \ const\ auto\ \&relative\_position\_lhs\ =\ lhs.GetRelativePosition();}}
+\DoxyCodeLine{00094\ \textcolor{comment}{//\ \ \ const\ auto\ \&relative\_position\_rhs\ =\ rhs.GetRelativePosition();}}
+\DoxyCodeLine{00095\ \textcolor{comment}{//}}
+\DoxyCodeLine{00096\ \textcolor{comment}{//\ \ \ const\ double}}
+\DoxyCodeLine{00097\ \textcolor{comment}{//\ \ \ \ \ \ \ diff\_norm\ =\ Inner(relative\_position\_lhs\ -\/\ 0.5)\ -\/\ Inner(relative\_position\_rhs\ -\/\ 0.5);}}
+\DoxyCodeLine{00098\ \textcolor{comment}{//\ \ \ if\ (diff\_norm\ <\ -\/kEpsilon)}}
+\DoxyCodeLine{00099\ \textcolor{comment}{//\ \ \ \ \ return\ true;}}
+\DoxyCodeLine{00100\ \textcolor{comment}{//\ \ \ if\ (diff\_norm\ >\ kEpsilon)}}
+\DoxyCodeLine{00101\ \textcolor{comment}{//\ \ \ \ \ return\ false;}}
+\DoxyCodeLine{00102\ \textcolor{comment}{//\ \ \ const\ double\ diff\_x\_sym\ =\ std::abs(relative\_position\_lhs[kXDimension]\ -\/\ 0.5)}}
+\DoxyCodeLine{00103\ \textcolor{comment}{//\ \ \ \ \ \ \ -\/\ std::abs(relative\_position\_rhs[kXDimension]\ -\/\ 0.5);}}
+\DoxyCodeLine{00104\ \textcolor{comment}{//\ \ \ return\ diff\_x\_sym\ <\ -\/kEpsilon;}}
+\DoxyCodeLine{00105\ \textcolor{comment}{//\ \}}}
+\DoxyCodeLine{00106\ \textcolor{comment}{//\ inline\ bool\ GroupCompareMM2(const\ cfg::Lattice\ \&lhs,}}
+\DoxyCodeLine{00107\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ const\ cfg::Lattice\ \&rhs)\ \{}}
+\DoxyCodeLine{00108\ \textcolor{comment}{//\ \ \ const\ auto\ \&relative\_position\_lhs\ =\ lhs.GetRelativePosition();}}
+\DoxyCodeLine{00109\ \textcolor{comment}{//\ \ \ const\ auto\ \&relative\_position\_rhs\ =\ rhs.GetRelativePosition();}}
+\DoxyCodeLine{00110\ \textcolor{comment}{//}}
+\DoxyCodeLine{00111\ \textcolor{comment}{//\ \ \ const\ double}}
+\DoxyCodeLine{00112\ \textcolor{comment}{//\ \ \ \ \ \ \ diff\_norm\ =\ Inner(relative\_position\_lhs\ -\/\ 0.5)\ -\/\ Inner(relative\_position\_rhs\ -\/\ 0.5);}}
+\DoxyCodeLine{00113\ \textcolor{comment}{//\ \ \ if\ (diff\_norm\ <\ -\/kEpsilon)}}
+\DoxyCodeLine{00114\ \textcolor{comment}{//\ \ \ \ \ return\ true;}}
+\DoxyCodeLine{00115\ \textcolor{comment}{//\ \ \ if\ (diff\_norm\ >\ kEpsilon)}}
+\DoxyCodeLine{00116\ \textcolor{comment}{//\ \ \ \ \ return\ false;}}
+\DoxyCodeLine{00117\ \textcolor{comment}{//\ \ \ const\ double\ diff\_x\ =\ relative\_position\_lhs[kXDimension]\ -\/\ relative\_position\_rhs[kXDimension];}}
+\DoxyCodeLine{00118\ \textcolor{comment}{//\ \ \ return\ diff\_x\ <\ -\/kEpsilon;}}
+\DoxyCodeLine{00119\ \textcolor{comment}{//\ \}}}
+\DoxyCodeLine{00120\ \textcolor{comment}{//}}
+\DoxyCodeLine{00121\ \textcolor{comment}{//\ inline\ bool\ PositionCompareMMM(const\ cfg::Lattice\ \&lhs,}}
+\DoxyCodeLine{00122\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ const\ cfg::Lattice\ \&rhs)\ \{}}
+\DoxyCodeLine{00123\ \textcolor{comment}{//\ \ \ const\ auto\ \&relative\_position\_lhs\ =\ lhs.GetRelativePosition();}}
+\DoxyCodeLine{00124\ \textcolor{comment}{//\ \ \ const\ auto\ \&relative\_position\_rhs\ =\ rhs.GetRelativePosition();}}
+\DoxyCodeLine{00125\ \textcolor{comment}{//}}
+\DoxyCodeLine{00126\ \textcolor{comment}{//\ \ \ const\ double\ diff\_norm\ =}}
+\DoxyCodeLine{00127\ \textcolor{comment}{//\ \ \ \ \ \ \ Inner(relative\_position\_lhs\ -\/\ 0.5)\ -\/\ Inner(relative\_position\_rhs\ -\/\ 0.5);}}
+\DoxyCodeLine{00128\ \textcolor{comment}{//\ \ \ if\ (diff\_norm\ <\ -\/kEpsilon)\ \{\ return\ true;\ \}}}
+\DoxyCodeLine{00129\ \textcolor{comment}{//\ \ \ if\ (diff\_norm\ >\ kEpsilon)\ \{\ return\ false;\ \}}}
+\DoxyCodeLine{00130\ \textcolor{comment}{//\ \ \ const\ double\ diff\_x\_sym\ =\ std::abs(relative\_position\_lhs[kXDimension]\ -\/\ 0.5)}}
+\DoxyCodeLine{00131\ \textcolor{comment}{//\ \ \ \ \ \ \ -\/\ std::abs(relative\_position\_rhs[kXDimension]\ -\/\ 0.5);}}
+\DoxyCodeLine{00132\ \textcolor{comment}{//\ \ \ if\ (diff\_x\_sym\ <\ -\/kEpsilon)\ \{\ return\ true;\ \}}}
+\DoxyCodeLine{00133\ \textcolor{comment}{//\ \ \ if\ (diff\_x\_sym\ >\ kEpsilon)\ \{\ return\ false;\ \}}}
+\DoxyCodeLine{00134\ \textcolor{comment}{//\ \ \ const\ double\ diff\_x\ =}}
+\DoxyCodeLine{00135\ \textcolor{comment}{//\ \ \ \ \ \ \ relative\_position\_lhs[kXDimension]\ -\/\ relative\_position\_rhs[kXDimension];}}
+\DoxyCodeLine{00136\ \textcolor{comment}{//\ \ \ if\ (diff\_x\ <\ -\/kEpsilon)\ \{\ return\ true;\ \}}}
+\DoxyCodeLine{00137\ \textcolor{comment}{//\ \ \ if\ (diff\_x\ >\ kEpsilon)\ \{\ return\ false;\ \}}}
+\DoxyCodeLine{00138\ \textcolor{comment}{//\ \ \ const\ double\ diff\_y\ =}}
+\DoxyCodeLine{00139\ \textcolor{comment}{//\ \ \ \ \ \ \ relative\_position\_lhs[kYDimension]\ -\/\ relative\_position\_rhs[kYDimension];}}
+\DoxyCodeLine{00140\ \textcolor{comment}{//\ \ \ if\ (diff\_y\ <\ -\/kEpsilon)\ \{\ return\ true;\ \}}}
+\DoxyCodeLine{00141\ \textcolor{comment}{//\ \ \ if\ (diff\_y\ >\ kEpsilon)\ \{\ return\ false;\ \}}}
+\DoxyCodeLine{00142\ \textcolor{comment}{//\ \ \ const\ double\ diff\_z\ =}}
+\DoxyCodeLine{00143\ \textcolor{comment}{//\ \ \ \ \ \ \ relative\_position\_lhs[kZDimension]\ -\/\ relative\_position\_rhs[kZDimension];}}
+\DoxyCodeLine{00144\ \textcolor{comment}{//\ \ \ if\ (diff\_z\ <\ -\/kEpsilon)\ \{\ return\ true;\ \}}}
+\DoxyCodeLine{00145\ \textcolor{comment}{//\ \ \ if\ (diff\_z\ >\ kEpsilon)\ \{\ return\ false;\ \}}}
+\DoxyCodeLine{00146\ \textcolor{comment}{//\ \ \ return\ false;}}
+\DoxyCodeLine{00147\ \textcolor{comment}{//\ \}}}
+\DoxyCodeLine{00148\ \textcolor{comment}{//\ inline\ bool\ PositionCompareMM2(const\ cfg::Lattice\ \&lhs,}}
+\DoxyCodeLine{00149\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ const\ cfg::Lattice\ \&rhs)\ \{}}
+\DoxyCodeLine{00150\ \textcolor{comment}{//\ \ \ const\ auto\ \&relative\_position\_lhs\ =\ lhs.GetRelativePosition();}}
+\DoxyCodeLine{00151\ \textcolor{comment}{//\ \ \ const\ auto\ \&relative\_position\_rhs\ =\ rhs.GetRelativePosition();}}
+\DoxyCodeLine{00152\ \textcolor{comment}{//\ \ \ const\ double\ diff\_norm\ =}}
+\DoxyCodeLine{00153\ \textcolor{comment}{//\ \ \ \ \ \ \ Inner(relative\_position\_lhs\ -\/\ 0.5)\ -\/\ Inner(relative\_position\_rhs\ -\/\ 0.5);}}
+\DoxyCodeLine{00154\ \textcolor{comment}{//\ \ \ if\ (diff\_norm\ <\ -\/kEpsilon)\ \{\ return\ true;\ \}}}
+\DoxyCodeLine{00155\ \textcolor{comment}{//\ \ \ if\ (diff\_norm\ >\ kEpsilon)\ \{\ return\ false;\ \}}}
+\DoxyCodeLine{00156\ \textcolor{comment}{//\ \ \ const\ double\ diff\_x\ =}}
+\DoxyCodeLine{00157\ \textcolor{comment}{//\ \ \ \ \ \ \ relative\_position\_lhs[kXDimension]\ -\/\ relative\_position\_rhs[kXDimension];}}
+\DoxyCodeLine{00158\ \textcolor{comment}{//\ \ \ if\ (diff\_x\ <\ -\/kEpsilon)\ \{\ return\ true;\ \}}}
+\DoxyCodeLine{00159\ \textcolor{comment}{//\ \ \ if\ (diff\_x\ >\ kEpsilon)\ \{\ return\ false;\ \}}}
+\DoxyCodeLine{00160\ \textcolor{comment}{//\ \ \ const\ double\ diff\_y\ =}}
+\DoxyCodeLine{00161\ \textcolor{comment}{//\ \ \ \ \ \ \ relative\_position\_lhs[kYDimension]\ -\/\ relative\_position\_rhs[kYDimension];}}
+\DoxyCodeLine{00162\ \textcolor{comment}{//\ \ \ if\ (diff\_y\ <\ -\/kEpsilon)\ \{\ return\ true;\ \}}}
+\DoxyCodeLine{00163\ \textcolor{comment}{//\ \ \ if\ (diff\_y\ >\ kEpsilon)\ \{\ return\ false;\ \}}}
+\DoxyCodeLine{00164\ \textcolor{comment}{//\ \ \ const\ double\ diff\_z\ =}}
+\DoxyCodeLine{00165\ \textcolor{comment}{//\ \ \ \ \ \ \ relative\_position\_lhs[kZDimension]\ -\/\ relative\_position\_rhs[kZDimension];}}
+\DoxyCodeLine{00166\ \textcolor{comment}{//\ \ \ if\ (diff\_z\ <\ -\/kEpsilon)\ \{\ return\ true;\ \}}}
+\DoxyCodeLine{00167\ \textcolor{comment}{//\ \ \ if\ (diff\_z\ >\ kEpsilon)\ \{\ return\ false;\ \}}}
+\DoxyCodeLine{00168\ \textcolor{comment}{//\ \ \ return\ false;}}
+\DoxyCodeLine{00169\ \textcolor{comment}{//\ \}}}
+\DoxyCodeLine{00170\ \textcolor{comment}{//\ template<size\_t\ DataSize>}}
+\DoxyCodeLine{00171\ \textcolor{comment}{//\ class\ LatticeClusterMMM\ :\ public\ LatticeCluster<DataSize>\ \{}}
+\DoxyCodeLine{00172\ \textcolor{comment}{//\ \ public:}}
+\DoxyCodeLine{00173\ \textcolor{comment}{//\ \ \ explicit\ LatticeClusterMMM(const\ std::array<cfg::Lattice,\ DataSize>\ \&lattice\_array)}}
+\DoxyCodeLine{00174\ \textcolor{comment}{//\ \ \ \ \ \ \ :\ LatticeCluster<DataSize>(lattice\_array)\ \{}}
+\DoxyCodeLine{00175\ \textcolor{comment}{//\ \ \ \ \ Sort();}}
+\DoxyCodeLine{00176\ \textcolor{comment}{//\ \ \ \ \ this-\/>symmetry\_label\_\ =\ FindSymmetryLabel();}}
+\DoxyCodeLine{00177\ \textcolor{comment}{//\ \ \ \}}}
+\DoxyCodeLine{00178\ \textcolor{comment}{//\ \ \ \string~LatticeClusterMMM()\ override\ =\ default;}}
+\DoxyCodeLine{00179\ \textcolor{comment}{//\ \ private:}}
+\DoxyCodeLine{00180\ \textcolor{comment}{//\ \ \ void\ Sort()\ \{}}
+\DoxyCodeLine{00181\ \textcolor{comment}{//\ \ \ \ \ std::sort(this-\/>lattice\_array\_.begin(),\ this-\/>lattice\_array\_.end(),}}
+\DoxyCodeLine{00182\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ [](const\ auto\ \&lhs,\ const\ auto\ \&rhs)\ -\/>\ bool\ \{}}
+\DoxyCodeLine{00183\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return\ PositionCompareMMM(lhs,\ rhs);}}
+\DoxyCodeLine{00184\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \});}}
+\DoxyCodeLine{00185\ \textcolor{comment}{//\ \ \ \}}}
+\DoxyCodeLine{00186\ \textcolor{comment}{//\ \ \ bool\ FindSymmetryLabel()\ \{}}
+\DoxyCodeLine{00187\ \textcolor{comment}{//\ \ \ \ \ for\ (auto\ it1\ =\ this-\/>lattice\_array\_.begin();\ it1\ <\ this-\/>lattice\_array\_.end();\ ++it1)\ \{}}
+\DoxyCodeLine{00188\ \textcolor{comment}{//\ \ \ \ \ \ \ for\ (auto\ it2\ =\ this-\/>lattice\_array\_.begin();\ it2\ <\ it1;\ ++it2)\ \{}}
+\DoxyCodeLine{00189\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ if\ (!GroupCompareMMM(*it1,\ *it2)\ \&\&\ !GroupCompareMMM(*it2,\ *it1))\ \{}}
+\DoxyCodeLine{00190\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ return\ true;}}
+\DoxyCodeLine{00191\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \}}}
+\DoxyCodeLine{00192\ \textcolor{comment}{//\ \ \ \ \ \ \ \}}}
+\DoxyCodeLine{00193\ \textcolor{comment}{//\ \ \ \ \ \}}}
+\DoxyCodeLine{00194\ \textcolor{comment}{//\ \ \ \ \ return\ false;}}
+\DoxyCodeLine{00195\ \textcolor{comment}{//\ \ \ \}}}
+\DoxyCodeLine{00196\ \textcolor{comment}{//\ \};}}
+\DoxyCodeLine{00197\ \textcolor{comment}{//}}
+\DoxyCodeLine{00198\ \textcolor{comment}{//\ template<size\_t\ DataSize>}}
+\DoxyCodeLine{00199\ \textcolor{comment}{//\ class\ LatticeClusterMM2\ :\ public\ LatticeCluster<DataSize>\ \{}}
+\DoxyCodeLine{00200\ \textcolor{comment}{//\ \ public:}}
+\DoxyCodeLine{00201\ \textcolor{comment}{//\ \ \ explicit\ LatticeClusterMM2(const\ std::array<cfg::Lattice,\ DataSize>\ \&lattice\_array)}}
+\DoxyCodeLine{00202\ \textcolor{comment}{//\ \ \ \ \ \ \ :\ LatticeCluster<DataSize>(lattice\_array)\ \{}}
+\DoxyCodeLine{00203\ \textcolor{comment}{//\ \ \ \ \ Sort();}}
+\DoxyCodeLine{00204\ \textcolor{comment}{//\ \ \ \ \ this-\/>symmetry\_label\_\ =\ FindSymmetryLabel();}}
+\DoxyCodeLine{00205\ \textcolor{comment}{//\ \ \ \}}}
+\DoxyCodeLine{00206\ \textcolor{comment}{//\ \ \ \string~LatticeClusterMM2()\ override\ =\ default;}}
+\DoxyCodeLine{00207\ \textcolor{comment}{//\ \ private:}}
+\DoxyCodeLine{00208\ \textcolor{comment}{//\ \ \ void\ Sort()\ \{}}
+\DoxyCodeLine{00209\ \textcolor{comment}{//\ \ \ \ \ std::sort(this-\/>lattice\_array\_.begin(),\ this-\/>lattice\_array\_.end(),}}
+\DoxyCodeLine{00210\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ [](const\ auto\ \&lhs,\ const\ auto\ \&rhs)\ -\/>\ bool\ \{}}
+\DoxyCodeLine{00211\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return\ PositionCompareMM2(lhs,\ rhs);}}
+\DoxyCodeLine{00212\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \});}}
+\DoxyCodeLine{00213\ \textcolor{comment}{//\ \ \ \}}}
+\DoxyCodeLine{00214\ \textcolor{comment}{//\ \ \ bool\ FindSymmetryLabel()\ \{}}
+\DoxyCodeLine{00215\ \textcolor{comment}{//\ \ \ \ \ for\ (auto\ it1\ =\ this-\/>lattice\_array\_.begin();\ it1\ <\ this-\/>lattice\_array\_.end();\ ++it1)\ \{}}
+\DoxyCodeLine{00216\ \textcolor{comment}{//\ \ \ \ \ \ \ for\ (auto\ it2\ =\ this-\/>lattice\_array\_.begin();\ it2\ <\ it1;\ ++it2)\ \{}}
+\DoxyCodeLine{00217\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ if\ (!GroupCompareMM2(*it1,\ *it2)\ \&\&\ !GroupCompareMM2(*it2,\ *it1))\ \{}}
+\DoxyCodeLine{00218\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ return\ true;}}
+\DoxyCodeLine{00219\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \}}}
+\DoxyCodeLine{00220\ \textcolor{comment}{//\ \ \ \ \ \ \ \}}}
+\DoxyCodeLine{00221\ \textcolor{comment}{//\ \ \ \ \ \}}}
+\DoxyCodeLine{00222\ \textcolor{comment}{//\ \ \ \ \ return\ false;}}
+\DoxyCodeLine{00223\ \textcolor{comment}{//\ \ \ \}}}
+\DoxyCodeLine{00224\ \textcolor{comment}{//\ \};}}
+\DoxyCodeLine{00225\ \textcolor{comment}{//}}
+\DoxyCodeLine{00226\ \textcolor{comment}{//\ template<size\_t\ DataSize>}}
+\DoxyCodeLine{00227\ \textcolor{comment}{//\ inline\ bool\ IsClusterSmallerSymmetricallyMMM(const\ cfg::LatticeClusterMMM<DataSize>\ \&lhs,}}
+\DoxyCodeLine{00228\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ const\ cfg::LatticeClusterMMM<DataSize>\ \&rhs)\ \{}}
+\DoxyCodeLine{00229\ \textcolor{comment}{//\ \ \ for\ (size\_t\ i\ =\ 0;\ i\ <\ DataSize;\ ++i)\ \{}}
+\DoxyCodeLine{00230\ \textcolor{comment}{//\ \ \ \ \ const\ auto\ \&lhs\_lattice\ =\ lhs.GetLatticeAt(i);}}
+\DoxyCodeLine{00231\ \textcolor{comment}{//\ \ \ \ \ const\ auto\ \&rhs\_lattice\ =\ rhs.GetLatticeAt(i);}}
+\DoxyCodeLine{00232\ \textcolor{comment}{//\ \ \ \ \ if\ (GroupCompareMMM(lhs\_lattice,\ rhs\_lattice))\ \{\ return\ true;\ \}}}
+\DoxyCodeLine{00233\ \textcolor{comment}{//\ \ \ \ \ if\ (GroupCompareMMM(rhs\_lattice,\ lhs\_lattice))\ \{\ return\ false;\ \}}}
+\DoxyCodeLine{00234\ \textcolor{comment}{//\ \ \ \}}}
+\DoxyCodeLine{00235\ \textcolor{comment}{//\ \ \ //\ if\ it\ reaches\ here,\ it\ means\ that\ the\ clusters\ are\ same\ symmetrically.\ Returns\ false.}}
+\DoxyCodeLine{00236\ \textcolor{comment}{//\ \ \ return\ false;}}
+\DoxyCodeLine{00237\ \textcolor{comment}{//\ \}}}
+\DoxyCodeLine{00238\ \textcolor{comment}{//\ template<size\_t\ DataSize>}}
+\DoxyCodeLine{00239\ \textcolor{comment}{//\ inline\ bool\ IsClusterSmallerSymmetricallyMM2(const\ cfg::LatticeClusterMM2<DataSize>\ \&lhs,}}
+\DoxyCodeLine{00240\ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ const\ cfg::LatticeClusterMM2<DataSize>\ \&rhs)\ \{}}
+\DoxyCodeLine{00241\ \textcolor{comment}{//\ \ \ for\ (size\_t\ i\ =\ 0;\ i\ <\ DataSize;\ ++i)\ \{}}
+\DoxyCodeLine{00242\ \textcolor{comment}{//\ \ \ \ \ const\ auto\ \&lhs\_lattice\ =\ lhs.GetLatticeAt(i);}}
+\DoxyCodeLine{00243\ \textcolor{comment}{//\ \ \ \ \ const\ auto\ \&rhs\_lattice\ =\ rhs.GetLatticeAt(i);}}
+\DoxyCodeLine{00244\ \textcolor{comment}{//\ \ \ \ \ if\ (GroupCompareMM2(lhs\_lattice,\ rhs\_lattice))\ \{\ return\ true;\ \}}}
+\DoxyCodeLine{00245\ \textcolor{comment}{//\ \ \ \ \ if\ (GroupCompareMM2(rhs\_lattice,\ lhs\_lattice))\ \{\ return\ false;\ \}}}
+\DoxyCodeLine{00246\ \textcolor{comment}{//\ \ \ \}}}
+\DoxyCodeLine{00247\ \textcolor{comment}{//\ \ \ //\ if\ it\ reaches\ here,\ it\ means\ that\ the\ clusters\ are\ same\ symmetrically.\ Returns\ false.}}
+\DoxyCodeLine{00248\ \textcolor{comment}{//\ \ \ return\ false;}}
+\DoxyCodeLine{00249\ \textcolor{comment}{//\ \}}}
+\DoxyCodeLine{00250\ }
+\DoxyCodeLine{00251\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//LMC\_CFG\_INCLUDE\_CLUSTERTYPE\_HPP\_}}
+
+\end{DoxyCode}

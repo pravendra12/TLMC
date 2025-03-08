@@ -1,0 +1,243 @@
+\doxysection{mc\+::Kinetic\+Mc\+Chain\+Abstract Class Reference}
+\hypertarget{classmc_1_1KineticMcChainAbstract}{}\label{classmc_1_1KineticMcChainAbstract}\index{mc::KineticMcChainAbstract@{mc::KineticMcChainAbstract}}
+
+
+Abstract class for Kinetic Monte Carlo Simulation.  
+
+
+
+
+{\ttfamily \#include $<$Kinetic\+Mc\+Abstract.\+h$>$}
+
+
+
+Inheritance diagram for mc\+::Kinetic\+Mc\+Chain\+Abstract\+:
+% FIG 0
+
+
+Collaboration diagram for mc\+::Kinetic\+Mc\+Chain\+Abstract\+:
+% FIG 1
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classmc_1_1KineticMcChainAbstract_ab98046ac703fdfa168443f58114145d0}{Kinetic\+Mc\+Chain\+Abstract}} (\mbox{\hyperlink{classConfig}{Config}} config, \mbox{\hyperlink{classConfig}{Config}} supercell\+\_\+config, unsigned long long int log\+\_\+dump\+\_\+steps, unsigned long long int config\+\_\+dump\+\_\+steps, unsigned long long int maximum\+\_\+steps, unsigned long long int thermodynamic\+\_\+averaging\+\_\+steps, unsigned long long int restart\+\_\+steps, double restart\+\_\+energy, double restart\+\_\+time, double temperature, const std\+::set$<$ Element $>$ \&element\+\_\+set, const size\+\_\+t max\+\_\+cluster\+\_\+size, const size\+\_\+t max\+\_\+bond\+\_\+order, const std\+::string \&json\+\_\+coefficients\+\_\+filename, const std\+::string \&time\+\_\+temperature\+\_\+filename, bool is\+\_\+rate\+\_\+corrector, const Eigen\+::\+Row\+Vector3d \&vacancy\+\_\+trajectory)
+\begin{DoxyCompactList}\small\item\em Constructor for \doxylink{classmc_1_1KineticMcChainAbstract}{Kinetic\+Mc\+Chain\+Abstract}. \end{DoxyCompactList}\item 
+\Hypertarget{classmc_1_1KineticMcChainAbstract_a747829389e0ed605e3174ba49ef93dce}\label{classmc_1_1KineticMcChainAbstract_a747829389e0ed605e3174ba49ef93dce} 
+{\bfseries \texorpdfstring{$\sim$}{\string~}\+Kinetic\+Mc\+Chain\+Abstract} () override
+\begin{DoxyCompactList}\small\item\em Destructor for \doxylink{classmc_1_1KineticMcChainAbstract}{Kinetic\+Mc\+Chain\+Abstract}. \end{DoxyCompactList}\item 
+\Hypertarget{classmc_1_1KineticMcChainAbstract_a7e933f689dcd2580e06172d238651b24}\label{classmc_1_1KineticMcChainAbstract_a7e933f689dcd2580e06172d238651b24} 
+{\bfseries Kinetic\+Mc\+Chain\+Abstract} (const \mbox{\hyperlink{classmc_1_1KineticMcChainAbstract}{Kinetic\+Mc\+Chain\+Abstract}} \&)=delete
+\begin{DoxyCompactList}\small\item\em Deleted copy constructor. \end{DoxyCompactList}\item 
+\Hypertarget{classmc_1_1KineticMcChainAbstract_af32ec28f8748e92c23ea5d31e578809c}\label{classmc_1_1KineticMcChainAbstract_af32ec28f8748e92c23ea5d31e578809c} 
+void {\bfseries operator=} (const \mbox{\hyperlink{classmc_1_1KineticMcChainAbstract}{mc\+::\+Kinetic\+Mc\+Chain\+Abstract}} \&)=delete
+\begin{DoxyCompactList}\small\item\em Deleted assignment operator. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions inherited from \mbox{\hyperlink{classmc_1_1KineticMcFirstAbstract}{mc\+::\+Kinetic\+Mc\+First\+Abstract}}}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classmc_1_1KineticMcFirstAbstract_a5ee2f1d32f7eec59c1b91d02791ba919}{Kinetic\+Mc\+First\+Abstract}} (\mbox{\hyperlink{classConfig}{Config}} config, \mbox{\hyperlink{classConfig}{Config}} supercell\+\_\+config, unsigned long long int log\+\_\+dump\+\_\+steps, unsigned long long int config\+\_\+dump\+\_\+steps, unsigned long long int maximum\+\_\+steps, unsigned long long int thermodynamic\+\_\+averaging\+\_\+steps, unsigned long long int restart\+\_\+steps, double restart\+\_\+energy, double restart\+\_\+time, double temperature, const std\+::set$<$ Element $>$ \&element\+\_\+set, const size\+\_\+t max\+\_\+cluster\+\_\+size, const size\+\_\+t max\+\_\+bond\+\_\+order, const std\+::string \&json\+\_\+coefficients\+\_\+filename, const std\+::string \&time\+\_\+temperature\+\_\+filename, bool is\+\_\+rate\+\_\+corrector, const Eigen\+::\+Row\+Vector3d \&vacancy\+\_\+trajectory)
+\begin{DoxyCompactList}\small\item\em Constructor for \doxylink{classmc_1_1KineticMcFirstAbstract}{Kinetic\+Mc\+First\+Abstract}. \end{DoxyCompactList}\item 
+{\bfseries \texorpdfstring{$\sim$}{\string~}\+Kinetic\+Mc\+First\+Abstract} () override
+\begin{DoxyCompactList}\small\item\em Destructor for \doxylink{classmc_1_1KineticMcFirstAbstract}{Kinetic\+Mc\+First\+Abstract}. \end{DoxyCompactList}\item 
+{\bfseries Kinetic\+Mc\+First\+Abstract} (const \mbox{\hyperlink{classmc_1_1KineticMcFirstAbstract}{Kinetic\+Mc\+First\+Abstract}} \&)=delete
+\begin{DoxyCompactList}\small\item\em Deleted copy constructor. \end{DoxyCompactList}\item 
+void {\bfseries operator=} (const \mbox{\hyperlink{classmc_1_1KineticMcFirstAbstract}{mc\+::\+Kinetic\+Mc\+First\+Abstract}} \&)=delete
+\begin{DoxyCompactList}\small\item\em Deleted assignment operator. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classmc_1_1KineticMcFirstAbstract_aa1bd509ace27f1fb11f9224a1eaae6de}{Simulate}} () override
+\begin{DoxyCompactList}\small\item\em Starts the Kinetic Monte Carlo Simulation. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions inherited from \mbox{\hyperlink{classMcAbstract}{Mc\+Abstract}}}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classMcAbstract_a8f24aa69e8120f15c4f1a5c1b8627cfb}{Mc\+Abstract}} (\mbox{\hyperlink{classConfig}{Config}} config, \mbox{\hyperlink{classConfig}{Config}} supercell\+\_\+config, unsigned long long int log\+\_\+dump\+\_\+steps, unsigned long long int config\+\_\+dump\+\_\+steps, unsigned long long int maximum\+\_\+steps, unsigned long long int thermodynamic\+\_\+averaging\+\_\+steps, unsigned long long int restart\+\_\+steps, double restart\+\_\+energy, double restart\+\_\+time, double temperature, const std\+::set$<$ Element $>$ \&element\+\_\+set, const size\+\_\+t max\+\_\+cluster\+\_\+size, const size\+\_\+t max\+\_\+bond\+\_\+order, const std\+::string \&json\+\_\+coefficients\+\_\+filename, const std\+::string \&log\+\_\+filename)
+\begin{DoxyCompactList}\small\item\em Constructor for Monte Carlo Abstract class. \end{DoxyCompactList}\item 
+virtual {\bfseries \texorpdfstring{$\sim$}{\string~}\+Mc\+Abstract} ()
+\begin{DoxyCompactList}\small\item\em Destructor for \doxylink{classMcAbstract}{Mc\+Abstract}. \end{DoxyCompactList}\item 
+{\bfseries Mc\+Abstract} (const \mbox{\hyperlink{classMcAbstract}{Mc\+Abstract}} \&)=delete
+\begin{DoxyCompactList}\small\item\em Deleted copy constructor to prevent copying. \end{DoxyCompactList}\item 
+void {\bfseries operator=} (const \mbox{\hyperlink{classMcAbstract}{Mc\+Abstract}} \&)=delete
+\begin{DoxyCompactList}\small\item\em Deleted assignment operator to prevent copying. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{classmc_1_1KineticMcChainAbstract_a763513dc4ae48677ce207cd9db87a511}{One\+Step\+Simulation}} () override
+\begin{DoxyCompactList}\small\item\em Performs one step of the simulation. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions inherited from \mbox{\hyperlink{classmc_1_1KineticMcFirstAbstract}{mc\+::\+Kinetic\+Mc\+First\+Abstract}}}
+\begin{DoxyCompactItemize}
+\item 
+void {\bfseries Update\+Temperature} ()
+\begin{DoxyCompactList}\small\item\em Update the temperature based on the current temperature. \end{DoxyCompactList}\item 
+virtual void {\bfseries Dump} () const
+\begin{DoxyCompactList}\small\item\em Dumps the current simulation state. \end{DoxyCompactList}\item 
+size\+\_\+t \mbox{\hyperlink{classmc_1_1KineticMcFirstAbstract_a1e17158cb8933994a5476439417d8497}{Select\+Event}} () const
+\begin{DoxyCompactList}\small\item\em Selects an event to simulate based on rates. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classmc_1_1KineticMcFirstAbstract_aa7e5147393a1696226c2219120f5cb46}{Debug}} (double one\+\_\+step\+\_\+time) const
+\begin{DoxyCompactList}\small\item\em Debugging utility to log one-\/step simulation time. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classmc_1_1KineticMcFirstAbstract_a766e235bf08c897a57a1913579a44a37}{Build\+Event\+List}} ()=0
+\begin{DoxyCompactList}\small\item\em Builds the event list for possible transitions. \end{DoxyCompactList}\item 
+virtual double \mbox{\hyperlink{classmc_1_1KineticMcFirstAbstract_afbc954c562bfe68a4c4166afc3ca3d2e}{Calculate\+Time}} ()=0
+\begin{DoxyCompactList}\small\item\em Calculates the time increment for the simulation step. This function must be implemented by derived classes. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classmc_1_1KineticMcChainAbstract_a7f65ed3064e874cf113c4c4407acc2a3}\label{classmc_1_1KineticMcChainAbstract_a7f65ed3064e874cf113c4c4407acc2a3} 
+size\+\_\+t {\bfseries previous\+\_\+j\+\_\+lattice\+\_\+id\+\_\+}
+\begin{DoxyCompactList}\small\item\em Lattice ID of the previous jump site. \end{DoxyCompactList}\item 
+\Hypertarget{classmc_1_1KineticMcChainAbstract_a96c9e87a4fba0172ef4afcaeeb50abb1}\label{classmc_1_1KineticMcChainAbstract_a96c9e87a4fba0172ef4afcaeeb50abb1} 
+double {\bfseries total\+\_\+rate\+\_\+i\+\_\+} \{0.\+0\}
+\begin{DoxyCompactList}\small\item\em Total rate for jump to nearest neighbours. \end{DoxyCompactList}\item 
+std\+::vector$<$ size\+\_\+t $>$ \mbox{\hyperlink{classmc_1_1KineticMcChainAbstract_a1ad2ea69137328e85677f87fc38891dc}{l\+\_\+lattice\+\_\+id\+\_\+list\+\_\+}} \{\}
+\item 
+\Hypertarget{classmc_1_1KineticMcChainAbstract_ad133742b2d2cb3f49d27630350ad2f5c}\label{classmc_1_1KineticMcChainAbstract_ad133742b2d2cb3f49d27630350ad2f5c} 
+MPI\+\_\+\+Op {\bfseries mpi\+\_\+op\+\_\+} \{\}
+\item 
+\Hypertarget{classmc_1_1KineticMcChainAbstract_a014032a80a1215b0aa6bef7c8af471db}\label{classmc_1_1KineticMcChainAbstract_a014032a80a1215b0aa6bef7c8af471db} 
+MPI\+\_\+\+Datatype {\bfseries mpi\+\_\+datatype\+\_\+} \{\}
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes inherited from \mbox{\hyperlink{classmc_1_1KineticMcFirstAbstract}{mc\+::\+Kinetic\+Mc\+First\+Abstract}}}
+\begin{DoxyCompactItemize}
+\item 
+size\+\_\+t {\bfseries k\+Event\+List\+Size}
+\begin{DoxyCompactList}\small\item\em Dynamic size of the event list. \end{DoxyCompactList}\item 
+const \mbox{\hyperlink{classVacancyMigrationBarrierPredictor}{Vacancy\+Migration\+Barrier\+Predictor}} {\bfseries vacancy\+\_\+migration\+\_\+predictor\+\_\+}
+\begin{DoxyCompactList}\small\item\em Vacancy Migration Energy Predictor. \end{DoxyCompactList}\item 
+const \mbox{\hyperlink{classPotentialEnergyEstimator}{Potential\+Energy\+Estimator}} {\bfseries energy\+\_\+change\+\_\+predictor\+\_\+}
+\begin{DoxyCompactList}\small\item\em Potential Energy Predictor. \end{DoxyCompactList}\item 
+const \mbox{\hyperlink{classpred_1_1TimeTemperatureInterpolator}{pred\+::\+Time\+Temperature\+Interpolator}} {\bfseries time\+\_\+temperature\+\_\+interpolator\+\_\+}
+\begin{DoxyCompactList}\small\item\em Time Temperature Interpolator. \end{DoxyCompactList}\item 
+const bool {\bfseries is\+\_\+time\+\_\+temperature\+\_\+interpolator\+\_\+}
+\begin{DoxyCompactList}\small\item\em Indicates if time-\/temperature interpolation is used. \end{DoxyCompactList}\item 
+const bool \mbox{\hyperlink{classmc_1_1KineticMcFirstAbstract_aa231c9c2443bbb766cc8a7c2c095876d}{is\+\_\+rate\+\_\+corrector\+\_\+}}
+\begin{DoxyCompactList}\small\item\em Rate Corrector. \end{DoxyCompactList}\item 
+size\+\_\+t {\bfseries vacancy\+\_\+lattice\+\_\+id\+\_\+}
+\begin{DoxyCompactList}\small\item\em Vacancy Lattice Id. \end{DoxyCompactList}\item 
+Eigen\+::\+Row\+Vector3d {\bfseries vacancy\+\_\+trajectory\+\_\+}
+\begin{DoxyCompactList}\small\item\em Vacancy Trajectory Vector. \end{DoxyCompactList}\item 
+std\+::vector$<$ \mbox{\hyperlink{classmc_1_1JumpEvent}{Jump\+Event}} $>$ {\bfseries event\+\_\+k\+\_\+i\+\_\+list\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Jump events vector. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classmc_1_1JumpEvent}{Jump\+Event}} {\bfseries event\+\_\+k\+\_\+i\+\_\+} \{\}
+\begin{DoxyCompactList}\small\item\em Selected jump event. \end{DoxyCompactList}\item 
+double {\bfseries total\+\_\+rate\+\_\+k\+\_\+} \{0.\+0\}
+\begin{DoxyCompactList}\small\item\em Total Rate of the events. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes inherited from \mbox{\hyperlink{classMcAbstract}{Mc\+Abstract}}}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classConfig}{Config}} {\bfseries config\+\_\+}
+\begin{DoxyCompactList}\small\item\em Store the configuration. \end{DoxyCompactList}\item 
+const unsigned long long int {\bfseries log\+\_\+dump\+\_\+steps\+\_\+}
+\begin{DoxyCompactList}\small\item\em Number of steps between logging the simulation process. \end{DoxyCompactList}\item 
+const unsigned long long int {\bfseries config\+\_\+dump\+\_\+steps\+\_\+}
+\begin{DoxyCompactList}\small\item\em Number of steps between dumping the configuration. \end{DoxyCompactList}\item 
+const unsigned long long int {\bfseries maximum\+\_\+steps\+\_\+}
+\begin{DoxyCompactList}\small\item\em Maximum number of steps for simulation. \end{DoxyCompactList}\item 
+unsigned long long int {\bfseries steps\+\_\+}
+\item 
+double {\bfseries energy\+\_\+}
+\item 
+double {\bfseries absolute\+\_\+energy\+\_\+}
+\item 
+double {\bfseries time\+\_\+}
+\item 
+double {\bfseries temperature\+\_\+}
+\item 
+double {\bfseries beta\+\_\+}
+\item 
+bool {\bfseries is\+\_\+restarted\+\_\+}
+\item 
+std\+::mt19937\+\_\+64 {\bfseries generator\+\_\+}
+\item 
+std\+::uniform\+\_\+real\+\_\+distribution$<$ double $>$ {\bfseries unit\+\_\+distribution\+\_\+}
+\item 
+std\+::ofstream {\bfseries ofs\+\_\+}
+\item 
+int {\bfseries world\+\_\+rank\+\_\+} \{-\/1\}
+\item 
+int {\bfseries world\+\_\+size\+\_\+} \{-\/1\}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Abstract class for Kinetic Monte Carlo Simulation. 
+
+Based on Second-\/\+Order Residence Time Algorithm. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classmc_1_1KineticMcChainAbstract_ab98046ac703fdfa168443f58114145d0}\label{classmc_1_1KineticMcChainAbstract_ab98046ac703fdfa168443f58114145d0} 
+\index{mc::KineticMcChainAbstract@{mc::KineticMcChainAbstract}!KineticMcChainAbstract@{KineticMcChainAbstract}}
+\index{KineticMcChainAbstract@{KineticMcChainAbstract}!mc::KineticMcChainAbstract@{mc::KineticMcChainAbstract}}
+\doxysubsubsection{\texorpdfstring{KineticMcChainAbstract()}{KineticMcChainAbstract()}}
+{\footnotesize\ttfamily mc\+::\+Kinetic\+Mc\+Chain\+Abstract\+::\+Kinetic\+Mc\+Chain\+Abstract (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classConfig}{Config}}}]{config,  }\item[{\mbox{\hyperlink{classConfig}{Config}}}]{supercell\+\_\+config,  }\item[{unsigned long long int}]{log\+\_\+dump\+\_\+steps,  }\item[{unsigned long long int}]{config\+\_\+dump\+\_\+steps,  }\item[{unsigned long long int}]{maximum\+\_\+steps,  }\item[{unsigned long long int}]{thermodynamic\+\_\+averaging\+\_\+steps,  }\item[{unsigned long long int}]{restart\+\_\+steps,  }\item[{double}]{restart\+\_\+energy,  }\item[{double}]{restart\+\_\+time,  }\item[{double}]{temperature,  }\item[{const std\+::set$<$ Element $>$ \&}]{element\+\_\+set,  }\item[{const size\+\_\+t}]{max\+\_\+cluster\+\_\+size,  }\item[{const size\+\_\+t}]{max\+\_\+bond\+\_\+order,  }\item[{const std\+::string \&}]{json\+\_\+coefficients\+\_\+filename,  }\item[{const std\+::string \&}]{time\+\_\+temperature\+\_\+filename,  }\item[{bool}]{is\+\_\+rate\+\_\+corrector,  }\item[{const Eigen\+::\+Row\+Vector3d \&}]{vacancy\+\_\+trajectory }\end{DoxyParamCaption})}
+
+
+
+Constructor for \doxylink{classmc_1_1KineticMcChainAbstract}{Kinetic\+Mc\+Chain\+Abstract}. 
+
+Initializes the abstract kinetic Monte Carlo simulation based on Second-\/\+Order Residence Time Algorithm with the given parameters.
+
+
+\begin{DoxyParams}{Parameters}
+{\em config} & Simulation configuration. \\
+\hline
+{\em supercell\+\_\+config} & Training configuration for the Cluster Expansion Model. \\
+\hline
+{\em log\+\_\+dump\+\_\+steps} & Steps between logging progress. \\
+\hline
+{\em config\+\_\+dump\+\_\+steps} & Steps between configuration dumps. \\
+\hline
+{\em maximum\+\_\+steps} & Maximum simulation steps. \\
+\hline
+{\em thermodynamic\+\_\+averaging\+\_\+steps} & Steps for thermodynamic averaging. \\
+\hline
+{\em restart\+\_\+steps} & Steps for restarting the simulation. \\
+\hline
+{\em restart\+\_\+energy} & Restart energy. \\
+\hline
+{\em restart\+\_\+time} & Restart time. \\
+\hline
+{\em temperature} & Simulation temperature (in Kelvin). \\
+\hline
+{\em element\+\_\+set} & Set of elements involved in the simulation. \\
+\hline
+{\em max\+\_\+cluster\+\_\+size} & Maximum size of clusters to consider. \\
+\hline
+{\em max\+\_\+bond\+\_\+order} & Maximum bond order for determining clusters. \\
+\hline
+{\em json\+\_\+coefficients\+\_\+filename} & Path to JSON file with cluster interaction coefficients. \\
+\hline
+{\em time\+\_\+temperature\+\_\+filename} & Path to time-\/temperature data file. \\
+\hline
+{\em is\+\_\+rate\+\_\+corrector} & Whether rate correction need to applied. \\
+\hline
+{\em vacancy\+\_\+trajectory} & Initial vacancy trajectory vector. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classmc_1_1KineticMcChainAbstract_a763513dc4ae48677ce207cd9db87a511}\label{classmc_1_1KineticMcChainAbstract_a763513dc4ae48677ce207cd9db87a511} 
+\index{mc::KineticMcChainAbstract@{mc::KineticMcChainAbstract}!OneStepSimulation@{OneStepSimulation}}
+\index{OneStepSimulation@{OneStepSimulation}!mc::KineticMcChainAbstract@{mc::KineticMcChainAbstract}}
+\doxysubsubsection{\texorpdfstring{OneStepSimulation()}{OneStepSimulation()}}
+{\footnotesize\ttfamily void mc\+::\+Kinetic\+Mc\+Chain\+Abstract\+::\+One\+Step\+Simulation (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Performs one step of the simulation. 
+
+
+
+Reimplemented from \mbox{\hyperlink{classmc_1_1KineticMcFirstAbstract_a1411b026ddb46fe0078654a1972bf4b2}{mc\+::\+Kinetic\+Mc\+First\+Abstract}}.
+
+
+
+\doxysubsection{Member Data Documentation}
+\Hypertarget{classmc_1_1KineticMcChainAbstract_a1ad2ea69137328e85677f87fc38891dc}\label{classmc_1_1KineticMcChainAbstract_a1ad2ea69137328e85677f87fc38891dc} 
+\index{mc::KineticMcChainAbstract@{mc::KineticMcChainAbstract}!l\_lattice\_id\_list\_@{l\_lattice\_id\_list\_}}
+\index{l\_lattice\_id\_list\_@{l\_lattice\_id\_list\_}!mc::KineticMcChainAbstract@{mc::KineticMcChainAbstract}}
+\doxysubsubsection{\texorpdfstring{l\_lattice\_id\_list\_}{l\_lattice\_id\_list\_}}
+{\footnotesize\ttfamily std\+::vector$<$size\+\_\+t$>$ mc\+::\+Kinetic\+Mc\+Chain\+Abstract\+::l\+\_\+lattice\+\_\+id\+\_\+list\+\_\+ \{\}\hspace{0.3cm}{\ttfamily [protected]}}
+
+Neighbours of choosen lattice Id for the jump. j -\/\texorpdfstring{$>$}{>} k -\/\texorpdfstring{$>$}{>} i -\/\texorpdfstring{$>$}{>}l k \+: current position 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+lmc/mc/include/\mbox{\hyperlink{KineticMcAbstract_8h}{Kinetic\+Mc\+Abstract.\+h}}\item 
+lmc/mc/src/Kinetic\+Mc\+Abstract.\+cpp\end{DoxyCompactItemize}

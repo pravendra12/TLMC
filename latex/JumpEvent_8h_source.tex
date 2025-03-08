@@ -1,0 +1,67 @@
+\doxysection{Jump\+Event.\+h}
+\hypertarget{JumpEvent_8h_source}{}\label{JumpEvent_8h_source}\index{lmc/mc/include/JumpEvent.h@{lmc/mc/include/JumpEvent.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/**************************************************************************************************}}
+\DoxyCodeLine{00002\ \textcolor{comment}{\ *\ Copyright\ (c)\ 2023.\ All\ rights\ reserved.\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\ *\ @Author:\ Zhucong\ Xi\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ *\ @Date:\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ *\ @Last\ Modified\ by:\ zhucongx\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00006\ \textcolor{comment}{\ *\ @Last\ Modified\ time:\ 6/30/23\ 4:05\ PM\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ **************************************************************************************************/}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#ifndef\ LMC\_MC\_INCLUDE\_JUMPEVENT\_H\_}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#define\ LMC\_MC\_INCLUDE\_JUMPEVENT\_H\_}}
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#include\ <cstddef>}}
+\DoxyCodeLine{00012\ \textcolor{preprocessor}{\#include\ <utility>}}
+\DoxyCodeLine{00013\ \textcolor{preprocessor}{\#include\ <array>}}
+\DoxyCodeLine{00014\ \textcolor{keyword}{namespace\ }mc\ \{}
+\DoxyCodeLine{00015\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classmc_1_1JumpEvent}{JumpEvent}}\ \{}
+\DoxyCodeLine{00016\ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00018\ \ \ \mbox{\hyperlink{classmc_1_1JumpEvent_ac53a5a35a597b48f7b8eddccdc77cd9f}{JumpEvent}}();}
+\DoxyCodeLine{00019\ \ \ \mbox{\hyperlink{classmc_1_1JumpEvent_ac53a5a35a597b48f7b8eddccdc77cd9f}{JumpEvent}}(std::pair<size\_t,\ size\_t>\ jump\_pair,}
+\DoxyCodeLine{00020\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{double}\ forward\_barrier,}
+\DoxyCodeLine{00021\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{double}\ backward\_barrier,}
+\DoxyCodeLine{00022\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Energy\ change\ from\ CE}}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{double}\ dE,}
+\DoxyCodeLine{00024\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ beta);}
+\DoxyCodeLine{00026\ \ \ [[nodiscard]]\ \textcolor{keyword}{const}\ std::pair<size\_t,\ size\_t>\ \&\mbox{\hyperlink{classmc_1_1JumpEvent_aa5fed38a6e26c3df6a4a9479306c21e8}{GetIdJumpPair}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00027\ \ \ [[nodiscard]]\ \textcolor{keywordtype}{double}\ GetForwardBarrier()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00028\ \ \ [[nodiscard]]\ \textcolor{keywordtype}{double}\ GetForwardRate()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00029\ \ \ }
+\DoxyCodeLine{00030\ \ \ \textcolor{comment}{//\ Zhucongs\ way\ using\ forward\ barrier\ and\ dE\ from\ CE}}
+\DoxyCodeLine{00031\ \ \ [[nodiscard]]\ \textcolor{keywordtype}{double}\ GetBackwardBarrier()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \ \ \textcolor{comment}{//\ From\ Model}}
+\DoxyCodeLine{00034\ \ \ \textcolor{keywordtype}{double}\ GetTrueBackwardBarrier()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \ \ [[nodiscard]]\ \textcolor{keywordtype}{double}\ GetBackwardRate()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00038\ \ \ \textcolor{comment}{//\ Returns\ Energy\ Change\ from\ the\ CE\ }}
+\DoxyCodeLine{00039\ \ \ [[nodiscard]]\ \textcolor{keywordtype}{double}\ GetEnergyChange()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00040\ \ \ }
+\DoxyCodeLine{00041\ \ \ \textcolor{comment}{//\ dE\ from\ barrier}}
+\DoxyCodeLine{00042\ \ \ \textcolor{keywordtype}{double}\ GetdEBarrier()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \ \ [[nodiscard]]\ \textcolor{keywordtype}{double}\ GetProbability()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00045\ \ \ [[nodiscard]]\ \textcolor{keywordtype}{double}\ GetCumulativeProbability()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00046\ \ \ [[nodiscard]]\ \mbox{\hyperlink{classmc_1_1JumpEvent}{JumpEvent}}\ GetReverseJumpEvent()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00048\ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classmc_1_1JumpEvent_a4336afa6ca84f886b26bba7113767f78}{SetProbability}}(\textcolor{keywordtype}{double}\ probability);}
+\DoxyCodeLine{00049\ \ \ \textcolor{keywordtype}{void}\ SetCumulativeProbability(\textcolor{keywordtype}{double}\ cumulative\_probability);}
+\DoxyCodeLine{00050\ \ \ \textcolor{keywordtype}{void}\ CalculateProbability(\textcolor{keywordtype}{double}\ total\_rates);}
+\DoxyCodeLine{00051\ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00052\ \ \ \textcolor{keywordtype}{double}\ beta\_\{\};}
+\DoxyCodeLine{00053\ \ \ std::pair<size\_t,\ size\_t>\ jump\_pair\_\{\};}
+\DoxyCodeLine{00054\ \ \ \textcolor{keywordtype}{double}\ forward\_barrier\_\{\};}
+\DoxyCodeLine{00055\ \ \ \textcolor{keywordtype}{double}\ backward\_barrier\_\{\};}
+\DoxyCodeLine{00056\ \ \ \textcolor{keywordtype}{double}\ energy\_change\_\{\};}
+\DoxyCodeLine{00057\ \ \ \textcolor{keywordtype}{double}\ forward\_rate\_\{\};}
+\DoxyCodeLine{00058\ \ \ }
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \textcolor{keywordtype}{double}\ probability\_\{\};}
+\DoxyCodeLine{00061\ \ \ \textcolor{keywordtype}{double}\ cumulative\_probability\_\{\};}
+\DoxyCodeLine{00062\ \};}
+\DoxyCodeLine{00063\ \}\ \textcolor{comment}{//\ mc}}
+\DoxyCodeLine{00064\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//LMC\_MC\_INCLUDE\_JUMPEVENT\_H\_}}
+
+\end{DoxyCode}

@@ -107,9 +107,12 @@ Traverse::~Traverse() = default;
 void Traverse::RunAnsys() const {
 
   std::set<Element>element_set;
-  std::cout << initial_steps_ << ", " << final_steps_ << ", " << increment_steps_ << std::endl;
+  std::cout << "Initial Steps: " << initial_steps_ << std::endl;
+  std::cout << "Increment Steps: " << increment_steps_ << std::endl;
+  std::cout << "Final Steps: " << final_steps_ << std::endl;
 
-  for (unsigned long long i = initial_steps_; i <= final_steps_; i+= increment_steps_) {
+  for (unsigned long long i = initial_steps_; i <= final_steps_; i+= increment_steps_) 
+  {
     
     // reading the config
     auto config = GetConfig(config_type_, i, cutoffs_);
@@ -133,6 +136,7 @@ void Traverse::RunAnsys() const {
     const auto energy = std::get<std::unordered_map<unsigned long long, double>>(log_map_.at("energy")).at(i);
 
     frame_ofs_ << i << "\t" << time << "\t" << temperature << "\t" << energy;
+
     // sro information
     ShortRangeOrder short_range_order(config, element_set);
     const auto sro1 = short_range_order.FindWarrenCowley(1);
@@ -150,15 +154,33 @@ void Traverse::RunAnsys() const {
       
     }
 
+
+    // B2 Order Parameter
+
+    B2OrderParameter b2Order(config);
+
+    for (auto element : element_set)
+    {
+      double b2OrderParameter = b2Order.GetB2OrderParameter(element);
+      double alphaOccupancy = b2Order.GetAlphaSiteOccupancy(element);
+      double betaOccupancy = b2Order.GetBetaSiteOccupancy(element);
+
+      frame_ofs_ << "\t" << b2OrderParameter 
+                 << "\t" << alphaOccupancy 
+                 << "\t" << betaOccupancy;
+    }
+
     frame_ofs_ << "\n";
     
   }
   frame_ofs_.close();
 }
 
-std::string Traverse::GetHeaderFrameString(const std::set<Element> &element_set) const {
+std::string Traverse::GetHeaderFrameString(const std::set<Element> &element_set) const 
+{
   std::string header_frame = "steps\ttime\ttemperature\tenergy\t";
   
+  // SRO Parameter
   static const std::vector<std::string> order_list{"first", "second", "third"};
   for (auto element1: element_set) {
     for (auto element2: element_set) {
@@ -168,6 +190,19 @@ std::string Traverse::GetHeaderFrameString(const std::set<Element> &element_set)
       }
     }
   }
+
+  // B2 Order Parameter
+  
+  for (auto element : element_set)
+  {
+    auto elementString = element.GetElementString();
+    header_frame += "B2_order_param_" + elementString + "\t" +
+                    "alpha_occupancy_" + elementString + "\t" +
+                    "beta_occupancy_" + elementString + "\t";
+                    
+  }
+
+
   if (!header_frame.empty() && header_frame.back() == '\t') {
     header_frame.back() = '\n';
   }

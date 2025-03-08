@@ -182,6 +182,231 @@
 // #include "Home.h"
 // using namespace std;
 
+
+#include "Config.h"
+#include "Home.h"
+#include "Symmetry.h"
+#include <boost/functional/hash.hpp>
+#include <chrono>
+using namespace std;
+#include <omp.h>
+#include <mutex>
+#include <unordered_set>
+#include "PrintUtility.h"
+#include "B2OrderParameter.h"
+
+
+
+pair<unordered_set<size_t>,unordered_set<size_t>> GetB2OrderedStucture(const Config& cfg)
+{
+  auto secondNearestNeighbors = cfg.GetNeighborLists()[1];
+
+  std::unordered_set<size_t> alphaSitesSet;
+  
+  for (size_t id1 = 0; id1 < secondNearestNeighbors.size(); id1++) 
+  {
+    const auto& neighbors = secondNearestNeighbors[id1];
+
+    for (size_t id2 : neighbors) 
+    {
+      bool id1Valid = true;
+      bool id2Valid = true;
+
+      // Check if id1 has any bond order of 1 with sites already in alphaSitesSet
+      for (size_t id3 : alphaSitesSet) 
+      {
+        if (cfg.GetDistanceOrder(id1, id3) == 1) 
+        {
+            id1Valid = false;
+            break;
+        }
+      }
+
+      // Check if id2 has any bond order of 1 with sites already in alphaSitesSet
+      for (size_t id3 : alphaSitesSet) {
+        if (cfg.GetDistanceOrder(id2, id3) == 1) {
+          id2Valid = false;
+          break;
+        }
+      }
+
+      // Add valid sites to alphaCandidates
+      if (id1Valid) 
+      {
+        alphaSitesSet.emplace(id1);
+      }
+      if (id2Valid) 
+      {
+        alphaSitesSet.emplace(id2);
+      }
+    }
+  }
+  
+  size_t numLattice = cfg.GetNumLattices();
+
+  std::unordered_set<size_t> allSitesSet;
+  allSitesSet.reserve(numLattice);
+
+  for (size_t id = 0; id < numLattice; id++)
+  {
+    allSitesSet.insert(id);
+  }
+
+  std::unordered_set<size_t> betaSitesSet;
+  betaSitesSet.reserve(alphaSitesSet.size()); // Optimize for expected size
+  
+  // betaSites = allSites - alphaSites
+  for (auto site : allSitesSet) 
+  {
+    // O(1) Time Complexity
+    if (alphaSitesSet.find(site) == alphaSitesSet.end()) 
+    { 
+      betaSitesSet.insert(site);
+    }
+  }
+
+  auto b2OrderedStucture = std::make_pair(alphaSitesSet, betaSitesSet);
+  
+  return b2OrderedStucture;
+}
+
+
+int main()
+{
+  const vector<double> cutoffs = {3.3, 4.7, 5.6};
+  auto cfg = Config::ReadConfig("1000000.cfg");
+  cfg.UpdateNeighborList(cutoffs);
+
+  auto atomVector = cfg.GetAtomVector();
+  set<Element> eleSet(atomVector.begin(), atomVector.end());
+  for (auto ele : eleSet)
+  {
+    cout << ele.GetElementString() << endl;
+  }
+
+
+  Element ele1("Cl");
+  Element ele2("Cs");
+
+  Element eleW("W");
+  Element eleTa("Ta");
+
+
+  B2OrderParameter b2OrderParamWTa(cfg);
+
+  cout << "W at Alpha : " << b2OrderParamWTa.GetAlphaSiteOccupancy(eleW) << endl;
+  cout << "Ta at Alpha : " << b2OrderParamWTa.GetAlphaSiteOccupancy(eleTa) << endl;
+
+
+  cout << "W at beta : " << b2OrderParamWTa.GetBetaSiteOccupancy(eleW) << endl;
+  cout << "Ta at beta : " << b2OrderParamWTa.GetBetaSiteOccupancy(eleTa) << endl;
+  
+
+  cout << "b2 Order param for W : " << b2OrderParamWTa.GetB2OrderParameter(eleW) << endl;
+  cout << "b2 Order param for Ta : " << b2OrderParamWTa.GetB2OrderParameter(eleTa) << endl;
+
+   
+  auto aSites = b2OrderParamWTa.GetAlphaLatticeSites();
+  auto bSites = b2OrderParamWTa.GetBetaLatticeSites();
+
+  for (auto id : aSites)
+  {
+    cfg.SetElementOfLattice(id, ele1);
+  }
+
+  for (auto id : bSites)
+  {
+    cfg.SetElementOfLattice(id, ele2);
+  }
+
+  Config::WriteConfig("CsCl_B2_Test.cfg", cfg);
+
+  B2OrderParameter b2OrderCsCl(cfg);
+
+  cout << "ele1 at Alpha : " << b2OrderCsCl.GetAlphaSiteOccupancy(ele1) << endl;
+  cout << "ele2 at Alpha : " << b2OrderCsCl.GetAlphaSiteOccupancy(ele2) << endl;
+
+
+  cout << "ele1 at beta : " << b2OrderCsCl.GetBetaSiteOccupancy(ele1) << endl;
+  cout << "ele2 at beta : " << b2OrderCsCl.GetBetaSiteOccupancy(ele2) << endl;
+
+  cout << "b2 ele1 : " << b2OrderCsCl.GetB2OrderParameter(ele1) << endl;
+  cout << "b2 ele2 : " << b2OrderCsCl.GetB2OrderParameter(ele2) << endl;
+
+
+
+
+
+  
+
+
+
+
+  
+
+
+
+  
+}
+
+/*
+int main()
+{
+  
+  const vector<double> cutoffs = {3.3, 4.7, 5.6};
+  auto cfg = Config::ReadCfg("start_W50Ta50_20x20x20.cfg");
+  cfg.UpdateNeighborList(cutoffs);
+  
+  bool isSame = cfg.GetNumAtoms() == cfg.GetNumLattices();
+  
+  std::cout << isSame << std::endl;
+  
+  
+  unordered_map<pair<size_t, size_t>, 
+  vector<size_t>, 
+  boost::hash<std::pair<size_t, size_t>>> symmetricallySortedVectorMap_;
+  
+  auto start = chrono::high_resolution_clock::now();
+
+  for (size_t id1 = 0; id1 < cfg.GetNumLattices(); ++id1)
+  {
+    auto id1FirstNN = cfg.GetNeighborLatticeIdVectorOfLattice(id1, 1);
+    for (auto &id2 : id1FirstNN)
+    {
+      std::pair<size_t, size_t> latticePair = {id1, id2};
+      auto symmetricallySortedVector = GetSortedLatticeVectorStateOfPair(cfg, latticePair, 2);
+      symmetricallySortedVectorMap_[latticePair] = symmetricallySortedVector;
+
+    }
+  }
+
+  auto end = chrono::high_resolution_clock::now();
+
+  std::chrono::duration<double> elapsed = end - start;
+
+  std::cout << "Total time required : " << elapsed << std::endl;
+
+  
+  unordered_map<pair<size_t, size_t>, 
+  vector<size_t>, 
+  boost::hash<std::pair<size_t, size_t>>> symmetricallySortedVectorMap2;
+
+  std::cout << "Number of threads : " << omp_get_num_threads() << std::endl;
+
+ auto start1 = std::chrono::high_resolution_clock::now();
+
+ ComputeSymmetricallySortedVectorMap(cfg, 3, symmetricallySortedVectorMap2);
+
+ auto end1 = std::chrono::high_resolution_clock::now();
+
+ std::chrono::duration<double> elapsed1 = end1 - start1;
+
+ std::cout << "Time Taken : " << elapsed1 << std::endl;
+  
+
+
+}
+
 /*
 int main()
 {
@@ -361,16 +586,17 @@ int main()
 #include "Home.h"
 #include "Parameter.h"
 
-int main(int argc, char *argv[]) 
-{
-  if (argc == 1) {
-    std::cout << "No input parameter filename." << std::endl;
-    return 1;
-  }
-  api::Parameter parameter(argc, argv);
-  api::Print(parameter);
-  api::Run(parameter);
-}
+// int main(int argc, char *argv[]) 
+// {
+//   if (argc == 1) {
+//     std::cout << "No input parameter filename." << std::endl;
+//     return 1;
+//   }
+//   api::Parameter parameter(argc, argv);
+//   api::Print(parameter);
+//   api::Run(parameter);
+// }
+
 // 
 /*
 void verifyDE(size_t vacId, size_t migratingAtomId, Config &cfg, VacancyMigrationPredictor vmPredictor,

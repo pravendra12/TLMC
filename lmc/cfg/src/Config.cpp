@@ -11,13 +11,6 @@
  */
 
 #include "Config.h"
-#include <utility>
-#include <boost/filesystem.hpp>
-#include <boost/iostreams/filtering_stream.hpp>
-#include <boost/iostreams/filter/gzip.hpp>
-#include <boost/iostreams/filter/bzip2.hpp>
-#include <boost/iostreams/stream_buffer.hpp>
-#include <boost/iostreams/device/file.hpp>
 
 Config::Config() = default;
 
@@ -202,6 +195,11 @@ void Config::Wrap() {
 }
 
 void Config::SetElementOfAtom(size_t atom_id, Element element_type) {
+  atom_vector_.at(atom_id) = Element(element_type);
+}
+
+void Config::SetElementOfLattice(size_t lattice_id, Element element_type) {
+  auto atom_id = lattice_to_atom_hashmap_.at(lattice_id);
   atom_vector_.at(atom_id) = Element(element_type);
 }
 

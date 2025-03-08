@@ -27,6 +27,13 @@
 #include "eigen3/Eigen/Dense"
 #include "Constants.hpp"
 #include "Element.hpp"
+#include <utility>
+#include <boost/filesystem.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
+#include <boost/iostreams/filter/bzip2.hpp>
+#include <boost/iostreams/stream_buffer.hpp>
+#include <boost/iostreams/device/file.hpp>
 // #include "Atom.hpp"
 
 /*! \brief Class for defining a configuration of atoms and their positions.
@@ -189,8 +196,9 @@ class Config {
    */
   
   void SetElementOfAtom(size_t atom_id, Element element_type);
-  
-  
+
+  void SetElementOfLattice(size_t lattice_id, Element element_type);
+
   /*! \brief Modify the atom configuration.
   *  \param lattice_id_jump_pair  The pair of lattice ids to modify the configuration.
   */

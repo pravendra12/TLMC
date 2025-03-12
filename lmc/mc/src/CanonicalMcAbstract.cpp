@@ -130,25 +130,23 @@ void CanonicalMcAbstract::Dump() const {
 }
 void CanonicalMcAbstract::SelectEvent(const std::pair<size_t, size_t> &lattice_id_jump_pair,
                                       const double dE) {
-  if (dE < 0) {
-
-    // std::cout << "dE is less than 0" << std::endl;
-
+  if (dE < 0) 
+  {
     config_.LatticeJump(lattice_id_jump_pair);
     energy_ += dE;
     absolute_energy_ += dE;
     
-  } else {
+  } 
+  else 
+  {
     double possibility = std::exp(-dE * beta_);
     double random_number = unit_distribution_(generator_);
-    if (random_number < possibility) {
+    if (random_number < possibility) 
+    {
       config_.LatticeJump(lattice_id_jump_pair);
       energy_ += dE;
       absolute_energy_ += dE;
     }
   }
-
-  // std::cout << "Absolute Energy: " << absolute_energy_ << std::endl;
-
 }
 } // mc

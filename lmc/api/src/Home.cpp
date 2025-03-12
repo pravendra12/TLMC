@@ -52,25 +52,52 @@ void Print(const Parameter &parameter) {
               << std::endl;
   } 
   
-  else if (parameter.method == "SimulatedAnnealing") {
-    std::cout << "json_coefficients_filename: " << parameter.json_coefficients_filename_
-              << std::endl;
-    std::cout << "factor: " << parameter.factor_ << std::endl;
-    std::cout << "solvent_element: " << parameter.solvent_element_ << std::endl;
-    std::cout << "solute_element_set: ";
-    std::copy(parameter.solute_element_set_.begin(), parameter.solute_element_set_.end(),
-              std::ostream_iterator<std::string>(std::cout, " "));
-    std::cout << std::endl;
-    std::cout << "solute_number_set: ";
-    std::transform(parameter.solute_number_set_.begin(), parameter.solute_number_set_.end(),
+  else if (parameter.method == "SimulatedAnnealing") 
+  {
+    // General configuration information
+    std::cout << "config_filename: " 
+              << parameter.config_filename_ << std::endl;
+    std::cout << "json_coefficients_filename: " 
+              << parameter.json_coefficients_filename_ << std::endl;
+    
+    // Lattice and structure information
+    std::cout << "lattice_param: " 
+              << parameter.lattice_param_ << std::endl; 
+    std::cout << "structure_type: " 
+              << parameter.structure_type_ << std::endl;
+    
+    // Simulation parameters
+    std::cout << "maximum_steps: " 
+              << parameter.maximum_steps_ << std::endl;
+    std::cout << "log_dump_steps: " 
+              << parameter.log_dump_steps_ << std::endl;
+    std::cout << "config_dump_steps: " 
+              << parameter.config_dump_steps_ << std::endl;
+    std::cout << "restart_steps: " 
+              << parameter.restart_steps_ << std::endl;
+    std::cout << "restart_energy: " 
+              << parameter.restart_energy_ << std::endl;
+    
+    // Cluster expansion settings
+    std::cout << "max_cluster_size: " 
+              << parameter.max_cluster_size_ << std::endl;
+    std::cout << "max_bond_order: " 
+              << parameter.max_bond_order_ << std::endl;
+    // Supercell size used for CE model fitting 
+    std::cout << "supercell_size: " 
+              << parameter.supercell_size_ << std::endl;
+    
+    // Cutoffs
+    std::cout << "cutoffs: ";
+    std::transform(parameter.cutoffs_.begin(), parameter.cutoffs_.end(),
                    std::ostream_iterator<std::string>(std::cout, " "),
-                   [](auto number) { return std::to_string(number); });
+                   [](auto cutoff) { return std::to_string(cutoff); });
     std::cout << std::endl;
-    std::cout << "log_dump_steps: " << parameter.log_dump_steps_ << std::endl;
-    std::cout << "config_dump_steps: " << parameter.config_dump_steps_ << std::endl;
-    std::cout << "maximum_steps: " << parameter.maximum_steps_ << std::endl;
-    std::cout << "early_stop_steps: " << parameter.early_stop_steps_ << std::endl;
-    std::cout << "initial_temperature: " << parameter.initial_temperature_ << std::endl;
+
+    // Temperature settings
+    std::cout << "initial_temperature: " 
+              << parameter.initial_temperature_ << std::endl;
+
   } 
   
   else if (parameter.method == "CanonicalMcSerial" || parameter.method == "CanonicalMcOmp") {
@@ -145,18 +172,28 @@ void Print(const Parameter &parameter) {
 // }
 
 void Run(const Parameter &parameter) {
-  if (parameter.method == "CanonicalMcSerial") {
+  if (parameter.method == "CanonicalMcSerial") 
+  {
     auto canonical_mc_serial = api::BuildCanonicalMcSerialFromParameter(parameter);
     canonical_mc_serial.Simulate();
-  } else if (parameter.method == "KineticMcChainOmpi") {
+  } 
+  else if (parameter.method == "KineticMcChainOmpi") 
+  {
     auto kinetic_mc_chain_ompi = api::BuildKineticMcChainOmpiFromParameter(parameter);
     kinetic_mc_chain_ompi.Simulate();
-  } else if (parameter.method == "KineticMcFirstMpi") {
+  } else if (parameter.method == "KineticMcFirstMpi") 
+  {
     auto kinetic_mc_first_mpi = api::BuildKineticMcFirstMpiFromParameter(parameter);
     kinetic_mc_first_mpi.Simulate();
-  } else if (parameter.method == "Ansys") {
+  } else if (parameter.method == "Ansys") 
+  {
     auto iterator = api::BuildIteratorFromParameter(parameter);
     iterator.RunAnsys();
+  }
+  else if (parameter.method == "SimulatedAnnealing")
+  {
+    auto simulated_annealing = api::BuildSimulatedAnnealingFromParameter(parameter);
+    simulated_annealing.Simulate();
   }
 }
 
@@ -333,6 +370,60 @@ ansys::Traverse BuildIteratorFromParameter(const Parameter &parameter) {
                          parameter.log_type_,
                          parameter.config_type_};
 }
+
+SimulatedAnnealing BuildSimulatedAnnealingFromParameter(const Parameter
+                                                        &parameter) {
+  Config config;
+  try 
+  {
+    // Generalized function to read configuration
+    // Supported formats are: .cfg, .POSCAR, .cfg.gz, .cfg.bz2, .POSCAR.gz, .POSCAR.bz2
+    config = Config::ReadConfig(parameter.config_filename_);
+
+    config.UpdateNeighborList(parameter.cutoffs_);
+  } 
+  
+  catch (...) 
+  { // Catch all other exceptions
+    std::cerr << "File cannot be read" << std::endl;
+    exit(EXIT_FAILURE);
+  }
+
+  auto supercell_config = Config::GenerateSupercell(parameter.supercell_size_,
+                                                    parameter.lattice_param_,
+                                                    "X", // can be any element
+                                                    parameter.structure_type_);
+  
+  supercell_config.UpdateNeighborList(parameter.cutoffs_);
+  
+  // Getting element set from the configuration
+  auto atom_vector = config.GetAtomVector();
+  std::set<Element> element_set(atom_vector.begin(),atom_vector.end());
+
+  // Print the elements in the set
+  std::cout << "element_set: ";
+  for (const auto& element : element_set) {
+      std::cout << element.GetElementString() << " ";
+  }
+  std::cout << std::endl;
+
+  std::cout << "Finish config reading. Start SA." << std::endl;
+
+  
+  return  SimulatedAnnealing{config,
+                             supercell_config,
+                             parameter.log_dump_steps_,
+                             parameter.config_dump_steps_,
+                             parameter.maximum_steps_,
+                             parameter.restart_steps_,
+                             parameter.restart_energy_,
+                             parameter.initial_temperature_,
+                             element_set,
+                             parameter.max_cluster_size_,
+                             parameter.max_bond_order_,
+                             parameter.json_coefficients_filename_};
+}
+
 
 // mc::KineticMcFirstMpi BuildKineticMcFirstMpiFromParameter(const Parameter &parameter) {
 //   std::set<Element> element_set;

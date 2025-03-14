@@ -23,6 +23,32 @@ int main(int argc, char *argv[]) {
 }
 
 
+
+/*
+int main()
+{
+  auto cfg = Config::ReadCfg("start_W50Ta50_20x20x20.cfg");
+
+  cfg.UpdateNeighborList({3.3, 4.7, 5.6});
+
+  auto atomVector = cfg.GetAtomVector();
+  set<Element> elementSet(atomVector.begin(), atomVector.end());
+  
+  VacancyMigrationBarrierPredictor barrier_predictor(cfg,
+                                                     elementSet, 
+                                                     3, 
+                                                     "predictor_file_WTa.json");
+  
+  size_t vacancyId = cfg.GetVacancyLatticeId();
+  size_t nnAtomId = cfg.GetNeighborLatticeIdVectorOfLattice(vacancyId, 1)[0];
+  pair<size_t, size_t> jumpPair = {vacancyId, nnAtomId};
+
+  auto barrier = barrier_predictor.GetBarrier(cfg, jumpPair) ;
+
+  cout << barrier << endl;
+
+}
+*/
 // // #include "ClusterExpansion.h"
 // // #include "PotentialEnergyEstimator.h"
 // using namespace std;

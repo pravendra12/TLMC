@@ -66,7 +66,7 @@ void KineticMcFirstMpi::BuildEventList() {
       // As in training the symmetrically sorted vector should be starting to 
       // sort from the migration atom side
       vacancy_migration_predictor_.GetBarrier(config_, 
-                                              {neighbor_vacancy_id, vacancy_lattice_id_, }),
+                                              {neighbor_vacancy_id, vacancy_lattice_id_}),
       // Backward Barrier
       vacancy_migration_predictor_.GetBarrier(config_, 
                                               {vacancy_lattice_id_, neighbor_vacancy_id}),

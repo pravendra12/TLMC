@@ -59,7 +59,7 @@ class VacancyMigrationBarrierPredictor {
     // Currently considers neighbours upto 2nd bond order for the jump pair
     // Neighbors upto maxBondOrder_ are currently considered for making the 
     // barrier prediction
-    const size_t maxBondOrderForBarrierPrediction_ = 2;  
+    static constexpr size_t maxBondOrderForBarrierPrediction_ = 2; 
 }; 
 
 /*! \brief Computes the symmetrically sorted vector map

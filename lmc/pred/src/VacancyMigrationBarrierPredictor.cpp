@@ -1,5 +1,7 @@
 #include "VacancyMigrationBarrierPredictor.h"
 
+#include "PrintUtility.h"
+
 
 VacancyMigrationBarrierPredictor::VacancyMigrationBarrierPredictor(
     const Config &config, 
@@ -39,13 +41,17 @@ double VacancyMigrationBarrierPredictor::GetBarrier(
   }
 
   auto sortedLatticeVector = symmetricallySortedVectorMap_.at(latticeIdJumpPair);
+
+  // print1DVector(sortedLatticeVector);
   
   // encoding for given lattice pair and the migrating atom
-  VectorXd migratingAtomEncodingVector = GetEncodingMigratingAtomPairs(config, 
+  VectorXd migratingAtomEncodingVector = GetEncodingMigratingAtomPair(config, 
                                                              encoding3FoldRotation_, 
                                                              sortedLatticeVector, 
                                                              oneHotEncodingMap_, 
                                                              migratingAtom);
+  // print2DVector(encoding3FoldRotation_);
+  // cout << migratingAtomEncodingVector.transpose() << endl;
 
 
   double barrier = migratingAtomEncodingVector.dot(adjusted_beta_barrier_) + 

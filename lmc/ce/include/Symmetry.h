@@ -61,7 +61,7 @@ GetEquivalentSites3Fold(const Config &config,
                         const size_t maxBondOrder);
 
 // Pairs between Migrating Atom and Nearest Neigbours
-VectorXd GetEncodingMigratingAtomPairs (
+VectorXd GetEncodingMigratingAtomPair (
     const Config &config,
     const vector<vector<size_t>> &equivalentSitesEncoding,
     const vector<size_t> symmetricallySortedVector,

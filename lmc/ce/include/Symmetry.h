@@ -64,9 +64,9 @@ GetEquivalentSites3Fold(const Config &config,
 VectorXd GetEncodingMigratingAtomPair (
     const Config &config,
     const vector<vector<size_t>> &equivalentSitesEncoding,
-    const vector<size_t> symmetricallySortedVector,
-    const unordered_map<string, RowVectorXd> oneHotEncodingMap,
-    const Element migratingAtom);
+    const vector<size_t> &symmetricallySortedVector,
+    const unordered_map<string, RowVectorXd> &oneHotEncodingMap,
+    const Element &migratingAtom);
 
 #endif // LMC_CE_INCLUDE_SYMMETRY_H_
 

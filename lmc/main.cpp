@@ -22,9 +22,11 @@ int main(int argc, char *argv[]) {
   api::Run(parameter);
 }
 
-
-
 /*
+#include "Config.h"
+#include "VacancyMigrationBarrierPredictor.h"
+#include <chrono>
+
 int main()
 {
   auto cfg = Config::ReadCfg("start_W50Ta50_20x20x20.cfg");
@@ -41,14 +43,32 @@ int main()
   
   size_t vacancyId = cfg.GetVacancyLatticeId();
   size_t nnAtomId = cfg.GetNeighborLatticeIdVectorOfLattice(vacancyId, 1)[0];
-  pair<size_t, size_t> jumpPair = {vacancyId, nnAtomId};
+  
 
-  auto barrier = barrier_predictor.GetBarrier(cfg, jumpPair) ;
+  pair<size_t, size_t> jumpPairForward = {vacancyId, nnAtomId};
 
-  cout << barrier << endl;
+  // Start timing for forward barrier computation
+  auto startForward = std::chrono::high_resolution_clock::now();
+  auto barrierForward = barrier_predictor.GetBarrier(cfg, jumpPairForward);
+  auto endForward = std::chrono::high_resolution_clock::now();
+
+  // Compute duration
+  std::chrono::duration<double> durationForward = endForward - startForward;
+  std::cout << "Time taken for forward barrier computation: " << durationForward.count() << " seconds\n";
+
+  pair<size_t, size_t> jumpPairBackward = {nnAtomId, vacancyId};
+
+  // Start timing for backward barrier computation
+  auto startBackward = std::chrono::high_resolution_clock::now();
+  auto barrierBackward = barrier_predictor.GetBarrier(cfg, jumpPairBackward);
+  auto endBackward = std::chrono::high_resolution_clock::now();
+
+  // Compute duration
+  std::chrono::duration<double> durationBackward = endBackward - startBackward;
+  std::cout << "Time taken for backward barrier computation: " << durationBackward.count() << " seconds\n";
 
 }
-*/
+
 // // #include "ClusterExpansion.h"
 // // #include "PotentialEnergyEstimator.h"
 // using namespace std;

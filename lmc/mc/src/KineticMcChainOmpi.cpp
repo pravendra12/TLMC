@@ -38,8 +38,10 @@ KineticMcChainOmpi::KineticMcChainOmpi(Config config,
                              json_coefficients_filename,
                              time_temperature_filename,
                              is_rate_corrector,
-                             vacancy_trajectory) {
-  if (world_size_ != kEventListSize) {
+                             vacancy_trajectory) 
+{
+  if (world_size_ != kEventListSize) 
+  {
     std::cout << "Must use " << kEventListSize << " processes. Terminating...\n" << std::endl;
     MPI_Finalize();
     exit(0);
@@ -57,7 +59,8 @@ KineticMcChainOmpi::KineticMcChainOmpi(Config config,
 }
 
 // update  first_event_ki and l_index_list for each process
-void KineticMcChainOmpi::BuildEventList() {
+void KineticMcChainOmpi::BuildEventList() 
+{
   const auto k_lattice_id = vacancy_lattice_id_;
 
   const auto i_lattice_id = config_.GetNeighborLatticeIdVectorOfLattice(k_lattice_id, 1)[static_cast<size_t>(world_rank_)];
@@ -76,6 +79,8 @@ void KineticMcChainOmpi::BuildEventList() {
   total_rate_k_ = 0.0;
   total_rate_i_ = 0.0;
 
+  std::cout << "Here insdie the build event list" << std::endl;
+
   config_.LatticeJump({k_lattice_id, i_lattice_id});
 #pragma omp parallel default(none) shared(i_lattice_id, k_lattice_id) reduction(+:total_rate_i_)
   {
@@ -89,17 +94,20 @@ void KineticMcChainOmpi::BuildEventList() {
                 // here vacancy is at i_lattice_id
                 // migrating atom is at l_lattice_id
                 vacancy_migration_predictor_.GetBarrier(config_, 
-                                                        {l_lattice_id, i_lattice_id}),
+                                                       {l_lattice_id, i_lattice_id}),
                 // Backward Barrier
-                vacancy_migration_predictor_.GetBarrier(config_, 
-                                                        {i_lattice_id, l_lattice_id}),
+                // vacancy_migration_predictor_.GetBarrier(config_, 
+                //                                         {i_lattice_id, l_lattice_id}),
+                // 0,
                 // dE value from CE
                 energy_change_predictor_.GetDe(config_, 
-                                               {i_lattice_id, l_lattice_id}),
+                                              {i_lattice_id, l_lattice_id}),
                 // Thermodynamics Beta
                 beta_);
 
-      if (l_lattice_id == k_lattice_id) {
+
+      if (l_lattice_id == k_lattice_id) 
+      {
         event_k_i_ = event_i_l.GetReverseJumpEvent();
       }
       auto r_i_l = event_i_l.GetForwardRate();

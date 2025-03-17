@@ -110,8 +110,8 @@ void KineticMcFirstAbstract::Dump() const {
          << vacancy_trajectory_ << '\t'
          << event_k_i_.GetBackwardBarrier() << '\t'
          // From Model
-         << event_k_i_.GetTrueBackwardBarrier() << '\t'
-         << event_k_i_.GetdEBarrier()
+         // << event_k_i_.GetTrueBackwardBarrier() << '\t'
+         // << event_k_i_.GetdEBarrier()
          << std::endl;
          // config_.GetAtomIdFromLatticeId(event_k_i_.GetIdJumpPair().second) << '\t' << vacancy_trajectory_
         
@@ -153,10 +153,12 @@ void KineticMcFirstAbstract::Debug(double one_step_time) const {
   }
 }
 
-void KineticMcFirstAbstract::OneStepSimulation() {
+void KineticMcFirstAbstract::OneStepSimulation() 
+{ 
   UpdateTemperature();
-  // thermodynamic_averaging_.AddEnergy(energy_);
+  
   BuildEventList();
+
   // double one_step_time = CalculateTime() * GetTimeCorrectionFactor();
   double one_step_time = CalculateTime();
   Debug(one_step_time);
@@ -233,7 +235,8 @@ KineticMcChainAbstract::KineticMcChainAbstract(Config config,
                              vacancy_trajectory),
       // previous_j_lattice_id_(config_.GetFirstNeighborsAdjacencyList()[vacancy_lattice_id_][0]) {
       previous_j_lattice_id_(config_.GetNeighborLatticeIdVectorOfLattice(vacancy_lattice_id_,1)[0]),
-      l_lattice_id_list_(kEventListSize) {
+      l_lattice_id_list_(kEventListSize) 
+{
   // std::cout << " I am here in KineticMcChainAbstract ...... " << std::endl;
   MPI_Op_create(DataSum, 1, &mpi_op_);
   DefineStruct(&mpi_datatype_);

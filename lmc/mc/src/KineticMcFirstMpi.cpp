@@ -68,8 +68,8 @@ void KineticMcFirstMpi::BuildEventList() {
       vacancy_migration_predictor_.GetBarrier(config_, 
                                               {neighbor_vacancy_id, vacancy_lattice_id_}),
       // Backward Barrier
-      vacancy_migration_predictor_.GetBarrier(config_, 
-                                              {vacancy_lattice_id_, neighbor_vacancy_id}),
+      // vacancy_migration_predictor_.GetBarrier(config_, 
+      //                                         {vacancy_lattice_id_, neighbor_vacancy_id}),
       // dE value from CE
       energy_change_predictor_.GetDe(config_, 
                                      {vacancy_lattice_id_, neighbor_vacancy_id}),

@@ -18,7 +18,7 @@ class JumpEvent {
   JumpEvent();
   JumpEvent(std::pair<size_t, size_t> jump_pair,
             const double forward_barrier,
-            const double backward_barrier,
+            // const double backward_barrier,
             // Energy change from CE
             const double dE,
             double beta);
@@ -31,7 +31,7 @@ class JumpEvent {
   [[nodiscard]] double GetBackwardBarrier() const;
 
   // From Model
-  double GetTrueBackwardBarrier() const;
+  // double GetTrueBackwardBarrier() const;
 
 
   [[nodiscard]] double GetBackwardRate() const;
@@ -39,7 +39,7 @@ class JumpEvent {
   [[nodiscard]] double GetEnergyChange() const;
   
   // dE from barrier
-  double GetdEBarrier() const;
+  // double GetdEBarrier() const;
 
   [[nodiscard]] double GetProbability() const;
   [[nodiscard]] double GetCumulativeProbability() const;
@@ -52,7 +52,7 @@ class JumpEvent {
   double beta_{};
   std::pair<size_t, size_t> jump_pair_{};
   double forward_barrier_{};
-  double backward_barrier_{};
+  // double backward_barrier_{};
   double energy_change_{};
   double forward_rate_{};
   

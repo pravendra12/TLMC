@@ -180,6 +180,7 @@ void Run(const Parameter &parameter) {
   else if (parameter.method == "KineticMcChainOmpi") 
   {
     auto kinetic_mc_chain_ompi = api::BuildKineticMcChainOmpiFromParameter(parameter);
+    std::cout << "Built successfully" << std::endl;
     kinetic_mc_chain_ompi.Simulate();
   } else if (parameter.method == "KineticMcFirstMpi") 
   {

@@ -11,54 +11,54 @@
 #include <cstddef>
 #include <utility>
 #include <array>
-namespace mc {
-class JumpEvent {
- public:
-  /// Constructor
-  JumpEvent();
-  JumpEvent(std::pair<size_t, size_t> jump_pair,
-            const double forward_barrier,
-            // const double backward_barrier,
-            // Energy change from CE
-            const double dE,
-            double beta);
-  /// Getter
-  [[nodiscard]] const std::pair<size_t, size_t> &GetIdJumpPair() const;
-  [[nodiscard]] double GetForwardBarrier() const;
-  [[nodiscard]] double GetForwardRate() const;
-  
-  // Zhucongs way using forward barrier and dE from CE
-  [[nodiscard]] double GetBackwardBarrier() const;
+namespace mc
+{
+  class JumpEvent
+  {
+  public:
+    /// Constructor
+    JumpEvent();
+    JumpEvent(const std::pair<size_t, size_t> &jump_pair,
+              const double forward_barrier,
+              const double dE,
+              double beta);
 
-  // From Model
-  // double GetTrueBackwardBarrier() const;
+    /// Getter
+    [[nodiscard]] const std::pair<size_t, size_t> &GetIdJumpPair() const;
+    [[nodiscard]] double GetForwardBarrier() const;
+    [[nodiscard]] double GetForwardRate() const;
 
+    // Zhucongs way using forward barrier and dE from CE
+    [[nodiscard]] double GetBackwardBarrier() const;
 
-  [[nodiscard]] double GetBackwardRate() const;
-  // Returns Energy Change from the CE 
-  [[nodiscard]] double GetEnergyChange() const;
-  
-  // dE from barrier
-  // double GetdEBarrier() const;
+    // From Model
+    // double GetTrueBackwardBarrier() const;
 
-  [[nodiscard]] double GetProbability() const;
-  [[nodiscard]] double GetCumulativeProbability() const;
-  [[nodiscard]] JumpEvent GetReverseJumpEvent() const;
-  /// Setter
-  void SetProbability(double probability);
-  void SetCumulativeProbability(double cumulative_probability);
-  void CalculateProbability(double total_rates);
- private:
-  double beta_{};
-  std::pair<size_t, size_t> jump_pair_{};
-  double forward_barrier_{};
-  // double backward_barrier_{};
-  double energy_change_{};
-  double forward_rate_{};
-  
+    [[nodiscard]] double GetBackwardRate() const;
+    // Returns Energy Change from the CE
+    [[nodiscard]] double GetEnergyChange() const;
 
-  double probability_{};
-  double cumulative_probability_{};
-};
+    // dE from barrier
+    // double GetdEBarrier() const;
+
+    [[nodiscard]] double GetProbability() const;
+    [[nodiscard]] double GetCumulativeProbability() const;
+    [[nodiscard]] JumpEvent GetReverseJumpEvent() const;
+    /// Setter
+    void SetProbability(double probability);
+    void SetCumulativeProbability(double cumulative_probability);
+    void CalculateProbability(double total_rates);
+
+  private:
+    double beta_{};
+    std::pair<size_t, size_t> jump_pair_{};
+    double forward_barrier_{};
+    // double backward_barrier_{};
+    double energy_change_{};
+    double forward_rate_{};
+
+    double probability_{};
+    double cumulative_probability_{};
+  };
 } // mc
-#endif //LMC_MC_INCLUDE_JUMPEVENT_H_
+#endif // LMC_MC_INCLUDE_JUMPEVENT_H_

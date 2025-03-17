@@ -39,6 +39,8 @@ double VacancyMigrationBarrierPredictor::GetBarrier(
   // O(1)
   auto sortedLatticeVector = symmetricallySortedVectorMap_.at(latticeIdJumpPair);
 
+  // auto startGetEncodingVector = std::chrono::high_resolution_clock::now();
+
   // encoding for given lattice pair and the migrating atom
   VectorXd migratingAtomEncodingVector = GetEncodingMigratingAtomPair(config,
                                                                       encoding3FoldRotation_,
@@ -46,6 +48,13 @@ double VacancyMigrationBarrierPredictor::GetBarrier(
                                                                       oneHotEncodingMap_,
                                                                       migratingAtom);
 
+  // auto endGetEncodingVector = std::chrono::high_resolution_clock::now();
+
+  // std::chrono::duration<double> duration = endGetEncodingVector - startGetEncodingVector;
+
+
+  // cout << "Time taken by GetEncodingMigrationAtomPair computation after changes: " << duration.count() << endl; 
+ 
   double barrier = migratingAtomEncodingVector.dot(adjusted_beta_barrier_) +
                    adjusted_intercept_barrier_;
 

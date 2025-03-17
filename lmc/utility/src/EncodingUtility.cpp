@@ -47,3 +47,4 @@ unordered_map<string, RowVectorXd> GetOneHotEncodeHashmap(set<Element> elementSe
   
   return encodeDict;
 }
+

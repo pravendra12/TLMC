@@ -320,43 +320,40 @@ VectorXd GetEncodingMigratingAtomPair(
     const unordered_map<string, RowVectorXd> &oneHotEncodingMap,
     const Element &migratingAtom)
 {
-  // Size of non-symmetric pairs (example value, may need adjustment)
-  size_t sizeEncodeNonSymmPairs = 4;
+  // Size of non-symmetric pairs
+  size_t numElements = 2; // Considering only binary for now
+  size_t sizeEncodeNonSymmPairs = pow(numElements, 2);
 
   // Calculate the total size needed for encodeVector
   size_t totalSize;
   totalSize = equivalentSitesEncoding.size() * sizeEncodeNonSymmPairs;
-  
 
   // Pre-allocate encodeVector with the total expected size
   VectorXd encodeVector(totalSize);
   size_t offset = 0;
+  RowVectorXd pairEncodeVector = RowVectorXd::Zero(sizeEncodeNonSymmPairs);
 
   // Loop through the equivalent sites encoding
   for (const auto &equivalentSites : equivalentSitesEncoding)
   {
-    // Temporary row vector to accumulate the pair encodings for this equivalentSites group
-    RowVectorXd pairEncodeVector = RowVectorXd::Zero(sizeEncodeNonSymmPairs);
-
+    
     // Loop through the equivalent sites and build the pair encoding vector
     for (auto &sites : equivalentSites)
     {
       auto latticeId = symmetricallySortedVector[sites];
       auto neighborElement = config.GetElementOfLattice(latticeId);
 
-      string elementPair = migratingAtom.GetElementString() + neighborElement.GetElementString();
+      string elementPair = migratingAtom.GetElementString() +
+                           neighborElement.GetElementString();
 
-      // Use find() to safely access oneHotEncodingMap
-      auto it = oneHotEncodingMap.find(elementPair);
-      if (it != oneHotEncodingMap.end())
+      try
       {
-        pairEncodeVector += it->second; // Accumulate the one-hot vector
+        pairEncodeVector += oneHotEncodingMap.at(elementPair); 
       }
-      else
+      catch (const std::out_of_range &e)
       {
-        std::cout << "Error: missing Eleemtn Pair" << std::endl;
-        // Handle missing elementPair, could be logging or defaulting
-        pairEncodeVector += RowVectorXd::Zero(sizeEncodeNonSymmPairs); // Or skip
+        std::cout << "Error: Missing Element Pair for " << elementPair << std::endl;
+        exit(1);
       }
     }
 

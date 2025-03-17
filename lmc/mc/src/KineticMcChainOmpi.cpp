@@ -88,8 +88,8 @@ namespace mc
       {
         
         const auto l_lattice_id = l_lattice_id_list_[ii];
-        std::cout << config_.GetElementOfLattice(i_lattice_id) << ", " << config_.GetElementOfLattice(l_lattice_id) << std::endl;
-        
+        // std::cout << config_.GetElementOfLattice(i_lattice_id) << ", " << config_.GetElementOfLattice(l_lattice_id) << std::endl;
+
         JumpEvent event_i_l(
             // Jump Pair
             {i_lattice_id, l_lattice_id},

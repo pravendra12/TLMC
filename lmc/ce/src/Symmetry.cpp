@@ -331,11 +331,14 @@ VectorXd GetEncodingMigratingAtomPair(
   // Pre-allocate encodeVector with the total expected size
   VectorXd encodeVector(totalSize);
   size_t offset = 0;
-  RowVectorXd pairEncodeVector = RowVectorXd::Zero(sizeEncodeNonSymmPairs);
-
+  
+  cout << totalSize << endl;
+  print2DVector(equivalentSitesEncoding);
+  
   // Loop through the equivalent sites encoding
   for (const auto &equivalentSites : equivalentSitesEncoding)
   {
+    RowVectorXd pairEncodeVector = RowVectorXd::Zero(sizeEncodeNonSymmPairs);
     
     // Loop through the equivalent sites and build the pair encoding vector
     for (auto &sites : equivalentSites)
@@ -346,13 +349,15 @@ VectorXd GetEncodingMigratingAtomPair(
       string elementPair = migratingAtom.GetElementString() +
                            neighborElement.GetElementString();
 
+      // cout << elementPair << endl;
+
       try
       {
         pairEncodeVector += oneHotEncodingMap.at(elementPair); 
       }
       catch (const std::out_of_range &e)
       {
-        std::cout << "Error: Missing Element Pair for " << elementPair << std::endl;
+        std::cout << "Error: Missing Element Pair for " << elementPair << "(" << latticeId << ")" << std::endl;
         exit(1);
       }
     }

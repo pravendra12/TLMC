@@ -48,6 +48,9 @@ double VacancyMigrationBarrierPredictor::GetBarrier(
                                                                       oneHotEncodingMap_,
                                                                       migratingAtom);
 
+
+  // cout << migratingAtomEncodingVector.transpose() << endl;
+
   // auto endGetEncodingVector = std::chrono::high_resolution_clock::now();
 
   // std::chrono::duration<double> duration = endGetEncodingVector - startGetEncodingVector;

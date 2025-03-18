@@ -80,7 +80,15 @@ namespace mc
     total_rate_k_ = 0.0;
     total_rate_i_ = 0.0;
 
+    std::cout << k_lattice_id << " " << i_lattice_id << std::endl;
+    std::cout << config_.GetElementOfLattice(k_lattice_id) << ", " << config_.GetElementOfLattice(i_lattice_id) << std::endl;
+
+
     config_.LatticeJump({k_lattice_id, i_lattice_id});
+
+    std::cout << config_.GetElementOfLattice(k_lattice_id) << ", " << config_.GetElementOfLattice(i_lattice_id) << std::endl;
+
+
 #pragma omp parallel default(none) shared(i_lattice_id, k_lattice_id) reduction(+ : total_rate_i_)
     {
 #pragma omp for

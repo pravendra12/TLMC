@@ -45,7 +45,7 @@ class PotentialEnergyEstimator {
    *  \return                 A vector representing the encoded cluster type counts.
    */
   [[nodiscard]] VectorXd GetEncodeVectorOfCluster(const Config &config, 
-                                                        vector<size_t> cluster) const;
+                                                  const std::vector<size_t> &cluster) const;
 
   /*! \brief Get the Energy of the configuration
    *  \param config           The configuration to analyze.

@@ -332,8 +332,8 @@ VectorXd GetEncodingMigratingAtomPair(
   VectorXd encodeVector(totalSize);
   size_t offset = 0;
   
-  cout << totalSize << endl;
-  print2DVector(equivalentSitesEncoding);
+  // cout << totalSize << endl;
+  // print2DVector(equivalentSitesEncoding);
   
   // Loop through the equivalent sites encoding
   for (const auto &equivalentSites : equivalentSitesEncoding)

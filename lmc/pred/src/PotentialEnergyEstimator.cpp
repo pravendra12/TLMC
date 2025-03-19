@@ -97,7 +97,7 @@ Eigen::VectorXd PotentialEnergyEstimator::GetEncodeVector(const Config &config) 
 
 Eigen::VectorXd 
 PotentialEnergyEstimator::GetEncodeVectorOfCluster(const Config &config, 
-                                                   std::vector<size_t> cluster) const 
+                                                   const std::vector<size_t> &cluster) const 
 {
   auto cluster_type_count_hashmap(ConvertSetToHashMap(initialized_cluster_type_set_));
 
@@ -153,7 +153,8 @@ double
 PotentialEnergyEstimator::GetDe(Config &config, 
                                 const std::pair<size_t, size_t> &lattice_id_pair) const 
 {  
-  if (config.GetElementOfLattice(lattice_id_pair.first) == config.GetElementOfLattice(lattice_id_pair.second)) {
+  if (config.GetElementOfLattice(lattice_id_pair.first) == config.GetElementOfLattice(lattice_id_pair.second)) 
+  {
     return 0;
   }
   // Energy Before Swap

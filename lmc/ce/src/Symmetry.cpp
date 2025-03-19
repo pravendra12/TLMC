@@ -357,6 +357,11 @@ VectorXd GetEncodingMigratingAtomPair(
       }
       catch (const std::out_of_range &e)
       {
+        for (auto latticeId : symmetricallySortedVector)
+        {
+          cout << latticeId << config.GetElementOfLattice(latticeId) << " ";
+        }
+        cout << endl;
         std::cout << "Error: Missing Element Pair for " << elementPair << "(" << latticeId << ")" << std::endl;
         exit(1);
       }

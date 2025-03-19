@@ -107,7 +107,7 @@ namespace mc
             vacancy_migration_predictor_.GetBarrier(config_,
                                                     {l_lattice_id, i_lattice_id}),
             // dE value from CE
-            energy_change_predictor_.GetDe(config_,
+            energy_change_predictor_.GetDeThreadSafe(config_,
                                            {i_lattice_id, l_lattice_id}),
             // Thermodynamics Beta
             beta_);

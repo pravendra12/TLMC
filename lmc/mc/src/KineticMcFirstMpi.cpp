@@ -69,8 +69,11 @@ void KineticMcFirstMpi::BuildEventList() {
       vacancy_migration_predictor_.GetBarrier(config_, 
                                               {neighbor_vacancy_id, vacancy_lattice_id_}),
       // dE value from CE
-      energy_change_predictor_.GetDe(config_, 
-                                     {vacancy_lattice_id_, neighbor_vacancy_id}),
+      energy_change_predictor_.GetDeThreadSafe(config_, 
+        {vacancy_lattice_id_, neighbor_vacancy_id}),
+
+      // energy_change_predictor_.GetDe(config_, 
+      //                                {vacancy_lattice_id_, neighbor_vacancy_id}),
       // Thermodynamics Beta
       beta_);  
 

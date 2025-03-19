@@ -21,7 +21,6 @@ int main(int argc, char *argv[]) {
   api::Print(parameter);
   api::Run(parameter);
 }
-
 /*
 #include "Config.h"
 #include "VacancyMigrationBarrierPredictor.h"
@@ -61,25 +60,29 @@ int main()
 
   pair<size_t, size_t> jumpPairForward = {vacancyId, nnAtomId};
 
-  // Start timing for forward barrier computation
-  auto startForward = std::chrono::high_resolution_clock::now();
-  auto barrierForward = barrier_predictor.GetBarrier(cfg, jumpPairForward);
-  auto endForward = std::chrono::high_resolution_clock::now();
-
-  // Compute duration
-  std::chrono::duration<double> durationForward = endForward - startForward;
-  std::cout << "Time taken for forward barrier computation: " << durationForward.count() << " seconds\n";
-
   // Start timing for backward barrier computation
   auto startPE = std::chrono::high_resolution_clock::now();
-  auto dE = peEstimator.GetDe(cfg, jumpPairForward);
+  auto dE = peEstimator.GetDeThreadSafe(cfg, jumpPairForward);
   auto endPE = std::chrono::high_resolution_clock::now();
 
   // Compute duration
   std::chrono::duration<double> durationPE = endPE - startPE;
   std::cout << "Time taken for dE computation: " << durationPE.count() << " seconds\n";
 
-  printOneHotEncodeHashmap(GetOneHotEncodeHashmap(elementSet));
+
+  // Start timing for backward barrier computation
+  auto startPE_original = std::chrono::high_resolution_clock::now();
+  auto dE_original = peEstimator.GetDe(cfg, jumpPairForward);
+  auto endPE_original = std::chrono::high_resolution_clock::now();
+
+  // Compute duration
+  std::chrono::duration<double> durationPE_original = endPE_original - startPE_original;
+  std::cout << "Time taken for dE computation: " << durationPE_original.count() << " seconds\n";
+
+
+  cout << dE << endl;
+  cout << dE_original << endl;
+
 }
 
 // // #include "ClusterExpansion.h"

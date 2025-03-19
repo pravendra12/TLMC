@@ -67,9 +67,13 @@ class PotentialEnergyEstimator {
    *  \return                 Change in energy due to atom jump.
    */
   [[nodiscard]] double GetDe(Config &config, const pair<size_t, size_t> &lattice_id_pair) const;
-  [[nodiscard]] map<Element, double> GetChemicalPotential(Element solvent_element) const;
+
+  double GetDeThreadSafe(const Config &config, const std::pair<size_t, size_t> &lattice_id_pair) const;
+
   
- private:
+  [[nodiscard]] map<Element, double> GetChemicalPotential(Element solvent_element) const;
+
+  private:
   const pair<VectorXd, double> ce_fitted_parameters_{};
   /// Adjusted Effective cluster interaction.
   const VectorXd adjusted_beta_ce_{};

@@ -324,7 +324,6 @@ std::unordered_set<LatticeCluster, boost::hash<LatticeCluster>> FindAllLatticeCl
       }
     }
   }
-
   return lattice_cluster_hashset;
 }
 

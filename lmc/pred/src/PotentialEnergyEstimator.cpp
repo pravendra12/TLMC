@@ -212,8 +212,8 @@ double PotentialEnergyEstimator::GetDeThreadSafe(const Config &config,
       }
       else if (id == id2)
       {
-        swapped_elements.push_back(Element("X")); // id2 gets id1's element
-        // swapped_elements.push_back(config.GetElementOfLattice(id1)); 
+        // swapped_elements.push_back(Element("X")); // id2 gets id1's element
+        swapped_elements.push_back(config.GetElementOfLattice(id1)); 
       }
       else
       {

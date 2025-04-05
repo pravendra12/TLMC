@@ -1,9 +1,11 @@
 #ifndef LMC_LMC_ANSYS_INCLUDE_TRAVERSE_H_
 #define LMC_LMC_ANSYS_INCLUDE_TRAVERSE_H_
+
+#include <omp.h>
+#include <nlohmann/json.hpp>
 #include "ShortRangeOrder.h"
 #include "B2OrderParameter.h"
 
-#include <nlohmann/json.hpp>
 
 namespace ansys {
 

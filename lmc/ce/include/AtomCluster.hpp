@@ -17,7 +17,7 @@
 #include <vector>
 #include <boost/functional/hash.hpp>
 
-#include "eigen3/Eigen/Dense"
+#include "Eigen/Dense"
 #include "AtomClusterType.hpp"
 
 /*! \brief Class for defining a cluster of atoms.

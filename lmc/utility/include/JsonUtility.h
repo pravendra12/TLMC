@@ -5,7 +5,7 @@
 #include <omp.h>
 #include <fstream>
 #include <string>
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Dense>
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 using namespace std;

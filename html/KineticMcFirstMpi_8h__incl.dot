@@ -55,7 +55,7 @@ digraph "lmc/mc/include/KineticMcFirstMpi.h"
   Node12 -> Node22 [id="edge28_Node000012_Node000022",color="steelblue1",style="solid",tooltip=" "];
   Node22 [id="Node000022",label="any",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
   Node12 -> Node23 [id="edge29_Node000012_Node000023",color="steelblue1",style="solid",tooltip=" "];
-  Node23 [id="Node000023",label="eigen3/Eigen/Dense",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
+  Node23 [id="Node000023",label="Eigen/Dense",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
   Node12 -> Node24 [id="edge30_Node000012_Node000024",color="steelblue1",style="solid",tooltip=" "];
   Node24 [id="Node000024",label="Constants.hpp",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
   Node12 -> Node25 [id="edge31_Node000012_Node000025",color="steelblue1",style="solid",tooltip=" "];

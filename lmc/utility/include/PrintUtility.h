@@ -5,7 +5,7 @@
 #include <string>
 #include <iostream>
 #include <unordered_map>
-#include "eigen3/Eigen/Dense"
+#include "Eigen/Dense"
 
 template <typename T>
 void print1DVector(const std::vector<T>& vec) {

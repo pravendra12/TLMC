@@ -61,7 +61,7 @@ digraph "lmc/api/include/Home.h"
   Node16 -> Node24 [id="edge145_Node000016_Node000024",color="steelblue1",style="solid",tooltip=" "];
   Node24 [id="Node000024",label="any",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
   Node16 -> Node25 [id="edge146_Node000016_Node000025",color="steelblue1",style="solid",tooltip=" "];
-  Node25 [id="Node000025",label="eigen3/Eigen/Dense",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
+  Node25 [id="Node000025",label="Eigen/Dense",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
   Node16 -> Node26 [id="edge147_Node000016_Node000026",color="steelblue1",style="solid",tooltip=" "];
   Node26 [id="Node000026",label="Constants.hpp",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
   Node15 -> Node34 [id="edge148_Node000015_Node000034",color="steelblue1",style="solid",tooltip=" "];

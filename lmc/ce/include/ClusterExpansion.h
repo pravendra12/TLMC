@@ -16,7 +16,7 @@
 #include <set>
 #include <numeric>
 #include <algorithm>
-#include "eigen3/Eigen/Dense"
+#include "Eigen/Dense"
 #include "LatticeCluster.hpp"
 #include "AtomCluster.hpp"
 #include "ClusterType.hpp"

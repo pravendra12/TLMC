@@ -8,7 +8,7 @@
 #include <omp.h>
 #include <mutex>
 #include <unordered_map>
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Dense>
 #include <boost/functional/hash.hpp>
 using namespace std;
 using namespace Eigen;

@@ -24,7 +24,7 @@
 #include <utility>
 #include <variant>
 #include <any>
-#include "eigen3/Eigen/Dense"
+#include "Eigen/Dense"
 #include "Constants.hpp"
 #include "Element.hpp"
 #include <utility>

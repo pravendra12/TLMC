@@ -4,7 +4,7 @@
 #include <set>
 #include <string>
 #include <unordered_map>
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Dense>
 #include "Element.hpp"
 using namespace std;
 using namespace Eigen;

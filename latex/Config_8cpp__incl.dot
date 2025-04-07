@@ -30,7 +30,7 @@ digraph "lmc/cfg/src/Config.cpp"
   Node2 -> Node13 [id="edge33_Node000002_Node000013",color="steelblue1",style="solid",tooltip=" "];
   Node13 [id="Node000013",label="any",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
   Node2 -> Node14 [id="edge34_Node000002_Node000014",color="steelblue1",style="solid",tooltip=" "];
-  Node14 [id="Node000014",label="eigen3/Eigen/Dense",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
+  Node14 [id="Node000014",label="Eigen/Dense",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
   Node2 -> Node15 [id="edge35_Node000002_Node000015",color="steelblue1",style="solid",tooltip=" "];
   Node15 [id="Node000015",label="Constants.hpp",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
   Node2 -> Node16 [id="edge36_Node000002_Node000016",color="steelblue1",style="solid",tooltip=" "];

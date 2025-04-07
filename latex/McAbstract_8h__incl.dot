@@ -36,7 +36,7 @@ digraph "lmc/mc/include/McAbstract.h"
   Node5 -> Node16 [id="edge43_Node000005_Node000016",color="steelblue1",style="solid",tooltip=" "];
   Node16 [id="Node000016",label="any",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
   Node5 -> Node17 [id="edge44_Node000005_Node000017",color="steelblue1",style="solid",tooltip=" "];
-  Node17 [id="Node000017",label="eigen3/Eigen/Dense",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
+  Node17 [id="Node000017",label="Eigen/Dense",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
   Node5 -> Node18 [id="edge45_Node000005_Node000018",color="steelblue1",style="solid",tooltip=" "];
   Node18 [id="Node000018",label="Constants.hpp",height=0.2,width=0.4,color="grey60", fillcolor="#E0E0E0", style="filled",tooltip=" "];
   Node5 -> Node19 [id="edge46_Node000005_Node000019",color="steelblue1",style="solid",tooltip=" "];

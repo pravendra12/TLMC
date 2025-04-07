@@ -4,7 +4,7 @@
 #include <set>
 #include <numeric>
 #include <algorithm>
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Dense>
 #include "ClusterExpansion.h"
 #include "JsonUtility.h"
 using namespace std;

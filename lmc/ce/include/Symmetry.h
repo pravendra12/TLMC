@@ -2,7 +2,7 @@
 #define LMC_CE_INCLUDE_SYMMETRY_H_
 
 #include "Config.h"
-#include "eigen3/Eigen/Dense"
+#include "Eigen/Dense"
 #include "Constants.hpp"
 #include "EncodingUtility.h"
 #include "PrintUtility.h"

@@ -16,7 +16,7 @@
 #include <utility>
 #include <vector>
 #include <boost/functional/hash.hpp>
-#include "eigen3/Eigen/Dense"
+#include "Eigen/Dense"
 #include "LatticeClusterType.hpp"
 
 /*! \brief Class for defining a cluster of lattice sites.

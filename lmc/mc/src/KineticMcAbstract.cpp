@@ -53,8 +53,7 @@ namespace mc
         vacancy_lattice_id_(config_.GetVacancyLatticeId()),
         vacancy_trajectory_(vacancy_trajectory),
         event_k_i_list_(kEventListSize)
-  {
-  }
+  {}
 
   KineticMcFirstAbstract::~KineticMcFirstAbstract() = default;
 
@@ -97,13 +96,13 @@ namespace mc
     if (steps_ % config_dump_steps_ == 0)
     {
       // config_.WriteMap("map" + std::to_string(step_) + ".txt");
-      config_.WriteConfig(std::to_string(steps_) + ".cfg.gz");
-      // config_.WriteConfig(std::to_string(steps_) + ".cfg", config_);
+      // config_.WriteConfig(std::to_string(steps_) + ".cfg.gz");
+      config_.WriteConfig(std::to_string(steps_) + ".cfg", config_);
     }
-    if (steps_ == maximum_steps_)
-    {
+    if (steps_ == maximum_steps_) {
       config_.WriteConfig("end.cfg", config_);
     }
+
 
     unsigned long long int log_dump_steps;
     if (steps_ > 10 * log_dump_steps_)
@@ -127,7 +126,7 @@ namespace mc
            << event_k_i_.GetEnergyChange() << '\t'
            << event_k_i_.GetIdJumpPair().second << '\t'
            << vacancy_trajectory_ << '\t'
-
+           
            // Testing
            // << event_k_i_.GetBackwardBarrier() << '\t'
            // From Model

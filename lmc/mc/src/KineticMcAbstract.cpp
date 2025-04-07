@@ -97,7 +97,7 @@ namespace mc
     {
       // config_.WriteMap("map" + std::to_string(step_) + ".txt");
       // config_.WriteConfig(std::to_string(steps_) + ".cfg.gz");
-      config_.WriteConfig(std::to_string(steps_) + ".cfg", config_);
+      config_.WriteConfig(std::to_string(steps_) + ".cfg.gz", config_);
     }
     if (steps_ == maximum_steps_) {
       config_.WriteConfig("end.cfg", config_);

@@ -88,7 +88,7 @@ namespace mc
     {
       // config_.WriteLattice("lattice.txt");
       // config_.WriteElement("element.txt");
-      ofs_ << "steps\ttime\ttemperature\tenergy\tEa\tdE\tselected\tvac1\tvac2\tvac3";
+      ofs_ << "steps\ttime\ttemperature\tenergy\tEa\tdE\tselected\tvac1\tvac2\tvac3" << endl;
 
       // Test
       // ofs_ << "\tEa_backward\tEa_backwardModel\tdE_barrier" << std::endl;

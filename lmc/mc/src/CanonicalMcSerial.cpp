@@ -43,7 +43,7 @@ CanonicalMcSerial::CanonicalMcSerial(Config config,
                           max_bond_order,
                           json_coefficients_filename) {
   if (world_size_ != 1) {
-    std::cout << "Must use 1 precesses. Terminating...\n" << std::endl;
+    std::cout << "Must use 1 processes. Terminating...\n" << std::endl;
     MPI_Finalize();
     exit(0);
   }

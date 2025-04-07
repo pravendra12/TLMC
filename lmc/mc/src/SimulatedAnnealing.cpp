@@ -58,7 +58,8 @@ void SimulatedAnnealing::Dump() const
   }
   if (steps_ % config_dump_steps_ == 0) 
   {
-    config_.WriteConfig(std::to_string(steps_) + ".cfg", config_);
+    // config_.WriteConfig(std::to_string(steps_) + ".cfg", config_);
+    config_.WriteConfig(std::to_string(steps_) + ".cfg.gz", config_);
   }
   if (steps_ == maximum_steps_) 
   {

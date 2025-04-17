@@ -253,7 +253,7 @@ namespace ansys
         oss << "\n";
 
         // Write to file
-        Config::WriteXyzExtended(to_string(idx) + ".xyz.gz",
+        Config::WriteXyzExtended(to_string(i) + ".xyz.gz",
                                  config,
                                  auxiliaryList,
                                  globalList);

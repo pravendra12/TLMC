@@ -16,8 +16,21 @@ namespace ansys
     Config config;
     if (config_type == "config")
     {
-      // config = Config::ReadConfig(std::to_string(i) + ".cfg");
-      config = Config::ReadConfig(std::to_string(i) + ".cfg.gz");
+      try
+      {
+        config = Config::ReadConfig(base + ".cfg");
+      }
+      catch (...)
+      {
+        try
+        {
+          config = Config::ReadConfig(base + ".cfg.gz");
+        }
+        catch (...)
+        {
+          throw std::runtime_error("Failed to load config: tried " + base + ".cfg and " + base + ".cfg.gz");
+        }
+      }
       config.UpdateNeighborList(cutoff);
     }
     else

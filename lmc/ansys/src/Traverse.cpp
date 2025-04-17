@@ -16,6 +16,7 @@ namespace ansys
     Config config;
     if (config_type == "config")
     {
+      string base = std::to_string(i);
       try
       {
         config = Config::ReadConfig(base + ".cfg");

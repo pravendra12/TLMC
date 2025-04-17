@@ -85,6 +85,11 @@ class Config {
    */
   [[nodiscard]]  size_t GetVacancyLatticeId() const;
 
+  /*! \brief Query for the Atom ID of vacancy for the configuration.
+   *  \return  The vacancy Atom ID site for the configuration.
+   */
+  [[nodiscard]] size_t GetVacancyAtomId() const;
+
   /*! \brief Returns the concentration corresponding to each element present in
    *         in the configuration.
    *  \return  The concentration of elements.
@@ -129,6 +134,14 @@ class Config {
    *  \return         The element of the atom.
    */
   [[nodiscard]] Element GetElementOfAtom(size_t atom_id) const;
+
+  
+
+  /*! \brief Query for atom id of a lattice.
+   *  \param latticeId  The lattice id of the lattice.
+   *  \return         The atom id for the atom which is at that lattice.
+   */
+  [[nodiscard]] size_t GetAtomIdOfLattice(size_t latticeId) const;
 
   /*! \brief Query for the cartesian position of a lattice site. //prav: relative position of lattice
    *  \param lattice_id  The lattice id of the lattice site.

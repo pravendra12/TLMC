@@ -100,6 +100,10 @@ class B2OrderParameter
      * @return An unordered set containing the indices of beta lattice sites.
      */
     unordered_set<size_t> GetBetaLatticeSites();
+
+
+    static bool isB2Ordered(const Config &config,
+                            const size_t latticeId);
         
   private:
     

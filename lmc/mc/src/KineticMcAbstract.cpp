@@ -38,7 +38,6 @@ namespace mc
         kEventListSize(config.GetNeighborLatticeIdVectorOfLattice(0, 1).size()),
         vacancy_migration_predictor_(move(config),
                                      element_set,
-                                     max_bond_order,
                                      json_coefficients_filename),
         energy_change_predictor_(json_coefficients_filename,
                                  config,

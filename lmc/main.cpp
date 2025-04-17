@@ -1,8 +1,8 @@
 /**************************************************************************************************
  * Copyright (c) 2020-2023. All rights reserved.                                                  *
- * @Author: Zhucong Xi                                                                            *
+ * @Author: Pravendra                                                                       *
  * @Date: 1/16/20 3:55 AM                                                                         *
- * @Last Modified by: zhucongx                                                                    *
+ * @Last Modified by: pravendr                                                                    *
  * @Last Modified time: 10/25/23 10:35 PM                                                         *
  **************************************************************************************************/
 
@@ -21,6 +21,8 @@ int main(int argc, char *argv[]) {
   api::Print(parameter);
   api::Run(parameter);
 }
+
+/*******************************ClusterDynamicsTesting*************************/
 /*
 #include "Config.h"
 #include "VacancyMigrationBarrierPredictor.h"
@@ -28,8 +30,52 @@ int main(int argc, char *argv[]) {
 #include "PotentialEnergyEstimator.h"
 #include "EncodingUtility.h"
 #include "PrintUtility.h"
+#include "VacancyMigrationPredictor.h"
+#include "ClusterDynamics.h"
 
+int main()
+{
+  // Testing
 
+  auto cfg = Config::ReadCfg("b2Cluster/10000000_1200K.cfg");
+
+  cfg.UpdateNeighborList({3.3, 4.7, 5.6});
+
+  // clusterSize(cfg)
+  ClusterDynamics clusterDynamics(cfg);
+
+  std::map<std::string, Config::VectorVariant> auxiliaryList;
+
+  vector<int> clusterSizeVector;
+
+  clusterDynamics.detectB2Clusters(auxiliaryList, clusterSizeVector);
+
+  map<string, Config::ValueVariant> globalList;
+
+  globalList["b2OrderParam"] = 0.45;
+
+  cout << "Cluster Type from main: " << endl;
+
+  std::vector<int> clusterTypes = std::get<std::vector<int>>(auxiliaryList["clusterType"]);
+  int i = 0;
+  for (int id : clusterTypes)
+  {
+    std::cout << i << " : " << clusterTypes[i] << " " << id << std::endl;
+    i++;
+  }
+
+  // Cluster size
+
+  for (auto clusterSize : clusterSizeVector)
+  {
+    cout << clusterSize << ", ";
+  }
+  cout << endl;
+
+  // Config::WriteXyzExtended("b2Cluster/10000000_1200K.xyz.gz", cfg, auxiliaryList, globalList);
+}
+
+/*
 int main()
 {
   auto cfg = Config::ReadCfg("start_W50Ta50_20x20x20.cfg");
@@ -46,7 +92,6 @@ int main()
 
   VacancyMigrationBarrierPredictor barrier_predictor(cfg,
                                                      elementSet,
-                                                     3,
                                                      "predictor_file_WTa.json");
 
   PotentialEnergyEstimator peEstimator("predictor_file_WTa.json",
@@ -60,28 +105,54 @@ int main()
 
   pair<size_t, size_t> jumpPairForward = {vacancyId, nnAtomId};
 
-  // Start timing for backward barrier computation
-  auto startPE = std::chrono::high_resolution_clock::now();
   auto dE = peEstimator.GetDeThreadSafe(cfg, jumpPairForward);
-  auto endPE = std::chrono::high_resolution_clock::now();
-
-  // Compute duration
-  std::chrono::duration<double> durationPE = endPE - startPE;
-  std::cout << "Time taken for dE computation: " << durationPE.count() << " seconds\n";
-
-
-  // Start timing for backward barrier computation
-  auto startPE_original = std::chrono::high_resolution_clock::now();
-  auto dE_original = peEstimator.GetDe(cfg, jumpPairForward);
-  auto endPE_original = std::chrono::high_resolution_clock::now();
-
-  // Compute duration
-  std::chrono::duration<double> durationPE_original = endPE_original - startPE_original;
-  std::cout << "Time taken for dE computation: " << durationPE_original.count() << " seconds\n";
-
 
   cout << dE << endl;
-  cout << dE_original << endl;
+
+
+  pair<size_t, size_t> jumpPairBackward = {nnAtomId, vacancyId};
+
+  auto dE_b = peEstimator.GetDeThreadSafe(cfg, jumpPairBackward);
+
+  cout << dE_b << endl;
+
+
+  // VancanMigrationPredictor
+
+  VacancyMigrationPredictor vacancyMigrationPredictor("predictor_file_WTa.json",
+                                       cfg,
+                                       supercellCfg,
+                                       elementSet,
+                                       3, 3);
+
+  //
+
+  auto barrierDeForward =   vacancyMigrationPredictor.getBarrierAndEnergyChange(cfg,
+                                                                         jumpPairForward);
+
+
+auto barrierDeBackward =   vacancyMigrationPredictor.getBarrierAndEnergyChange(cfg,
+                                                                         jumpPairBackward);
+
+  cout << "Forward" << endl;
+
+  cout << barrierDeForward.first << endl;
+  cout << barrierDeForward.second << endl;
+
+
+  cout << "Backward" << endl;
+
+  cout << barrierDeBackward.first << endl;
+  cout << barrierDeBackward.second << endl;
+
+
+
+
+
+
+
+
+
 
 }
 

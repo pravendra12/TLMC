@@ -3,7 +3,6 @@
 VacancyMigrationBarrierPredictor::VacancyMigrationBarrierPredictor(
     const Config &config,
     const set<Element> &elementSet,
-    const size_t &maxBondOrder,
     const string &predictorFilename) : barrier_fitted_parameters_(ReadParametersFromJson(predictorFilename,
                                                                                          "barrier")),
                                        adjusted_beta_barrier_(barrier_fitted_parameters_.first),
@@ -12,13 +11,11 @@ VacancyMigrationBarrierPredictor::VacancyMigrationBarrierPredictor(
                                            GetOneHotEncodeHashmap(elementSet)),
                                        encoding3FoldRotation_(
                                            GetEquivalentSites3Fold(config,
-                                                                   maxBondOrderForBarrierPrediction_))
-// maxBondOrderForBarrierPrediction_(maxBondOrder)
-{
-  ComputeSymmetricallySortedVectorMap(config,
-                                      maxBondOrderForBarrierPrediction_,
-                                      symmetricallySortedVectorMap_);
-}
+                                                                   maxBondOrderForBarrierPrediction_)),
+                                       symmetricallySortedVectorMap_(
+                                           ComputeSymmetricallySortedVectorMap(config,
+                                                                               maxBondOrderForBarrierPrediction_))
+{}
 
 double VacancyMigrationBarrierPredictor::GetBarrier(
     const Config &config,
@@ -48,26 +45,25 @@ double VacancyMigrationBarrierPredictor::GetBarrier(
                                                                       oneHotEncodingMap_,
                                                                       migratingAtom);
 
-
   // cout << migratingAtomEncodingVector.transpose() << endl;
 
   // auto endGetEncodingVector = std::chrono::high_resolution_clock::now();
 
   // std::chrono::duration<double> duration = endGetEncodingVector - startGetEncodingVector;
 
+  // cout << "Time taken by GetEncodingMigrationAtomPair computation after changes: " << duration.count() << endl;
 
-  // cout << "Time taken by GetEncodingMigrationAtomPair computation after changes: " << duration.count() << endl; 
- 
   double barrier = migratingAtomEncodingVector.dot(adjusted_beta_barrier_) +
                    adjusted_intercept_barrier_;
 
   return barrier;
 }
 
-void ComputeSymmetricallySortedVectorMap(const Config &config,
-                                         const size_t maxBondOrder,
-                                         unordered_map<pair<size_t, size_t>, vector<size_t>, boost::hash<pair<size_t, size_t>>> &symmetricallySortedVectorMap)
+PairMap ComputeSymmetricallySortedVectorMap(const Config &config,
+                                            const size_t maxBondOrder)
 {
+
+  PairMap symmetricallySortedVectorMap;
   size_t numLattices = config.GetNumLattices();
 
 // Parallel loop with thread-local storage for the local map
@@ -108,4 +104,6 @@ void ComputeSymmetricallySortedVectorMap(const Config &config,
       symmetricallySortedVectorMap.insert(localMap.begin(), localMap.end());
     }
   }
+
+  return symmetricallySortedVectorMap;
 }

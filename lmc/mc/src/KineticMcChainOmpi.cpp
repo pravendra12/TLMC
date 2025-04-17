@@ -104,8 +104,12 @@ namespace mc
             // Forward Barrier
             // here vacancy is at i_lattice_id
             // migrating atom is at l_lattice_id
+
+            // Forward Barrier
             vacancy_migration_predictor_.GetBarrier(config_,
                                                     {l_lattice_id, i_lattice_id}),
+
+                            
             // dE value from CE
             energy_change_predictor_.GetDeThreadSafe(config_,
                                            {i_lattice_id, l_lattice_id}),

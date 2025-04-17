@@ -196,16 +196,53 @@ namespace ansys
           oss << "\t" << sro1_value << "\t" << sro2_value << "\t" << sro3_value;
         }
 
+        // Global List
+        map<string, Config::ValueVariant> globalList;
+
         B2OrderParameter b2Order(config);
         for (auto element : element_set)
         {
           double b2OrderParameter = b2Order.GetB2OrderParameter(element);
           double alphaOccupancy = b2Order.GetAlphaSiteOccupancy(element);
           double betaOccupancy = b2Order.GetBetaSiteOccupancy(element);
-          oss << "\t" << b2OrderParameter << "\t" << alphaOccupancy << "\t" << betaOccupancy;
+
+          globalList["b2OrderParameter" + element.GetElementString()] = b2OrderParameter;
+
+          oss << "\t" << b2OrderParameter << "\t" << alphaOccupancy << "\t" << betaOccupancy << "\t";
         }
 
+        // Cluster Dynamics
+
+        // Auxilary List
+        std::map<std::string, Config::VectorVariant> auxiliaryList;
+
+        // Cluster Size
+        vector<int> clusterSizeVector;
+
+        ClusterDynamics b2Cluster(config);
+
+        b2Cluster.detectB2Clusters(auxiliaryList, clusterSizeVector);
+
+        // Write cluster size to log file
+        for (size_t i = 0; i < clusterSizeVector.size(); ++i)
+        {
+          if (i == clusterSizeVector.size() - 1)
+          {
+            oss << clusterSizeVector[i];
+          }
+          else
+          {
+            oss << clusterSizeVector[i] << ", ";
+          }
+        }
+        // oss << "\t";
         oss << "\n";
+
+        // Write to file
+        Config::WriteXyzExtended(to_string(idx) + ".xyz.gz",
+                                 config,
+                                 auxiliaryList,
+                                 globalList);
       }
 
       // Write the batch to file in order
@@ -313,10 +350,15 @@ namespace ansys
                       "beta_occupancy_" + elementString + "\t";
     }
 
+    // Cluster Dynamics
+
+    header_frame += "B2_cluster_size\t";
+
     if (!header_frame.empty() && header_frame.back() == '\t')
     {
       header_frame.back() = '\n';
     }
+
     return header_frame;
   }
 

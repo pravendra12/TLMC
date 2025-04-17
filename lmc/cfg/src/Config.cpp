@@ -80,6 +80,22 @@ size_t Config::GetVacancyLatticeId() const
   return 0;
 }
 
+size_t Config::GetVacancyAtomId() const
+{
+
+  for (size_t i = 0; i < atom_vector_.size(); i++)
+  {
+    if (atom_vector_[i] == ElementName::X)
+    {
+      return i;
+    }
+  }
+
+  throw std::runtime_error("Vacancy Not Found");
+
+  return 0;
+}
+
 std::map<Element, double> Config::GetConcentration() const
 {
   std::map<Element, double> concentration;
@@ -143,6 +159,11 @@ Element Config::GetElementOfLattice(size_t lattice_id) const
 Element Config::GetElementOfAtom(size_t atom_id) const
 {
   return atom_vector_.at(atom_id);
+}
+
+size_t Config::GetAtomIdOfLattice(size_t latticeId) const
+{
+  return lattice_to_atom_hashmap_.at(latticeId);
 }
 
 Eigen::Ref<const Eigen::Vector3d> Config::GetRelativePositionOfLattice(size_t lattice_id) const
@@ -850,6 +871,7 @@ void Config::WriteConfigExtended(
   fos << "H0(3,3) = " << config_out.basis_(2, 2) << " A\n";
   fos << ".NO_VELOCITY.\n";
   fos << "entry_count = " << 3 + auxiliary_lists.size() << "\n";
+  
   size_t auxiliary_index = 0;
   for (const auto &auxiliary_list : auxiliary_lists)
   {

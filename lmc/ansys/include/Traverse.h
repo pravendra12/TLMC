@@ -5,6 +5,7 @@
 #include <nlohmann/json.hpp>
 #include "ShortRangeOrder.h"
 #include "B2OrderParameter.h"
+#include "ClusterDynamics.h"
 
 
 namespace ansys {

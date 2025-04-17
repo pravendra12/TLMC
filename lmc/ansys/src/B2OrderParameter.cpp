@@ -8,11 +8,11 @@ B2OrderParameter::B2OrderParameter(const Config &config) : config(config)
 
 double B2OrderParameter::GetB2OrderParameter(const Element &element)
 {
-  // fractional occupancy of element at alpha and beta sites 
+  // fractional occupancy of element at alpha and beta sites
   auto alphaOccupancy = GetAlphaSiteOccupancy(element);
   auto betaOccupancy = GetBetaSiteOccupancy(element);
 
-  double b2OrderParameter = (alphaOccupancy - betaOccupancy)/(alphaOccupancy + betaOccupancy);
+  double b2OrderParameter = (alphaOccupancy - betaOccupancy) / (alphaOccupancy + betaOccupancy);
 
   return b2OrderParameter;
 }
@@ -29,11 +29,11 @@ double B2OrderParameter::GetAlphaSiteOccupancy(const Element &element)
 
     if (siteElement == element)
     {
-        numOccupiedASites += 1;
+      numOccupiedASites += 1;
     }
   }
 
-  double alphaSiteOccupancy = double(numOccupiedASites)/double(numAlphaSites);
+  double alphaSiteOccupancy = double(numOccupiedASites) / double(numAlphaSites);
 
   return alphaSiteOccupancy;
 }
@@ -50,15 +50,14 @@ double B2OrderParameter::GetBetaSiteOccupancy(const Element &element)
 
     if (siteElement == element)
     {
-        numOccupiedBSites += 1;
+      numOccupiedBSites += 1;
     }
   }
 
-  double betaSiteOccupancy = double(numOccupiedBSites)/double(numBetaSites);
+  double betaSiteOccupancy = double(numOccupiedBSites) / double(numBetaSites);
 
   return betaSiteOccupancy;
 }
-
 
 unordered_set<size_t> B2OrderParameter::GetAlphaLatticeSites()
 {
@@ -70,44 +69,71 @@ unordered_set<size_t> B2OrderParameter::GetBetaLatticeSites()
   return betaLatticeSites;
 }
 
-void B2OrderParameter::InitializeAlphaLatticeSites()
-{  
-    
-  auto secondNNList = config.GetNeighborLists()[1];  
+bool B2OrderParameter::isB2Ordered(const Config &config, const size_t atomId)
+{
+  Element vacancy("X");
   
-  for (size_t id1 = 0; id1 < secondNNList.size(); id1++) 
+  if (config.GetElementOfAtom(atomId) == vacancy)
+  {
+    return false;
+  }
+
+  Element centerElement = config.GetElementOfAtom(atomId);
+  auto neighborIds = config.GetNeighborAtomIdVectorOfAtom(atomId, 1);
+
+  Element neighborElement = config.GetElementOfAtom(neighborIds[0]);
+
+  for (size_t i = 1; i < neighborIds.size(); ++i)
+  {
+    if (config.GetElementOfAtom(neighborIds[i]) != neighborElement)
+    {
+      return false;
+    }
+  }
+
+  return (neighborElement != centerElement);
+}
+
+void B2OrderParameter::InitializeAlphaLatticeSites()
+{
+
+  auto secondNNList = config.GetNeighborLists()[1];
+
+  for (size_t id1 = 0; id1 < secondNNList.size(); id1++)
   {
     const auto &secondNN = secondNNList[id1];
 
-    for (size_t id2 : secondNN) 
+    for (size_t id2 : secondNN)
     {
       bool id1Valid = true;
       bool id2Valid = true;
 
       // Check if id1 has any bond order of 1 with sites already in alphaLatticeSites
-      for (size_t id3 : alphaLatticeSites) 
+      for (size_t id3 : alphaLatticeSites)
       {
-        if (config.GetDistanceOrder(id1, id3) == 1) 
+        if (config.GetDistanceOrder(id1, id3) == 1)
         {
-            id1Valid = false;
-            break;
+          id1Valid = false;
+          break;
         }
       }
 
       // Check if id2 has any bond order of 1 with sites already in alphaLatticeSites
-      for (size_t id3 : alphaLatticeSites) {
-        if (config.GetDistanceOrder(id2, id3) == 1) {
+      for (size_t id3 : alphaLatticeSites)
+      {
+        if (config.GetDistanceOrder(id2, id3) == 1)
+        {
           id2Valid = false;
           break;
         }
       }
 
       // Add valid sites to alphaLatticeSites
-      if (id1Valid) 
+      if (id1Valid)
       {
         alphaLatticeSites.emplace(id1);
       }
-      if (id2Valid) 
+      if (id2Valid)
       {
         alphaLatticeSites.emplace(id2);
       }
@@ -119,12 +145,11 @@ void B2OrderParameter::InitializeBetaLatticeSites()
 {
   // betaSites = allSites - alphaSites
   for (size_t id = 0; id < numLattice; id++)
-  { 
+  {
     // O(1) Time Complexity
     if (alphaLatticeSites.find(id) == alphaLatticeSites.end())
     {
       betaLatticeSites.emplace(id);
     }
   }
-
 }

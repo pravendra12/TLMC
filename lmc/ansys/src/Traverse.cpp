@@ -222,7 +222,7 @@ namespace ansys
 
           globalList["b2OrderParameter" + element.GetElementString()] = b2OrderParameter;
 
-          oss << "\t" << b2OrderParameter << "\t" << alphaOccupancy << "\t" << betaOccupancy << "\t";
+          oss << "\t" << b2OrderParameter << "\t" << alphaOccupancy << "\t" << betaOccupancy;
         }
 
         // Cluster Dynamics
@@ -238,6 +238,7 @@ namespace ansys
         b2Cluster.detectB2Clusters(auxiliaryList, clusterSizeVector);
 
         // Write cluster size to log file
+        oss << "\t";
         for (size_t i = 0; i < clusterSizeVector.size(); ++i)
         {
           if (i == clusterSizeVector.size() - 1)

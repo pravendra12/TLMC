@@ -174,8 +174,9 @@ PotentialEnergyEstimator::GetDe(Config &config,
   return dE;
 }
 
-double PotentialEnergyEstimator::GetDeThreadSafe(const Config &config,
-                                                 const std::pair<size_t, size_t> &lattice_id_pair) const
+double PotentialEnergyEstimator::GetDeThreadSafe(
+    const Config &config,
+    const std::pair<size_t, size_t> &lattice_id_pair) const
 {
   const size_t id1 = lattice_id_pair.first;  // Vacancy (X)
   const size_t id2 = lattice_id_pair.second; // Migrating atom
@@ -213,7 +214,7 @@ double PotentialEnergyEstimator::GetDeThreadSafe(const Config &config,
       else if (id == id2)
       {
         // swapped_elements.push_back(Element("X")); // id2 gets id1's element
-        swapped_elements.push_back(config.GetElementOfLattice(id1)); 
+        swapped_elements.push_back(config.GetElementOfLattice(id1));
       }
       else
       {
@@ -242,5 +243,6 @@ double PotentialEnergyEstimator::GetDeThreadSafe(const Config &config,
   // Step 4: Compute energy difference
   double E_before_swap = adjusted_beta_ce_.dot(encode_before) + adjusted_intercept_ce_;
   double E_after_swap = adjusted_beta_ce_.dot(encode_after) + adjusted_intercept_ce_;
+  
   return E_after_swap - E_before_swap;
 }

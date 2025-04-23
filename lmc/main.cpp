@@ -22,6 +22,55 @@ int main(int argc, char *argv[]) {
   api::Run(parameter);
 }
 
+
+/**************************** Computing Energy of Config **********************/
+/*
+#include "Config.h"
+#include "VacancyMigrationBarrierPredictor.h"
+#include <chrono>
+#include "PotentialEnergyEstimator.h"
+#include "EncodingUtility.h"
+#include "PrintUtility.h"
+#include "VacancyMigrationPredictor.h"
+#include "ClusterDynamics.h"
+
+int main(int argc, char* argv[])
+{
+  // Testing
+
+  if (argc == 1) {
+    std::cout << "No input config file. Usage lmc.exe <configFile>" << std::endl;
+    return 1;
+  }
+
+  string filename = argv[1];  
+
+  auto cfg = Config::ReadCfg(filename);
+
+  cfg.UpdateNeighborList({3.3, 4.7, 5.6});
+
+  size_t maxBondOrder = 3;
+  size_t maxClusterSize = 3;
+
+  auto supercellCfg = Config::GenerateSupercell(5, 3.4, "X", "BCC");
+  supercellCfg.UpdateNeighborList({3.3, 4.7, 5.6});
+
+  auto atomVector = cfg.GetAtomVector();
+  set<Element> elementSet(atomVector.begin(), atomVector.end());
+
+  PotentialEnergyEstimator peEstimator("predictor_file_WTa.json",
+                                       cfg,
+                                       supercellCfg,
+                                       elementSet,
+                                       3, 3);
+
+  auto energyOfConfig = peEstimator.GetEnergy(cfg);
+
+  cout << "Energy of the configuration: " << energyOfConfig << endl;
+
+
+}
+
 /*******************************ClusterDynamicsTesting*************************/
 /*
 #include "Config.h"

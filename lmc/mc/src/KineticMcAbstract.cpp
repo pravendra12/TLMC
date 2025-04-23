@@ -87,7 +87,14 @@ namespace mc
     {
       // config_.WriteLattice("lattice.txt");
       // config_.WriteElement("element.txt");
-      ofs_ << "steps\ttime\ttemperature\tenergy\tEa\tdE\tselected\tvac1\tvac2\tvac3" << endl;
+      ofs_ << "steps\ttime\ttemperature\tenergy\tEa\tdE\tselected\tvac1\tvac2\tvac3\t";
+      
+      // Test
+      for (int i = 1; i < 9; i++)
+      {
+        ofs_ << "Ea" + to_string(i) << "\t";
+      }
+      ofs_ << endl;
 
       // Test
       // ofs_ << "\tEa_backward\tEa_backwardModel\tdE_barrier" << std::endl;
@@ -124,14 +131,21 @@ namespace mc
            << event_k_i_.GetForwardBarrier() << '\t'
            << event_k_i_.GetEnergyChange() << '\t'
            << event_k_i_.GetIdJumpPair().second << '\t'
-           << vacancy_trajectory_ << '\t'
+           << vacancy_trajectory_ << '\t';
+
+           // Output all the barriers 
+
+           for (const auto event : event_k_i_list_)
+           {
+             ofs_ << event.GetForwardBarrier() << "\t";
+           }
            
            // Testing
            // << event_k_i_.GetBackwardBarrier() << '\t'
            // From Model
            // << event_k_i_.GetTrueBackwardBarrier() << '\t'
            // << event_k_i_.GetdEBarrier()
-           << std::endl;
+           ofs_ << std::endl;
     }
   }
 

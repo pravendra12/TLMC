@@ -157,6 +157,7 @@ PotentialEnergyEstimator::GetDe(Config &config,
   {
     return 0;
   }
+  
   // Energy Before Swap
   auto E_before_swap = GetEnergyOfCluster(config, {lattice_id_pair.first, lattice_id_pair.second});
 

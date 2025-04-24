@@ -40,7 +40,7 @@ McAbstract::McAbstract(Config config,
       temperature_(temperature),
       beta_(1.0 / constants::kBoltzmann / temperature_),
       is_restarted_(steps_ > 0),
-      // thermodynamic_averaging_(thermodynamic_averaging_steps),
+      thermodynamic_averaging_(thermodynamic_averaging_steps),
       generator_(static_cast<unsigned long long int>(
                      std::chrono::system_clock::now().time_since_epoch().count())),
       unit_distribution_(0.0, 1.0),

@@ -12,6 +12,7 @@
 
 #include "Home.h"
 
+
 int main(int argc, char *argv[]) {
   if (argc == 1) {
     std::cout << "No input parameter filename." << std::endl;
@@ -58,7 +59,7 @@ int main(int argc, char* argv[])
   auto atomVector = cfg.GetAtomVector();
   set<Element> elementSet(atomVector.begin(), atomVector.end());
 
-  PotentialEnergyEstimator peEstimator("predictor_file_WTa.json",
+  PotentialEnergyEstimator peEstimator("cePredictorFile.json",
                                        cfg,
                                        supercellCfg,
                                        elementSet,

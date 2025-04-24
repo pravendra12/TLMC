@@ -70,6 +70,8 @@ void CanonicalMcSerial::Simulate()
     
     SelectEvent(latticeIdJumpPair, dE);
 
+    
+
     ++steps_;
   }
 }

@@ -115,7 +115,7 @@ class McAbstract {
   mutable bool is_restarted_;
 
   // helpful properties
-  // mc::ThermodynamicAveraging thermodynamic_averaging_;
+  mc::ThermodynamicAveraging thermodynamic_averaging_;
   mutable std::mt19937_64 generator_;
   mutable std::uniform_real_distribution<double> unit_distribution_;
   mutable std::ofstream ofs_;

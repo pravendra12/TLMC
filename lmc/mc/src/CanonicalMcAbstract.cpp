@@ -103,7 +103,7 @@ void CanonicalMcAbstract::Dump() const {
     // config_.WriteElement("element.txt");
     // config_.WriteConfig("start.cfg",config_);
     // ofs_ << "steps\ttemperature\tenergy\taverage_energy\tabsolute_energy" << std::endl;
-    ofs_ << "steps\ttemperature\tenergy\tenergy_per_atom" << std::endl;
+    ofs_ << "steps\ttemperature\tenergy\tenergy_per_atom\taverage_energy" << std::endl;
 
   }
   if (steps_ % config_dump_steps_ == 0) {
@@ -124,8 +124,12 @@ void CanonicalMcAbstract::Dump() const {
     log_dump_steps = std::min(log_dump_steps, log_dump_steps_);
   }
   if (steps_ % log_dump_steps == 0) {
-    ofs_ << steps_ << '\t' << temperature_ << '\t' << energy_ << '\t'
-         << energy_/config_.GetNumAtoms() << std::endl;
+    ofs_ << steps_ << '\t' 
+         << temperature_ << '\t' 
+         << energy_ << '\t'
+         << energy_/config_.GetNumAtoms() << "\t"
+         << thermodynamic_averaging_.GetThermodynamicAverage(beta_)
+         << std::endl;
   }
 }
 void CanonicalMcAbstract::SelectEvent(const std::pair<size_t, size_t> &lattice_id_jump_pair,
@@ -135,6 +139,8 @@ void CanonicalMcAbstract::SelectEvent(const std::pair<size_t, size_t> &lattice_i
     config_.LatticeJump(lattice_id_jump_pair);
     energy_ += dE;
     absolute_energy_ += dE;
+
+    thermodynamic_averaging_.AddEnergy(dE);
     
   } 
   else 
@@ -146,6 +152,9 @@ void CanonicalMcAbstract::SelectEvent(const std::pair<size_t, size_t> &lattice_i
       config_.LatticeJump(lattice_id_jump_pair);
       energy_ += dE;
       absolute_energy_ += dE;
+      
+      thermodynamic_averaging_.AddEnergy(dE);
+
     }
   }
 }

@@ -87,13 +87,14 @@ namespace mc
     {
       // config_.WriteLattice("lattice.txt");
       // config_.WriteElement("element.txt");
-      ofs_ << "steps\ttime\ttemperature\tenergy\tEa\tdE\tselected\tvac1\tvac2\tvac3\t";
+      ofs_ << "steps\ttime\ttemperature\tenergy\taverage_energy\tEa\tdE\tselected\tvac1\tvac2\tvac3\t";
       
       // Test
-      for (int i = 1; i < 9; i++)
-      {
-        ofs_ << "Ea" + to_string(i) << "\t";
-      }
+      // for (int i = 1; i < 9; i++)
+      // {
+      //   ofs_ << "Ea" + to_string(i) << "\t";
+      // }
+      
       ofs_ << endl;
 
       // Test
@@ -128,6 +129,7 @@ namespace mc
            << time_ << '\t'
            << temperature_ << '\t'
            << energy_ << '\t'
+           << thermodynamic_averaging_.GetThermodynamicAverage(beta_) << "\t"
            << event_k_i_.GetForwardBarrier() << '\t'
            << event_k_i_.GetEnergyChange() << '\t'
            << event_k_i_.GetIdJumpPair().second << '\t'
@@ -135,10 +137,10 @@ namespace mc
 
            // Output all the barriers 
 
-           for (const auto event : event_k_i_list_)
-           {
-             ofs_ << event.GetForwardBarrier() << "\t";
-           }
+           // for (const auto event : event_k_i_list_)
+           // {
+           //   ofs_ << event.GetForwardBarrier() << "\t";
+           // }
            
            // Testing
            // << event_k_i_.GetBackwardBarrier() << '\t'
@@ -195,6 +197,8 @@ namespace mc
   void KineticMcFirstAbstract::OneStepSimulation()
   {
     UpdateTemperature();
+
+    thermodynamic_averaging_.AddEnergy(energy_);
 
     BuildEventList();
 

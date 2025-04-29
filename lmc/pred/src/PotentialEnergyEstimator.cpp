@@ -33,9 +33,10 @@ PotentialEnergyEstimator::PotentialEnergyEstimator(
     const Config &supercell_config,
     const std::set<Element> &element_set,
     size_t max_cluster_size,
-    size_t max_bond_order) : ce_fitted_parameters_(ReadParametersFromJson(predictor_filename, "ce")),
-                             adjusted_beta_ce_(ce_fitted_parameters_.first),
-                             adjusted_intercept_ce_(ce_fitted_parameters_.second),
+    size_t max_bond_order) : // ce_fitted_parameters_(ReadParametersFromJson(predictor_filename, "ce")),
+                             // adjusted_beta_ce_(ce_fitted_parameters_.first),
+                             // adjusted_intercept_ce_(ce_fitted_parameters_.second),
+                             beta_ce_(ReadParametersFromJson(predictor_filename, "ce", "beta_ce")),
                              element_set_(element_set),
                              initialized_cluster_type_set_(
                                  InitializeClusterTypeSet(reference_config,
@@ -131,7 +132,9 @@ PotentialEnergyEstimator::GetEnergy(const Config &config) const
 {
   auto encode_vector = GetEncodeVector(config);
 
-  double energy = adjusted_beta_ce_.dot(encode_vector) + adjusted_intercept_ce_;
+  // double energy = adjusted_beta_ce_.dot(encode_vector) + adjusted_intercept_ce_;
+
+  double energy = beta_ce_.dot(encode_vector);
 
   return energy;
 }
@@ -143,9 +146,9 @@ PotentialEnergyEstimator::GetEnergyOfCluster(const Config &config,
   Eigen::VectorXd encode_vector_cluster = GetEncodeVectorOfCluster(config,
                                                                    cluster);
 
-  double energy_cluster = adjusted_beta_ce_.dot(encode_vector_cluster) +
-                          adjusted_intercept_ce_;
-
+  // double energy_cluster = adjusted_beta_ce_.dot(encode_vector_cluster) +
+  //                         adjusted_intercept_ce_;
+  double energy_cluster = beta_ce_.dot(encode_vector_cluster);
   return energy_cluster;
 }
 
@@ -242,8 +245,16 @@ double PotentialEnergyEstimator::GetDeThreadSafe(
   }
 
   // Step 4: Compute energy difference
-  double E_before_swap = adjusted_beta_ce_.dot(encode_before) + adjusted_intercept_ce_;
-  double E_after_swap = adjusted_beta_ce_.dot(encode_after) + adjusted_intercept_ce_;
+
+  // version 1
+  // double E_before_swap = adjusted_beta_ce_.dot(encode_before) + adjusted_intercept_ce_;
+  // double E_after_swap = adjusted_beta_ce_.dot(encode_after) + adjusted_intercept_ce_;
+  
+  // Update version 1
+  double E_before_swap = beta_ce_.dot(encode_before);
+  double E_after_swap = beta_ce_.dot(encode_after);
+
+  double dE = E_after_swap - E_before_swap;
   
   return E_after_swap - E_before_swap;
 }

@@ -1,5 +1,170 @@
 #include "Symmetry.h"
 
+// Function to find closest match within a tolerance
+size_t findClosestMatch(const unordered_map<Vector3d, size_t, Vector3dHash> &positionToIndex,
+                        const Vector3d &target, double tolerance = 1e-6)
+{
+  for (const auto &[pos, index] : positionToIndex)
+  {
+    if ((pos - target).norm() < tolerance) // Check if within tolerance
+    {
+      return index; // Return the matching index
+    }
+  }
+  return numeric_limits<size_t>::max(); // Return an invalid index if no match is found
+}
+
+// Convert degrees to radians
+inline double toRadians(double degrees)
+{
+  return degrees * M_PI / 180.0;
+}
+
+Vector3d rotatePoints(const Vector3d &point,
+                      const Vector3d &axis,
+                      double theta,
+                      const Vector3d &center)
+{
+  /**
+   * Rotate a point around an axis by angle theta (in degrees) using Rodrigues' formula.
+   *
+   * Args:
+   *     point: 3D coordinates of the point to rotate
+   *     axis: direction vector of the rotation axis
+   *     theta: Angle in degrees
+   *     center: center of rotation
+   *
+   * Returns:
+   *     Rotated point as Vector3d
+   */
+
+  // Normalize axis
+  Vector3d k = axis.normalized();
+  double theta_rad = toRadians(theta);
+  double cos_theta = cos(theta_rad);
+  double sin_theta = sin(theta_rad);
+
+  // Translate point relative to center
+  Vector3d p = point - center;
+
+  // Rodrigues' rotation formula: p_rot = p cosθ + (k × p) sinθ + k (k · p) (1 - cosθ)
+  Vector3d p_rot = p * cos_theta +
+                   k.cross(p) * sin_theta +
+                   k * (k.dot(p)) * (1.0 - cos_theta);
+
+  // Translate back
+  return p_rot + center;
+}
+
+vector<Vector3d> getEquivalentPoints(const Vector3d &start_point,
+                                     const Vector3d &axis,
+                                     double theta,
+                                     const Vector3d &center)
+{
+  int n = 360.0 / theta;
+
+  // cout << "number of rotations: " << n << endl;
+
+  vector<Vector3d> equivalent_points;
+  equivalent_points.reserve(n); // Pre-allocate space
+
+  for (int i = 0; i < n; ++i)
+  {
+    double angle = i * theta;
+    Vector3d rotated = rotatePoints(start_point, axis, angle, center);
+    equivalent_points.push_back(rotated);
+    // cout << rotated.transpose() << endl;
+  }
+
+  return equivalent_points;
+}
+
+vector<vector<size_t>> GetEquivalentSitesUnderKFoldRotation(const Config &config,
+                                                            size_t maxBondOrder,
+                                                            size_t kFoldRotation)
+{
+  // Get lattice pair (central and nearest neighbor)
+  // const size_t centralLatticeId = config.GetCentralAtomLatticeId();
+  const size_t centralLatticeId = config.GetCentralAtomLatticeId();
+
+  const auto nnLatticeIdVector = config.GetNeighborLatticeIdVectorOfLattice(centralLatticeId, 1);
+
+  const size_t nnLatticeId = nnLatticeIdVector[0];
+  const pair<size_t, size_t> latticeIdPair = {centralLatticeId, nnLatticeId};
+
+  // Get symmetrically sorted lattice ID vector for the pair
+  const auto ssVector = config.GetSortedLatticeVectorStateOfPair(latticeIdPair, maxBondOrder);
+
+  // Transition position
+  const Vector3d centralLatticePosition = config.GetCartesianPositionOfLattice(centralLatticeId);
+  const Vector3d nnLatticePosition = config.GetCartesianPositionOfLattice(nnLatticeId);
+  const Vector3d transitionPosition = 0.5 * (centralLatticePosition + nnLatticePosition);
+
+  // Rotation axis
+  const Vector3d rotationAxis = centralLatticePosition - nnLatticePosition;
+  // cout << "Transition Position: " << transitionPosition.transpose() << endl;
+
+  // Pre-populate position vector
+  vector<Vector3d> cartesianPositionVector;
+  cartesianPositionVector.reserve(ssVector.size());
+
+  for (const auto &latticeId : ssVector)
+  {
+    cartesianPositionVector.emplace_back(config.GetCartesianPositionOfLattice(latticeId));
+  }
+
+  // Store equivalent sites and their encodings
+  vector<vector<size_t>> equivalentEncodingVector;
+  vector<Vector3d> equivalentEncodingPositionVector;
+
+  // Use a hash map for O(1) lookup of positions to indices
+  unordered_map<Vector3d, size_t, Vector3dHash> positionToIndex;
+  for (size_t i = 0; i < cartesianPositionVector.size(); ++i)
+  {
+    positionToIndex[cartesianPositionVector[i]] = i;
+    // cout << cartesianPositionVector[i].transpose() << " : " << i << endl;
+  }
+
+  double rotationAngle = 360.0 / kFoldRotation; // 120 degrees for 3-fold
+
+  vector<bool> processed(cartesianPositionVector.size(), false);
+
+  for (size_t i = 0; i < cartesianPositionVector.size(); ++i)
+  {
+    if (processed[i])
+      continue;
+
+    const Vector3d &position = cartesianPositionVector[i];
+    auto equivalentPositions = getEquivalentPoints(position, rotationAxis, rotationAngle, transitionPosition);
+
+    vector<size_t> equivalentIndices = {i}; // Include the original position
+    processed[i] = true;
+
+    // Check equivalent positions
+
+    for (const auto &equivPos : equivalentPositions)
+    {
+      size_t index = findClosestMatch(positionToIndex, equivPos);
+
+      if (index != numeric_limits<size_t>::max()) // If a valid index is found
+      {
+        if (!processed[index])
+        {
+          equivalentIndices.push_back(index);
+          processed[index] = true;
+        }
+      }
+    }
+
+    equivalentEncodingVector.push_back(move(equivalentIndices));
+    equivalentEncodingPositionVector.push_back(position);
+  }
+
+  // print2DVector(equivalentEncodingVector);
+
+  return equivalentEncodingVector;
+}
+
 inline bool PositionCompareState(
     const pair<size_t, RowVector3d> &lhs,
     const pair<size_t, RowVector3d> &rhs)
@@ -331,15 +496,12 @@ VectorXd GetEncodingMigratingAtomPair(
   // Pre-allocate encodeVector with the total expected size
   VectorXd encodeVector(totalSize);
   size_t offset = 0;
-  
-  // cout << totalSize << endl;
-  // print2DVector(equivalentSitesEncoding);
-  
+
   // Loop through the equivalent sites encoding
   for (const auto &equivalentSites : equivalentSitesEncoding)
   {
     RowVectorXd pairEncodeVector = RowVectorXd::Zero(sizeEncodeNonSymmPairs);
-    
+
     // Loop through the equivalent sites and build the pair encoding vector
     for (auto &sites : equivalentSites)
     {
@@ -349,26 +511,19 @@ VectorXd GetEncodingMigratingAtomPair(
       string elementPair = migratingAtom.GetElementString() +
                            neighborElement.GetElementString();
 
-      // cout << elementPair << endl;
-
       try
       {
-        pairEncodeVector += oneHotEncodingMap.at(elementPair); 
+        pairEncodeVector += oneHotEncodingMap.at(elementPair);
       }
-      catch (const std::out_of_range &e)
+      catch (const out_of_range &e)
       {
-        for (auto latticeId : symmetricallySortedVector)
-        {
-          cout << latticeId << config.GetElementOfLattice(latticeId) << " ";
-        }
-        cout << endl;
-        std::cout << "Error: Missing Element Pair for " << elementPair << "(" << latticeId << ")" << std::endl;
+        cout << "Error: Missing Element Pair for " << elementPair << "(" << latticeId << ")" << endl;
         exit(1);
       }
     }
-
+    // Normalized encoding vector
     // Store the result into encodeVector at the correct offset
-    encodeVector.segment(offset, pairEncodeVector.size()) = pairEncodeVector;
+    encodeVector.segment(offset, pairEncodeVector.size()) = pairEncodeVector / equivalentSites.size();
     offset += pairEncodeVector.size(); // Move the offset for next pair
   }
 

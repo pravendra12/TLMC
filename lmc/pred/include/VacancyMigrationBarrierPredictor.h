@@ -35,24 +35,40 @@ public:
       const pair<size_t, size_t> &latticeIdJumpPair) const;
 
 private:
-  const pair<VectorXd, double> barrier_fitted_parameters_{};
+  // const pair<VectorXd, double> barrier_fitted_parameters_{};
 
   /// Adjusted Effective cluster interaction.
-  const VectorXd adjusted_beta_barrier_{};
+  // const VectorXd adjusted_beta_barrier_{};
+
+  const VectorXd betaBarrier_{};
+
+  // Scaling terms for the encodings
+  // Feature vector i.e. encoding vector
+  const VectorXd meanXEncoding_{};
+  const VectorXd stdXEncoding_{};
+
+  // For inverse scaling of the barrier
+  const double meanYBarrier_{};
+  const double stdYBarrier_{};
+
 
   /// Adjusted Intercept
-  const double adjusted_intercept_barrier_{};
+  // const double adjusted_intercept_barrier_{};
 
   /// One Hot Encoding Hashmap
   const unordered_map<string, RowVectorXd> oneHotEncodingMap_{};
-
-  /// Equivalent site encoding based on 3 Fold Rotation
-  const vector<vector<size_t>> encoding3FoldRotation_{};
+ 
+  /// Equivalent site encoding based on K Fold Rotation
+  const vector<vector<size_t>> encodingKFoldRotation_{};
 
   // Currently considers neighbours upto 2nd bond order for the jump pair
   // Neighbors upto maxBondOrder_ are currently considered for making the
   // barrier prediction
-  static constexpr size_t maxBondOrderForBarrierPrediction_ = 2;
+  static constexpr size_t maxBondOrderForBarrierPrediction_ = 3;
+
+  // Under 6 Fold rotation the 3rd NN atoms forms a hexagonal structure but other
+  // atoms are equivalent under 3 Fold symmetry.
+  static constexpr size_t kFoldRotation_ = 6;
 
 protected:
   // For efficieny store all the symmetrically sorted vector once in a map

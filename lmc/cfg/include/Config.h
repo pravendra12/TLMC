@@ -38,8 +38,9 @@
 
 /*! \brief Class for defining a configuration of atoms and their positions.
  */
-class Config {
- public:
+class Config
+{
+public:
   /*! \brief Default constructor for Config.
    */
   Config();
@@ -78,12 +79,14 @@ class Config {
   /*! \brief Query for the lists of neighbor sites of each site in the configuration.
    *  \return  The lists of neighbor sites of each site in the configuration.
    */
-  [[nodiscard]] const std::vector<std::vector<std::vector<size_t> > > &GetNeighborLists() const;
+  [[nodiscard]] const std::vector<std::vector<std::vector<size_t>>> &GetNeighborLists() const;
 
   /*! \brief Query for the lattice ID of vacancy for the configuration.
    *  \return  The vacancy lattice ID site for the configuration.
    */
-  [[nodiscard]]  size_t GetVacancyLatticeId() const;
+  [[nodiscard]] size_t GetVacancyLatticeId() const;
+
+  [[nodiscard]] size_t GetCentralAtomLatticeId() const;
 
   /*! \brief Query for the Atom ID of vacancy for the configuration.
    *  \return  The vacancy Atom ID site for the configuration.
@@ -104,14 +107,14 @@ class Config {
 
   /*! \brief Query for the set of neighbor atom id of an atom.
    *  \param atom_id         The atom id of the atom.
-   *  \param distance_order  The order of distance between the two lattice. 
+   *  \param distance_order  The order of distance between the two lattice.
    *  \return                The vector of neighbor atom IDs.
    */
   [[nodiscard]] std::vector<size_t> GetNeighborAtomIdVectorOfAtom(size_t atom_id, size_t distance_order) const;
 
   /*! \brief Query for the set of neighbor lattice id of a lattice.
    *  \param lattice_id      The lattice id of the lattice.
-   *  \param distance_order  The order of distance between the two lattice. 
+   *  \param distance_order  The order of distance between the two lattice.
    *  \return                The vector of neighbor lattice IDs .
    */
   [[nodiscard]] std::vector<size_t> GetNeighborLatticeIdVectorOfLattice(size_t lattice_id, size_t distance_order) const;
@@ -134,8 +137,6 @@ class Config {
    *  \return         The element of the atom.
    */
   [[nodiscard]] Element GetElementOfAtom(size_t atom_id) const;
-
-  
 
   /*! \brief Query for atom id of a lattice.
    *  \param latticeId  The lattice id of the lattice.
@@ -169,21 +170,46 @@ class Config {
 
   /// Functions which are used in Symmetry Operations.
 
-  /*! \brief Retrieves the neighboring lattice IDs for a specified lattice ID pair 
+  std::vector<size_t> GetSortedLatticeVectorStateOfPair(
+      const std::pair<size_t, size_t> &lattice_id_pair, const size_t &max_bond_order) const;
+
+  /*! \brief Computes the center position of a lattice pair while accounting for
+             periodic boundary conditions.
+   *
+   * This function calculates the geometric center of two lattice points specified
+   * by their IDs. It adjusts the relative positions of the lattice points to
+   * ensure that the computed distance between them is within the range (0, 0.5)
+   * in each dimension, considering periodic boundaries.
+   *
+   *  \param config               A reference to the Config object containing
+   *                              lattice configurations and relative positions.
+   *  \param lattice_id_jump_pair A pair of lattice IDs representing the two
+   *                              lattice points.
+   *  \return                     Eigen::Vector3d The computed center position of
+   *                              the lattice pair in three dimensions.
+   */
+  [[nodiscard]] Eigen::RowVector3d GetLatticePairCenter(
+      const std::pair<size_t, size_t> &lattice_id_jump_pair) const;
+
+  
+      static void RotateLatticeVector(std::unordered_map<size_t, Eigen::RowVector3d> &lattice_id_hashmap,
+        const Eigen::Matrix3d &rotation_matrix);
+
+  [[nodiscard]] Eigen::Matrix3d GetLatticePairRotationMatrix(const std::pair<size_t, size_t> &lattice_id_jump_pair) const;
+
+  /*! \brief Retrieves the neighboring lattice IDs for a specified lattice ID pair
    *         up to the maximum bond order.
    *
-   *  \param lattice_id_pair  The pair of lattice IDs whose neighbors are to be 
+   *  \param lattice_id_pair  The pair of lattice IDs whose neighbors are to be
    *                          found.
-   *  \param max_bond_order   The maximum bond order to consider for neighbor 
+   *  \param max_bond_order   The maximum bond order to consider for neighbor
    *                          identification.
    *  \return                 A set containing the neighboring lattice IDs.
    */
   [[nodiscard]] std::unordered_set<size_t> GetNeighboringLatticeIdSetOfPair(
-    const std::pair<size_t,size_t>& lattice_id_pair, const size_t & max_bond_order) const;
-
+      const std::pair<size_t, size_t> &lattice_id_pair, const size_t &max_bond_order) const;
 
   [[nodiscard]] Eigen::Vector3d GetNormalizedDirection(size_t referenceId, size_t latticeId) const;
-
 
   /*! \brief Query for the relative distance vector between two lattice.
    *  \param lattice_id1  The lattice id of the first lattice.
@@ -191,48 +217,45 @@ class Config {
    *  \return             The relative distance vector between the two lattice.
    */
   [[nodiscard]] Eigen::Vector3d GetRelativeDistanceVectorLattice(size_t lattice_id1, size_t lattice_id2) const;
-  
-  
-   
+
   /*! \brief Set the periodic boundary condition of the configuration.
    *  \param periodic_boundary_condition  The periodic boundary condition of the configuration.
    */
   void SetPeriodicBoundaryCondition(const std::array<bool, 3> &periodic_boundary_condition);
-  
+
   /*! \brief Wrap atoms outside the unit cell into the cell.
-  */
- void Wrap();
- 
+   */
+  void Wrap();
+
   /*! \brief Set the element type at the atom with given atom id.
    *  \param atom_id       The atom id of the atom.
    *  \param element_type  The new element type.
    */
-  
+
   void SetElementOfAtom(size_t atom_id, Element element_type);
 
   void SetElementOfLattice(size_t lattice_id, Element element_type);
 
   /*! \brief Modify the atom configuration.
-  *  \param lattice_id_jump_pair  The pair of lattice ids to modify the configuration.
-  */
- void LatticeJump(const std::pair<size_t, size_t> &lattice_id_jump_pair);
- 
- 
+   *  \param lattice_id_jump_pair  The pair of lattice ids to modify the configuration.
+   */
+  void LatticeJump(const std::pair<size_t, size_t> &lattice_id_jump_pair);
+
   /*! \brief Update the neighbor list of the configuration with the given cutoffs.
-  *  \param cutoffs  The cutoffs to update the neighbor list.
-  */
- void UpdateNeighborList(std::vector<double> cutoffs);
- 
- /*! \brief Read the configuration from a lattice file, element file and map file.
- *  \param lattice_filename  The name of the lattice file.
- *  \param element_filename  The name of the element file.
- *  \param map_filename      The name of the map file.
- *  \return                  The configuration read from the file.
- */
-static Config ReadMap(const std::string &lattice_filename,
-  const std::string &element_filename,
-  const std::string &map_filename);
-  
+   *  \param cutoffs  The cutoffs to update the neighbor list.
+   */
+  void UpdateNeighborList(std::vector<double> cutoffs);
+
+  /*! \brief Read the configuration from a lattice file, element file and map file.
+   *  \param lattice_filename  The name of the lattice file.
+   *  \param element_filename  The name of the element file.
+   *  \param map_filename      The name of the map file.
+   *  \return                  The configuration read from the file.
+   */
+  static Config ReadMap(const std::string &lattice_filename,
+                        const std::string &element_filename,
+                        const std::string &map_filename);
+
   /*! \brief Read the configuration from a CFG file.
    *  \param filename  The name of the CFG file.
    *  \return          The configuration read from the file.
@@ -247,7 +270,7 @@ static Config ReadMap(const std::string &lattice_filename,
 
   /*! \brief Read the configuration from a POSCAR or CFG file.
    *  \param filename  The name of the configuration file.
-                        Supported formats are: .cfg, .POSCAR, .cfg.gz, 
+                        Supported formats are: .cfg, .POSCAR, .cfg.gz,
                         .cfg.bz2, .POSCAR.gz, .POSCAR.bz2.
    *  \return          The configuration read from the file.
    */
@@ -260,7 +283,7 @@ static Config ReadMap(const std::string &lattice_filename,
    *  \param structure_type  Type of Structure  "BCC" or "FCC".
    *  \return                The configuration of the generated structure.
    */
-  static Config GenerateSupercell(size_t supercell_size, double lattice_param, const std::string &element_symbol, const std::string &structure_type); 
+  static Config GenerateSupercell(size_t supercell_size, double lattice_param, const std::string &element_symbol, const std::string &structure_type);
 
   /*! \brief Write the configuration to a file.
    *  \param filename  The name of the file to write the configuration to.
@@ -282,7 +305,7 @@ static Config ReadMap(const std::string &lattice_filename,
                                      std::vector<size_t>,
                                      std::vector<double>,
                                      std::vector<std::string>,
-                                     std::vector<Eigen::Vector3d> >;
+                                     std::vector<Eigen::Vector3d>>;
   using ValueVariant = std::variant<int, double, unsigned long long, std::string>;
 
   /*! \brief Write the extended XXY to a file. Check the extended XYZ format
@@ -298,7 +321,6 @@ static Config ReadMap(const std::string &lattice_filename,
       const std::map<std::string, VectorVariant> &auxiliary_lists,
       const std::map<std::string, ValueVariant> &global_list);
 
-
   // /*! \brief Write the lattice configuration to a file.
   //  *         Outputs a lattice configuration with bonds up to the specified maximum order.
   //  *         This function writes the lattice in an easily readable format, storing
@@ -308,12 +330,10 @@ static Config ReadMap(const std::string &lattice_filename,
   //  */
   void WriteLattice(const std::string &filename, size_t &max_bond_order) const;
 
-
-  private:
+private:
   /*! \brief Sort lattice sites by the positions (x, y, z)
    */
   void ReassignLattice();
-
 
   /// The periodic boundary condition status in all three directions.
   std::array<bool, 3> periodic_boundary_condition_{true, true, true};
@@ -337,7 +357,7 @@ static Config ReadMap(const std::string &lattice_filename,
   std::unordered_map<size_t, size_t> atom_to_lattice_hashmap_{};
 
   /// Nearest neighbor lists. The first key is the cutoff distance between the two lattice sites in Angstrom.
-  std::vector<std::vector<std::vector<size_t> > > neighbor_lists_{};
+  std::vector<std::vector<std::vector<size_t>>> neighbor_lists_{};
 
   /// Cutoffs for the neighbor lists.
   std::vector<double> cutoffs_{};
@@ -349,5 +369,4 @@ static Config ReadMap(const std::string &lattice_filename,
   std::vector<std::vector<size_t>> cells_{};
 };
 
-#endif //LMC_CFG_INCLUDE_CONFIG_H_
-
+#endif // LMC_CFG_INCLUDE_CONFIG_H_

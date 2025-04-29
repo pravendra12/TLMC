@@ -9,7 +9,6 @@
 /*! \file  main.cpp
  *  \brief File for the main function.
  */
-
 #include "Home.h"
 
 
@@ -23,6 +22,165 @@ int main(int argc, char *argv[]) {
   api::Run(parameter);
 }
 
+/*
+/********************** Testing barrier and ce version 2 **********************/
+/*
+#include "Config.h"
+#include "PotentialEnergyEstimator.h"
+#include "JsonUtility.h"
+#include "ClusterExpansion.h"
+#include "VacancyMigrationBarrierPredictor.h"
+#include "Symmetry.h"
+
+using namespace Eigen;
+int main()
+{
+  string predictorFilename = "predictor_file_WTa_version2.json";
+
+  Eigen::VectorXd betaCE = ReadParametersFromJson(predictorFilename,
+                                                  "ce",
+                                                  "beta_ce");
+
+  cout << "Beta CE: " << betaCE << endl;
+
+  VectorXd betaBarrier = ReadParametersFromJson(predictorFilename,
+                                                "barrier",
+                                                "beta_barrier");
+
+  cout << "Beta Barrier: " << betaBarrier << endl;
+
+  VectorXd meanXFeatures = ReadParametersFromJson(predictorFilename,
+                                                  "barrier",
+                                                  "mean_X_features");
+
+  VectorXd stdXFeatures = ReadParametersFromJson(predictorFilename,
+                                                 "barrier",
+                                                 "std_X_features");
+
+  VectorXd meanYBarrier = ReadParametersFromJson(predictorFilename,
+                                                 "barrier",
+                                                 "mean_Y_barrier");
+
+  VectorXd stdYBarrier = ReadParametersFromJson(predictorFilename,
+                                                "barrier",
+                                                "std_Y_barrier");
+
+  cout << "Mean Y Barrier: " << meanYBarrier << endl;
+  cout << "Std Y Barrier: " << stdYBarrier << endl;
+
+  // Testing and predicting the values for a know configuration and how close it
+  // is to the value obtained from LAMMPS
+
+  auto cfg = Config::ReadConfig("testingVersion2/01 Ta50W50_5x5x5.cfg");
+
+  vector<double> cutoffs = {3.22, 4.5, 5.3};
+
+  cfg.UpdateNeighborList(cutoffs);
+
+  auto supercellCfg = Config::GenerateSupercell(5, 3.24, "X", "BCC");
+  supercellCfg.UpdateNeighborList(cutoffs);
+
+  pair<size_t, size_t> latticeIdJumpPair = {137, 112};
+  // {vacancyId, migratingAtomId}
+
+  // dE estimation
+
+  // Initial configuration
+  // cout << cfg.GetCartesianPositionOfLattice(137) << endl;
+
+  Element vacancy("X");
+  cfg.SetElementOfLattice(latticeIdJumpPair.first, vacancy);
+
+  // Previous Version
+  // dE computation
+
+  auto atomVector = cfg.GetAtomVector();
+  set<Element> elementSet{atomVector.begin(), atomVector.end()};
+
+  PotentialEnergyEstimator peEstimator(predictorFilename, 
+                                       cfg, 
+                                       supercellCfg,
+                                       elementSet, 
+                                       3, 3);
+
+  cout << "dE: \n" << peEstimator.GetDeThreadSafe(cfg, latticeIdJumpPair) << endl;
+
+
+  // The prevous CE seems to be more accurate as it was trained on a variety of
+  // data points
+
+  /// Barrier Prediction
+
+
+  VacancyMigrationBarrierPredictor barrierPredictor(cfg, elementSet, predictorFilename);
+
+  // Upto 2nd NN
+  // this gives backward barrier that in prevously the migration atom need to be first 
+  // followed by the vacancy so this is the backward barrier
+  // cout << "Barrier Version 1 Backward: " << barrierPredictor.GetBarrier(cfg, latticeIdJumpPair) << endl;
+
+  // cout << "Barrier Version 1 Forward: " << barrierPredictor.GetBarrier(cfg, latticeIdJumpPairF) << endl;
+  // 
+  // cout << endl;
+  
+  
+  pair<size_t, size_t> latticeIdJumpPairBackward = {latticeIdJumpPair.second, latticeIdJumpPair.first};
+
+
+  // New barrier 
+  // Improved accuracy
+  // Upto 3rd NN
+  
+
+
+  cout << cfg.GetElementOfLattice(latticeIdJumpPair.first).GetElementString() << " " 
+       << cfg.GetElementOfLattice(latticeIdJumpPair.second).GetElementString() << endl;
+
+  cout << "Forward Barrier: " << barrierPredictor.GetBarrier(cfg, latticeIdJumpPair) << endl;
+
+
+  cout << cfg.GetElementOfLattice(latticeIdJumpPairBackward.first).GetElementString() << " " 
+       << cfg.GetElementOfLattice(latticeIdJumpPairBackward.second).GetElementString() << endl;
+  cout << "Backward Barrier: " << barrierPredictor.GetBarrier(cfg, latticeIdJumpPairBackward) << endl;
+
+
+
+
+  // Result of the test
+
+  // Previous Version
+
+  /*
+  01 
+  dE = -0.197
+
+  Barrier 
+  Forward : 2.06615
+  Backward : 2.01324
+
+  */
+
+  // Updated Version
+
+  /*
+  dE = -0.2352
+
+  Forward = 2.16667
+  Backward = 2.431
+  */
+  
+  /*
+  // Summary
+
+  So, new version of the barrier predictor is much better that the previous version
+  as it is only trained on the 50-50 composition but the dE does not perform well 
+  enough but previous dE estimator is okay, but caution need to be taken as 
+  adjusted beta is being used but it would be more better to scale the encodings.
+
+  // Need to work on the dE part
+
+}
+*/
 
 /**************************** Computing Energy of Config **********************/
 /*
@@ -44,7 +202,7 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  string filename = argv[1];  
+  string filename = argv[1];
 
   auto cfg = Config::ReadCfg(filename);
 
@@ -59,7 +217,7 @@ int main(int argc, char* argv[])
   auto atomVector = cfg.GetAtomVector();
   set<Element> elementSet(atomVector.begin(), atomVector.end());
 
-  PotentialEnergyEstimator peEstimator("cePredictorFile.json",
+  PotentialEnergyEstimator peEstimator("predictor_file_WTa_version2.json",
                                        cfg,
                                        supercellCfg,
                                        elementSet,

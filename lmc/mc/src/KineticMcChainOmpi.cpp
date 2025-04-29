@@ -70,7 +70,6 @@ namespace mc
 
     size_t it = 0;
 
-
     for (auto l_lattice_id : config_.GetNeighborLatticeIdVectorOfLattice(i_lattice_id, 1))
     {
       l_lattice_id_list_[it] = l_lattice_id;
@@ -83,18 +82,16 @@ namespace mc
     std::cout << k_lattice_id << " " << i_lattice_id << std::endl;
     std::cout << config_.GetElementOfLattice(k_lattice_id) << ", " << config_.GetElementOfLattice(i_lattice_id) << std::endl;
 
-
     config_.LatticeJump({k_lattice_id, i_lattice_id});
 
     std::cout << config_.GetElementOfLattice(k_lattice_id) << ", " << config_.GetElementOfLattice(i_lattice_id) << std::endl;
-
 
 #pragma omp parallel default(none) shared(i_lattice_id, k_lattice_id) reduction(+ : total_rate_i_)
     {
 #pragma omp for
       for (size_t ii = 0; ii < kEventListSize; ++ii)
       {
-        
+
         const auto l_lattice_id = l_lattice_id_list_[ii];
         // std::cout << config_.GetElementOfLattice(i_lattice_id) << ", " << config_.GetElementOfLattice(l_lattice_id) << std::endl;
 
@@ -107,12 +104,11 @@ namespace mc
 
             // Forward Barrier
             vacancy_migration_predictor_.GetBarrier(config_,
-                                                    {l_lattice_id, i_lattice_id}),
+                                                    {i_lattice_id, l_lattice_id}),
 
-                            
             // dE value from CE
             energy_change_predictor_.GetDeThreadSafe(config_,
-                                           {i_lattice_id, l_lattice_id}),
+                                                     {i_lattice_id, l_lattice_id}),
             // Thermodynamics Beta
             beta_);
 

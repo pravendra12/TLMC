@@ -71,27 +71,44 @@ unordered_set<size_t> B2OrderParameter::GetBetaLatticeSites()
 
 bool B2OrderParameter::isB2Ordered(const Config &config, const size_t atomId)
 {
-  Element vacancy("X");
+  // Element vacancy("X");
   
-  if (config.GetElementOfAtom(atomId) == vacancy)
-  {
-    return false;
-  }
+  // if (config.GetElementOfAtom(atomId) == vacancy)
+  // {
+  //   return false;
+  // }
 
   Element centerElement = config.GetElementOfAtom(atomId);
-  auto neighborIds = config.GetNeighborAtomIdVectorOfAtom(atomId, 1);
+  auto firstNN = config.GetNeighborAtomIdVectorOfAtom(atomId, 1);
 
-  Element neighborElement = config.GetElementOfAtom(neighborIds[0]);
+  Element neighborElement = config.GetElementOfAtom(firstNN[0]);
 
-  for (size_t i = 1; i < neighborIds.size(); ++i)
+  for (size_t i = 0; i < firstNN.size(); ++i)
   {
-    if (config.GetElementOfAtom(neighborIds[i]) != neighborElement)
+    if (config.GetElementOfAtom(firstNN[i]) != neighborElement)
     {
       return false;
     }
   }
 
-  return (neighborElement != centerElement);
+  if (neighborElement == centerElement)
+    return false;
+
+  // second NN should all be equal to centerElement for perfect B2
+
+  auto secondNN = config.GetNeighborAtomIdVectorOfAtom(atomId, 2);
+
+  // case of defected B2
+
+  for (size_t i = 0; i < secondNN.size(); ++i)
+  {
+    if (config.GetElementOfAtom(secondNN[i]) != centerElement)
+    {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 void B2OrderParameter::InitializeAlphaLatticeSites()

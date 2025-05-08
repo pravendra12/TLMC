@@ -79,12 +79,12 @@ namespace mc
     total_rate_k_ = 0.0;
     total_rate_i_ = 0.0;
 
-    std::cout << k_lattice_id << " " << i_lattice_id << std::endl;
-    std::cout << config_.GetElementOfLattice(k_lattice_id) << ", " << config_.GetElementOfLattice(i_lattice_id) << std::endl;
+    // std::cout << k_lattice_id << " " << i_lattice_id << std::endl;
+    // std::cout << config_.GetElementOfLattice(k_lattice_id) << ", " << config_.GetElementOfLattice(i_lattice_id) << std::endl;
 
     config_.LatticeJump({k_lattice_id, i_lattice_id});
 
-    std::cout << config_.GetElementOfLattice(k_lattice_id) << ", " << config_.GetElementOfLattice(i_lattice_id) << std::endl;
+    // std::cout << config_.GetElementOfLattice(k_lattice_id) << ", " << config_.GetElementOfLattice(i_lattice_id) << std::endl;
 
 #pragma omp parallel default(none) shared(i_lattice_id, k_lattice_id) reduction(+ : total_rate_i_)
     {
@@ -98,17 +98,11 @@ namespace mc
         JumpEvent event_i_l(
             // Jump Pair
             {i_lattice_id, l_lattice_id},
-            // Forward Barrier
-            // here vacancy is at i_lattice_id
-            // migrating atom is at l_lattice_id
 
-            // Forward Barrier
-            vacancy_migration_predictor_.GetBarrier(config_,
-                                                    {i_lattice_id, l_lattice_id}),
+            vacancy_migration_predictor_.GetBarrierAndDeltaE(config_,
+                                                             {i_lattice_id,
+                                                              l_lattice_id}),
 
-            // dE value from CE
-            energy_change_predictor_.GetDeThreadSafe(config_,
-                                                     {i_lattice_id, l_lattice_id}),
             // Thermodynamics Beta
             beta_);
 

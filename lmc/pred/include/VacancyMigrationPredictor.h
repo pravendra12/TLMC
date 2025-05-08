@@ -1,7 +1,7 @@
 #ifndef LMC_PRED_INCLUDE_VACANCYMIGRATIONPREDICTOR_H_
 #define LMC_PRED_INCLUDE_VACANCYMIGRATIONPREDICTOR_H_
 
-#include "VacancyMigrationBarrierPredictor.h"
+#include "KRAPredictor.h"
 #include "PotentialEnergyEstimator.h"
 
 using namespace std;
@@ -17,18 +17,12 @@ public:
       size_t maxClusterSize,
       size_t maxBondOrder);
 
-  // In current model 
-  // First lattice Id in the latticeIdJumpPair is the migrating atom Id based on
-  // which the symmetrically sorted vector is computed and it is pivoted towards
-  // the migrating atom Id.
-  
-  // latticeIdJumpPair : <NeighbourAtomId, VacancyId>
-  pair<double, double> getBarrierAndEnergyChange(
+  pair<double, double> GetBarrierAndDeltaE(
       const Config &config,
       const pair<size_t, size_t> &latticeIdJumpPair) const;
 
 private:
-  VacancyMigrationBarrierPredictor barrierPredictor_;
+  KRAPredictor eKRAPredictor;
   PotentialEnergyEstimator energyChangePredictor_;
 };
 

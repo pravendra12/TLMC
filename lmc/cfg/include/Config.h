@@ -85,6 +85,10 @@ public:
    *  \return  The vacancy lattice ID site for the configuration.
    */
   [[nodiscard]] size_t GetVacancyLatticeId() const;
+   
+  /*! \brief Returns the relative position matrix for the configuration
+  */
+  [[nodiscard]] const Eigen::Matrix3Xd & GetRelativePositionMatrix() const;
 
   [[nodiscard]] size_t GetCentralAtomLatticeId() const;
 

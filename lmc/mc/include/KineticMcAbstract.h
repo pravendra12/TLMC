@@ -19,10 +19,11 @@
 #include <Eigen/Dense>
 #include "McAbstract.h"
 #include "JumpEvent.h"
-#include "VacancyMigrationBarrierPredictor.h"
+// #include "VacancyMigrationBarrierPredictor.h"
 #include "PotentialEnergyEstimator.h"
 #include "TimeTemperatureInterpolator.h"
 // #include "RateCorrector.hpp"
+#include "VacancyMigrationPredictor.h"
 
 
 namespace mc {
@@ -144,7 +145,8 @@ class KineticMcFirstAbstract : public McAbstract {
     // Helpful properties
 
     /// Vacancy Migration Energy Predictor
-    const VacancyMigrationBarrierPredictor vacancy_migration_predictor_;
+    // const VacancyMigrationBarrierPredictor vacancy_migration_predictor_;
+    const VacancyMigrationPredictor vacancy_migration_predictor_;
 
     /// Potential Energy Predictor
     const PotentialEnergyEstimator energy_change_predictor_;

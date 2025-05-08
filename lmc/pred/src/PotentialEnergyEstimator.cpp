@@ -74,7 +74,7 @@ Eigen::VectorXd PotentialEnergyEstimator::GetEncodeVector(const Config &config) 
 
   for (const auto &lattice_cluster : all_lattice_hashset)
   {
-    auto atom_cluster_type = IndentifyAtomClusterType(config, lattice_cluster.GetLatticeIdVector());
+    auto atom_cluster_type = IdentifyAtomClusterType(config, lattice_cluster.GetLatticeIdVector());
     cluster_type_count_hashmap.at(ClusterType(atom_cluster_type, lattice_cluster.GetClusterType()))++;
   }
   Eigen::VectorXd encode_vector(initialized_cluster_type_set_.size());
@@ -88,7 +88,7 @@ Eigen::VectorXd PotentialEnergyEstimator::GetEncodeVector(const Config &config) 
 
     encode_vector(idx) = count_bond / total_bond;
 
-    std::cout << cluster_type << " : " << count_bond << " : " << total_bond << std::endl;
+    // std::cout << cluster_type << " : " << count_bond << " : " << total_bond << std::endl;
     ++idx;
   }
 
@@ -105,7 +105,7 @@ PotentialEnergyEstimator::GetEncodeVectorOfCluster(const Config &config,
 
   for (auto &lattice_cluster : all_lattice_clusters)
   {
-    auto atom_cluster_type = IndentifyAtomClusterType(config, lattice_cluster.GetLatticeIdVector());
+    auto atom_cluster_type = IdentifyAtomClusterType(config, lattice_cluster.GetLatticeIdVector());
     cluster_type_count_hashmap.at(ClusterType(atom_cluster_type, lattice_cluster.GetClusterType()))++;
   }
 
@@ -121,6 +121,7 @@ PotentialEnergyEstimator::GetEncodeVectorOfCluster(const Config &config,
     encode_vector_cluster(idx) = count_bond / total_bond;
 
     // std::cout << cluster_type << " : " << count_bond << " : " << total_bond << std::endl;
+
     ++idx;
   }
 
@@ -203,7 +204,7 @@ double PotentialEnergyEstimator::GetDeThreadSafe(
     auto lattice_ids = lattice_cluster.GetLatticeIdVector();
 
     // Before swap: Use current config state
-    auto atom_cluster_type_before = IndentifyAtomClusterType(config, lattice_ids);
+    auto atom_cluster_type_before = IdentifyAtomClusterType(config, lattice_ids);
     auto cluster_type_before = ClusterType(atom_cluster_type_before, lattice_cluster.GetClusterType());
     cluster_type_count_hashmap_before.at(cluster_type_before)++;
 
@@ -245,16 +246,11 @@ double PotentialEnergyEstimator::GetDeThreadSafe(
   }
 
   // Step 4: Compute energy difference
-
-  // version 1
-  // double E_before_swap = adjusted_beta_ce_.dot(encode_before) + adjusted_intercept_ce_;
-  // double E_after_swap = adjusted_beta_ce_.dot(encode_after) + adjusted_intercept_ce_;
   
-  // Update version 1
   double E_before_swap = beta_ce_.dot(encode_before);
   double E_after_swap = beta_ce_.dot(encode_after);
 
   double dE = E_after_swap - E_before_swap;
   
-  return E_after_swap - E_before_swap;
+  return dE;
 }

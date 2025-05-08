@@ -6,27 +6,34 @@ VacancyMigrationPredictor::VacancyMigrationPredictor(
     const Config &supercellConfig,
     const set<Element> &elementSet,
     size_t maxClusterSize,
-    size_t maxBondOrder) : barrierPredictor_(referenceConfig,
-                                             elementSet,
-                                             predictorFilename),
+    size_t maxBondOrder) : eKRAPredictor(predictorFilename,
+                                         referenceConfig,
+                                         elementSet,
+                                         maxBondOrder,
+                                         maxClusterSize),
                            energyChangePredictor_(predictorFilename,
                                                   referenceConfig,
                                                   supercellConfig,
                                                   elementSet,
                                                   maxClusterSize,
                                                   maxBondOrder)
-{}
+{
+}
 
-pair<double, double> VacancyMigrationPredictor::getBarrierAndEnergyChange(
-    const Config &config, 
+// (barrier, dE)
+pair<double, double> VacancyMigrationPredictor::GetBarrierAndDeltaE(
+    const Config &config,
     const pair<size_t, size_t> &latticeIdJumpPair) const
 {
-  
-  double barrier = barrierPredictor_.GetBarrier(config, 
-                                                latticeIdJumpPair);
-                                               
-  double dE = energyChangePredictor_.GetDeThreadSafe(config,
+  double eKRA = eKRAPredictor.GetKRA(config, 
+                                     latticeIdJumpPair);
+
+  double dE = energyChangePredictor_.GetDeThreadSafe(config, 
                                                      latticeIdJumpPair);
- 
-  return {barrier, dE};
+  
+  // EKRA = Ea - 1/2*dE
+
+  double barrier = eKRA + (dE/2);
+  
+  return pair<double, double>(barrier, dE);
 }

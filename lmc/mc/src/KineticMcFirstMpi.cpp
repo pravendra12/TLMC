@@ -65,20 +65,15 @@ namespace mc
     const auto neighbor_vacancy_id =
         config_.GetNeighborLatticeIdVectorOfLattice(vacancy_lattice_id_, 1)[static_cast<size_t>(world_rank_)];
 
-    JumpEvent event_k_i_(
-        // Jump Pair
-        {vacancy_lattice_id_, neighbor_vacancy_id},
-
-        // Forward Barrier
-        vacancy_migration_predictor_.GetBarrier(config_,
-                                                {vacancy_lattice_id_, neighbor_vacancy_id}),
-
-        // dE value from CE
-        energy_change_predictor_.GetDeThreadSafe(config_,
-                                                 {vacancy_lattice_id_, neighbor_vacancy_id}),
-
-        // Thermodynamics Beta
-        beta_);
+    JumpEvent local_event_k_i(
+      // Jump Pair
+      {vacancy_lattice_id_, neighbor_vacancy_id},
+      vacancy_migration_predictor_.GetBarrierAndDeltaE(config_,
+                               {vacancy_lattice_id_,
+                                neighbor_vacancy_id}),
+      beta_);
+      
+    event_k_i_ = local_event_k_i; // Assign the local variable to the member variable
 
     const double rate_k_i = event_k_i_.GetForwardRate();
 

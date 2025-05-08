@@ -19,8 +19,7 @@ namespace mc
     /// Constructor
     JumpEvent();
     JumpEvent(const std::pair<size_t, size_t> &jump_pair,
-              const double forward_barrier,
-              const double dE,
+              const std::pair<double, double> &barrierAndDe, // barrier and dE
               double beta);
 
     /// Getter

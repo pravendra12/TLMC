@@ -80,6 +80,11 @@ size_t Config::GetVacancyLatticeId() const
   return 0;
 }
 
+const Eigen::Matrix3Xd &Config::GetRelativePositionMatrix() const
+{
+  return relative_position_matrix_;
+}
+
 size_t Config::GetCentralAtomLatticeId() const
 {
 
@@ -279,7 +284,7 @@ Config::GetSortedLatticeVectorStateOfPair(
   std::vector<std::pair<size_t, Eigen::RowVector3d>>
       lattice_id_vector(lattice_id_hashmap.begin(), lattice_id_hashmap.end());
 
-  // Sort the lattice vector based on PositionCompareMMM
+  // Sort the lattice vector based on PositionCompare
   std::sort(lattice_id_vector.begin(), lattice_id_vector.end(), PositionCompareState);
 
   // Extract and return only the lattice IDs
@@ -288,7 +293,10 @@ Config::GetSortedLatticeVectorStateOfPair(
   for (const auto &pair : lattice_id_vector)
   {
     sorted_lattice_ids.push_back(pair.first);
+    // std::cout << pair.first << " " << pair.second << std::endl;
   }
+
+  
 
   return sorted_lattice_ids;
 }

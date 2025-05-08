@@ -70,6 +70,8 @@ class ClusterType {
 
  //private:
 
+ // not a good practice
+
   AtomClusterType atom_cluster_type_;
   LatticeClusterType lattice_cluster_type_;
 };

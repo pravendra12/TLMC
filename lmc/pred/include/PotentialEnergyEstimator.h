@@ -10,17 +10,6 @@
 using namespace std;
 using namespace Eigen;
 
-/*!
- * \file PotentialEnergyEstimator.h
- * \brief File for the PotentialEnergyEstimator class definition.
- *
- * \author zhucongx
- * \date 6th March 2025
- * \lastedited 6th March 2025 by pravendra12
- */
-
-/*! \brief Class for defining Cluster Expansion Hamiltonian.
- */
 class PotentialEnergyEstimator
 {
 public:
@@ -71,16 +60,9 @@ public:
 
   double GetDeThreadSafe(const Config &config, const std::pair<size_t, size_t> &lattice_id_pair) const;
 
-  [[nodiscard]] map<Element, double> GetChemicalPotential(Element solvent_element) const;
+  // [[nodiscard]] map<Element, double> GetChemicalPotential(Element solvent_element) const;
 
 private:
-  // const pair<VectorXd, double> ce_fitted_parameters_{};
-  /// Adjusted Effective cluster interaction.
-  // const VectorXd adjusted_beta_ce_{};
-  
-  
-  /// @brief Adjusted Intercept
-  // const double adjusted_intercept_ce_;
   
   /// beta barrier fitted with using standard scaler
   const VectorXd beta_ce_{};

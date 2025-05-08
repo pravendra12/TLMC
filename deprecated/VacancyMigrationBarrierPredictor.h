@@ -75,6 +75,18 @@ protected:
   const PairMap symmetricallySortedVectorMap_{};
 };
 
-
+/*! \brief Computes the symmetrically sorted vector map
+ *
+ *  This function utilizes multithreading and mutex to compute the symmetrically
+ *  sorted vector map.
+ *
+ *  \param config A reference to the Configuration object
+ *  \param maxBondOrder The maximum bond order; neighbors up to this bond order
+ *  are used to generate the symmetrically sorted vector map
+ *  \param symmetricallySortedVectorMap A map that associates lattice ID pairs
+ *  with their corresponding symmetrically sorted vectors
+ */
+PairMap ComputeSymmetricallySortedVectorMap(const Config &config,
+                                            const size_t maxBondOrder);
 
 #endif // LMC_LMC_PRED_INCLUDE_VACANCYMIGRATIONPREDICTOR_H_

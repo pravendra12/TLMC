@@ -1,18 +1,32 @@
 #include "Symmetry.h"
 
-// Function to find closest match within a tolerance
-size_t findClosestMatch(const unordered_map<Vector3d, size_t, Vector3dHash> &positionToIndex,
-                        const Vector3d &target, double tolerance = 1e-6)
+/**
+ * @brief Finds the closest matching index for a target vector in a map of positions to indices.
+ *
+ * Iterates through a map of 3D vectors (positions) and indices, calculating the Euclidean distance
+ * between each position and the target vector. If the distance is within a predefined tolerance
+ * (constants::kEpsilon), the corresponding index is returned. If no match is found, an invalid
+ * index (numeric_limits<size_t>::max()) is returned.
+ *
+ * @param positionToIndex Map of 3D vectors (positions) to indices.
+ * @param target Target 3D vector.
+ * @return Closest matching index or numeric_limits<size_t>::max().
+
+static size_t findClosestMatch(
+    const unordered_map<Vector3d, size_t, Vector3dHash> &positionToIndex,
+    const Vector3d &target)
 {
+
   for (const auto &[pos, index] : positionToIndex)
   {
-    if ((pos - target).norm() < tolerance) // Check if within tolerance
+    if ((pos - target).norm() < constants::kEpsilon) // Check if within tolerance
     {
       return index; // Return the matching index
     }
   }
   return numeric_limits<size_t>::max(); // Return an invalid index if no match is found
 }
+  */
 
 // Convert degrees to radians
 inline double toRadians(double degrees)
@@ -20,23 +34,23 @@ inline double toRadians(double degrees)
   return degrees * M_PI / 180.0;
 }
 
-Vector3d rotatePoints(const Vector3d &point,
-                      const Vector3d &axis,
-                      double theta,
-                      const Vector3d &center)
+/**
+ * @brief Rotates a 3D point around a specified axis by a given angle, with
+ * respect to a center point. This function uses Rodrigues' rotation formula
+ * to perform the rotation.
+ *
+ * @param point The 3D point to be rotated (Vector3d).
+ * @param axis The axis of rotation, represented as a 3D vector (Vector3d).
+ * It will be normalized internally.
+ * @param theta The angle of rotation in degrees.
+ * @param center The center point for rotation (Vector3d).
+ * @return The rotated 3D point (Vector3d).
+ */
+static Vector3d rotatePoints(const Vector3d &point,
+                             const Vector3d &axis,
+                             double theta,
+                             const Vector3d &center)
 {
-  /**
-   * Rotate a point around an axis by angle theta (in degrees) using Rodrigues' formula.
-   *
-   * Args:
-   *     point: 3D coordinates of the point to rotate
-   *     axis: direction vector of the rotation axis
-   *     theta: Angle in degrees
-   *     center: center of rotation
-   *
-   * Returns:
-   *     Rotated point as Vector3d
-   */
 
   // Normalize axis
   Vector3d k = axis.normalized();
@@ -56,232 +70,112 @@ Vector3d rotatePoints(const Vector3d &point,
   return p_rot + center;
 }
 
-vector<Vector3d> getEquivalentPoints(const Vector3d &start_point,
-                                     const Vector3d &axis,
-                                     double theta,
-                                     const Vector3d &center)
+/**
+ * @brief Finds the closest <111> direction to a given vector.
+ *
+ * This function determines the closest <111> crystallographic direction
+ * to the input vector by calculating the dot product with all possible
+ * <111> directions and selecting the one with the maximum absolute value.
+ * If multiple directions have the same dot product, a tie-breaking rule
+ * based on component comparison is applied.
+ *
+ * @param pairDirection The input vector to compare against <111> directions.
+ * @return Vector3d The closest <111> direction as a normalized vector.
+ */
+/*
+static Vector3d GetClosest111Direction(const Vector3d &pairDirection)
 {
-  int n = 360.0 / theta;
+  Vector3d normDir = pairDirection.normalized();
 
-  // cout << "number of rotations: " << n << endl;
+  vector<Vector3d> directions = {
+      Vector3d(1, 1, 1).normalized(),
+      Vector3d(-1, 1, 1).normalized(),
+      Vector3d(1, -1, 1).normalized(),
+      Vector3d(-1, -1, 1).normalized(),
+      Vector3d(1, 1, -1).normalized(),
+      Vector3d(-1, 1, -1).normalized(),
+      Vector3d(1, -1, -1).normalized(),
+      Vector3d(-1, -1, -1).normalized()};
 
-  vector<Vector3d> equivalent_points;
-  equivalent_points.reserve(n); // Pre-allocate space
+  Vector3d closestDir = directions[0];
 
-  for (int i = 0; i < n; ++i)
+  // Return the absolute value
+  double maxDot = fabs(normDir.dot(closestDir));
+
+  for (const auto &dir : directions)
   {
-    double angle = i * theta;
-    Vector3d rotated = rotatePoints(start_point, axis, angle, center);
-    equivalent_points.push_back(rotated);
-    // cout << rotated.transpose() << endl;
-  }
-
-  return equivalent_points;
-}
-
-vector<vector<size_t>> GetEquivalentSitesUnderKFoldRotation(const Config &config,
-                                                            size_t maxBondOrder,
-                                                            size_t kFoldRotation)
-{
-  // Get lattice pair (central and nearest neighbor)
-  // const size_t centralLatticeId = config.GetCentralAtomLatticeId();
-  const size_t centralLatticeId = config.GetCentralAtomLatticeId();
-
-  const auto nnLatticeIdVector = config.GetNeighborLatticeIdVectorOfLattice(centralLatticeId, 1);
-
-  const size_t nnLatticeId = nnLatticeIdVector[0];
-  const pair<size_t, size_t> latticeIdPair = {centralLatticeId, nnLatticeId};
-
-  // Get symmetrically sorted lattice ID vector for the pair
-  const auto ssVector = config.GetSortedLatticeVectorStateOfPair(latticeIdPair, maxBondOrder);
-
-  // Transition position
-  const Vector3d centralLatticePosition = config.GetCartesianPositionOfLattice(centralLatticeId);
-  const Vector3d nnLatticePosition = config.GetCartesianPositionOfLattice(nnLatticeId);
-  const Vector3d transitionPosition = 0.5 * (centralLatticePosition + nnLatticePosition);
-
-  // Rotation axis
-  const Vector3d rotationAxis = centralLatticePosition - nnLatticePosition;
-  // cout << "Transition Position: " << transitionPosition.transpose() << endl;
-
-  // Pre-populate position vector
-  vector<Vector3d> cartesianPositionVector;
-  cartesianPositionVector.reserve(ssVector.size());
-
-  for (const auto &latticeId : ssVector)
-  {
-    cartesianPositionVector.emplace_back(config.GetCartesianPositionOfLattice(latticeId));
-  }
-
-  // Store equivalent sites and their encodings
-  vector<vector<size_t>> equivalentEncodingVector;
-  vector<Vector3d> equivalentEncodingPositionVector;
-
-  // Use a hash map for O(1) lookup of positions to indices
-  unordered_map<Vector3d, size_t, Vector3dHash> positionToIndex;
-  for (size_t i = 0; i < cartesianPositionVector.size(); ++i)
-  {
-    positionToIndex[cartesianPositionVector[i]] = i;
-    // cout << cartesianPositionVector[i].transpose() << " : " << i << endl;
-  }
-
-  double rotationAngle = 360.0 / kFoldRotation; // 120 degrees for 3-fold
-
-  vector<bool> processed(cartesianPositionVector.size(), false);
-
-  for (size_t i = 0; i < cartesianPositionVector.size(); ++i)
-  {
-    if (processed[i])
-      continue;
-
-    const Vector3d &position = cartesianPositionVector[i];
-    auto equivalentPositions = getEquivalentPoints(position, rotationAxis, rotationAngle, transitionPosition);
-
-    vector<size_t> equivalentIndices = {i}; // Include the original position
-    processed[i] = true;
-
-    // Check equivalent positions
-
-    for (const auto &equivPos : equivalentPositions)
+    double dot = fabs(normDir.dot(dir));
+    if (dot > maxDot + constants::kEpsilon)
     {
-      size_t index = findClosestMatch(positionToIndex, equivPos);
-
-      if (index != numeric_limits<size_t>::max()) // If a valid index is found
+      maxDot = dot;
+      closestDir = dir;
+    }
+    else if (fabs(dot - maxDot) < constants::kEpsilon)
+    {
+      for (int i = 0; i < 3; ++i)
       {
-        if (!processed[index])
+        if (fabs(dir[i]) > constants::kEpsilon &&
+            fabs(closestDir[i]) > constants::kEpsilon)
         {
-          equivalentIndices.push_back(index);
-          processed[index] = true;
+          if (dir[i] > closestDir[i])
+          {
+            closestDir = dir;
+            maxDot = dot;
+          }
+          break;
         }
       }
     }
-
-    equivalentEncodingVector.push_back(move(equivalentIndices));
-    equivalentEncodingPositionVector.push_back(position);
   }
 
-  // print2DVector(equivalentEncodingVector);
-
-  return equivalentEncodingVector;
+  return closestDir;
 }
+  */
 
-inline bool PositionCompareState(
-    const pair<size_t, RowVector3d> &lhs,
-    const pair<size_t, RowVector3d> &rhs)
+Vector3d GetClosest111Direction(const Vector3d &direction)
 {
-  const auto &relative_position_lhs = lhs.second;
-  const auto &relative_position_rhs = rhs.second;
+  static const vector<Vector3d> k111Directions = {
+      {1, 1, 1}, {-1, 1, 1}, {1, -1, 1}, {1, 1, -1}, {-1, -1, 1}, {-1, 1, -1}, {1, -1, -1}, {-1, -1, -1}};
 
-  // Compare individual components (x, y, z)
-  const double diff_x = relative_position_lhs[0] - relative_position_rhs[0];
-  if (diff_x < -constants::kEpsilon)
-  {
-    return true;
-  }
-  if (diff_x > constants::kEpsilon)
-  {
-    return false;
-  }
+  Vector3d norm_direction = direction.normalized();
+  Vector3d best_direction = k111Directions[0];
+  double max_dot = -1.0;
 
-  const double diff_y = relative_position_lhs[1] - relative_position_rhs[1];
-  if (diff_y < -constants::kEpsilon)
+  for (const auto &dir : k111Directions)
   {
-    return true;
-  }
-  if (diff_y > constants::kEpsilon)
-  {
-    return false;
-  }
-
-  const double diff_z = relative_position_lhs[2] - relative_position_rhs[2];
-  if (diff_z < -constants::kEpsilon)
-  {
-    return true;
-  }
-  if (diff_z > constants::kEpsilon)
-  {
-    return false;
+    double dot = fabs(norm_direction.dot(dir.normalized()));
+    if (dot > max_dot + constants::kEpsilon)
+    {
+      max_dot = dot;
+      best_direction = dir;
+    }
+    else if (fabs(dot - max_dot) < constants::kEpsilon)
+    {
+      // Break ties lexicographically
+      if (dir(0) < best_direction(0) ||
+          (dir(0) == best_direction(0) && dir(1) < best_direction(1)) ||
+          (dir(0) == best_direction(0) && dir(1) == best_direction(1) && dir(2) < best_direction(2)))
+      {
+        best_direction = dir;
+      }
+    }
   }
 
-  return false;
+  return best_direction.normalized();
 }
 
-void RotateLatticeVector(
-    unordered_map<size_t, RowVector3d> &lattice_id_hashmap,
-    const Matrix3d &rotation_matrix)
-{
-  const RowVector3d
-      move_distance_after_rotation = RowVector3d(0.5, 0.5, 0.5) -
-                                     (RowVector3d(0.5, 0.5, 0.5) * rotation_matrix);
-
-  for (auto &lattice : lattice_id_hashmap)
-  {
-
-    auto relative_position = lattice.second;
-    // rotate
-    relative_position = relative_position * rotation_matrix;
-    // move to new center
-    relative_position += move_distance_after_rotation;
-    relative_position -= relative_position.unaryExpr([](double x)
-                                                     { return floor(x); });
-
-    lattice.second = relative_position;
-  }
-}
-
-vector<size_t> GetSortedLatticeVectorStateOfPair(
-    const Config &config,
-    const pair<size_t, size_t> &lattice_id_jump_pair,
-    const size_t &max_bond_order)
-{
-  auto neighboring_lattice_ids =
-      config.GetNeighboringLatticeIdSetOfPair(lattice_id_jump_pair,
-                                              max_bond_order);
-
-  size_t num_sites = neighboring_lattice_ids.size();
-
-  RowVector3d move_distance = RowVector3d(0.5, 0.5, 0.5) -
-                              GetLatticePairCenter(config, lattice_id_jump_pair);
-
-  unordered_map<size_t, RowVector3d> lattice_id_hashmap;
-  lattice_id_hashmap.reserve(num_sites);
-
-  // Move lattice IDs to center
-  for (const auto id : neighboring_lattice_ids)
-  {
-    RowVector3d relative_position =
-        config.GetRelativePositionOfLattice(id).transpose();
-
-    relative_position += move_distance;
-    relative_position -= relative_position.unaryExpr([](double x)
-                                                     { return floor(x); });
-    lattice_id_hashmap.emplace(id, relative_position);
-  }
-
-  // Rotate lattice vectors
-  auto rotationMatrix = GetLatticePairRotationMatrix(config,
-                                                     lattice_id_jump_pair);
-  RotateLatticeVector(lattice_id_hashmap, rotationMatrix);
-
-  // Convert unordered_map to vector for sorting
-  vector<pair<size_t, RowVector3d>>
-      lattice_id_vector(lattice_id_hashmap.begin(), lattice_id_hashmap.end());
-
-  // Sort the lattice vector based on PositionCompareMMM
-  sort(lattice_id_vector.begin(), lattice_id_vector.end(), PositionCompareState);
-
-  // Extract and return only the lattice IDs
-  vector<size_t> sorted_lattice_ids;
-  sorted_lattice_ids.reserve(lattice_id_vector.size());
-  for (const auto &pair : lattice_id_vector)
-  {
-    sorted_lattice_ids.push_back(pair.first);
-  }
-
-  return sorted_lattice_ids;
-}
-
-RowVector3d GetLatticePairCenter(
+/**
+ * @brief Computes the relative position of a lattice pair center in a periodic lattice system.
+ *
+ * Calculates the center position of two lattice points, considering periodic boundary
+ * conditions. Adjusts the relative positions of the lattice points based on their
+ * periodicity to ensure the correct center is computed.
+ *
+ * @param config Configuration object providing access to lattice positions.
+ * @param lattice_id_jump_pair Pair of lattice IDs representing the two lattice points.
+ * @return RowVector3d representing the center position of the lattice pair.
+ */
+static RowVector3d GetLatticePairCenter(
     const Config &config,
     const pair<size_t, size_t> &lattice_id_jump_pair)
 {
@@ -310,223 +204,311 @@ RowVector3d GetLatticePairCenter(
   return center_position.transpose();
 }
 
-Matrix3d GetLatticePairRotationMatrix(
+/**
+ * @brief Wraps a 3D vector into the periodic unit cell [0, 1).
+ *
+ * @param pos The 3D vector to wrap.
+ * @return Vector3d The wrapped position.
+ */
+static Vector3d wrapToUnitCell(const Vector3d &pos)
+{
+  Vector3d wrapped = pos;
+  for (int i = 0; i < 3; ++i)
+  {
+    wrapped[i] = fmod(wrapped[i], 1.0);
+    if (wrapped[i] < 0.0)
+    {
+      wrapped[i] += 1.0;
+    }
+  }
+  return wrapped;
+}
+
+/**
+ * @brief Computes the periodic distance between two 3D vectors.
+ *
+ * Accounts for periodic boundary conditions by considering the minimum distance
+ * across periodic images.
+ *
+ * @param a First 3D vector.
+ * @param b Second 3D vector.
+ * @return double The minimum Euclidean distance.
+ */
+static double periodicDistance(const Vector3d &a, const Vector3d &b)
+{
+  Vector3d diff = a - b;
+  for (int i = 0; i < 3; ++i)
+  {
+    diff[i] = diff[i] - round(diff[i]); // Find the shortest periodic image
+  }
+  return diff.norm();
+}
+
+/**
+ * @brief Finds the closest matching index for a target vector in a map of positions to indices.
+ *
+ * Iterates through a map of 3D vectors (positions) and indices, calculating the periodic
+ * Euclidean distance between each position and the target vector. If the distance is
+ * within a predefined tolerance (constants::kEpsilon), the corresponding index is returned.
+ *
+ * @param positionToIndex Map of 3D vectors (positions) to indices.
+ * @param target Target 3D vector.
+ * @return Closest matching index or numeric_limits<size_t>::max().
+ */
+static size_t findClosestMatch(
+    const unordered_map<Vector3d, size_t, Vector3dHash> &positionToIndex,
+    const Vector3d &target)
+{
+  for (const auto &[pos, index] : positionToIndex)
+  {
+    if (periodicDistance(pos, target) < constants::kEpsilon)
+    {
+      return index;
+    }
+  }
+  return numeric_limits<size_t>::max();
+}
+
+/**
+ * @brief Generates a set of points equivalent to a given point under 3-bar symmetry.
+ *
+ * Computes equivalent points under 3-fold rotational symmetry and inversion symmetry,
+ * ensuring all positions are wrapped into the unit cell.
+ *
+ * @param start_point The initial point to generate equivalent points for.
+ * @param axis The axis of symmetry for the 3-bar symmetry operation.
+ * @param center The center of symmetry for the 3-bar symmetry operation.
+ * @return A vector of Vector3d objects representing the equivalent points.
+ */
+static vector<Vector3d> GetEquivalentPositionUnder3BarSymmetry(
+    const Vector3d &start_point,
+    const Vector3d &axis,
+    const Vector3d &center)
+{
+  vector<Vector3d> equivalent_points;
+  equivalent_points.reserve(6);
+
+  vector<double> angles = {0.0, 120.0, 240.0};
+
+  for (double angle : angles)
+  {
+    Vector3d rotated = rotatePoints(start_point, axis, angle, center);
+    equivalent_points.push_back(wrapToUnitCell(rotated));
+  }
+
+  for (double angle : angles)
+  {
+    Vector3d rotated = rotatePoints(start_point, axis, angle, center);
+    Vector3d inverted = 2.0 * center - rotated;
+    equivalent_points.push_back(wrapToUnitCell(inverted));
+  }
+
+  return equivalent_points;
+}
+
+/**
+ * @brief Groups lattice sites into equivalent sets under 3-bar symmetry.
+ *
+ * Uses the sorted lattice IDs and computes equivalent positions, handling periodic
+ * boundary conditions to ensure correct grouping for boundary pairs.
+ *
+ * @param config Configuration object providing lattice positions.
+ * @param maxBondOrder Maximum bond order for neighbor search.
+ * @param latticeIdPair Pair of lattice IDs.
+ * @return Vector of vectors containing indices of equivalent sites.
+ */
+vector<vector<size_t>> GetEquivalentSitesUnder3BarSymmetry(
     const Config &config,
-    const pair<size_t, size_t> &lattice_id_jump_pair)
+    size_t maxBondOrder,
+    const pair<size_t, size_t> &latticeIdPair)
 {
-  // Get Pair Direction
-  Vector3d
-      relative_distance_vector_pair =
-          config.GetRelativeDistanceVectorLattice(lattice_id_jump_pair.first,
-                                                  lattice_id_jump_pair.second);
+  // Get sorted lattice IDs
+  auto ssVector = GetSortedLatticeStatesForPairUnder3BarSymmetry(config, latticeIdPair, maxBondOrder);
 
-  const Matrix3d basis = config.GetBasis();
+  // Compute pair direction and rotation axis
+  Vector3d centralPos = config.GetRelativePositionOfLattice(latticeIdPair.first);
+  Vector3d nnPos = config.GetRelativePositionOfLattice(latticeIdPair.second);
+  Vector3d pairDirection = centralPos - nnPos;
+  Vector3d rotationAxis = GetClosest111Direction(pairDirection);
 
-  RowVector3d
-      pair_direction = relative_distance_vector_pair.transpose() * basis;
-  pair_direction.normalize();
+  // Compute center
+  Vector3d center = GetLatticePairCenter(config, latticeIdPair).transpose();
 
-  RowVector3d vertical_vector;
+  // Store positions and indices
+  unordered_map<Vector3d, size_t, Vector3dHash> positionToIndex;
+  vector<Vector3d> relativePositionVector;
+  relativePositionVector.reserve(ssVector.size());
 
-  // First nearest neighbors
-  vector<size_t> nn_list =
-      config.GetNeighborLatticeIdVectorOfLattice(lattice_id_jump_pair.first, 1);
-
-  sort(nn_list.begin(), nn_list.end());
-
-  for (const auto nn_id : nn_list)
+  for (size_t i = 0; i < ssVector.size(); ++i)
   {
-    // Get Jump Vector
-    Vector3d
-        relative_distance_vector =
-            config.GetRelativeDistanceVectorLattice(lattice_id_jump_pair.first, nn_id);
-
-    RowVector3d jump_vector = relative_distance_vector.transpose() * basis;
-    jump_vector.normalize();
-
-    // Check for vertical direction
-    const double dot_prod = pair_direction.dot(jump_vector);
-    if (abs(dot_prod) < constants::kEpsilon)
-    {
-      vertical_vector = jump_vector;
-      break;
-    }
+    auto pos = config.GetRelativePositionOfLattice(ssVector[i]);
+    relativePositionVector.push_back(pos);
+    positionToIndex[pos] = i;
   }
 
-  // Rotation Matrix
-  Matrix3d rotation_matrix;
-  rotation_matrix.row(0) = pair_direction;
-  rotation_matrix.row(1) = vertical_vector;
-  rotation_matrix.row(2) = pair_direction.cross(vertical_vector);
+  // Track processed sites
+  vector<bool> processed(ssVector.size(), false);
+  vector<vector<size_t>> equivalentEncodingVector;
 
-  return rotation_matrix.transpose();
-}
-
-vector<vector<size_t>> GetEquivalentSites3Fold(const Config &config,
-                                               const size_t maxBondOrder)
-{
-  // Does not depends on jump pairs.
-  pair<size_t, size_t> jumpPair = {0, config.GetNeighborLatticeIdVectorOfLattice(0, 1)[0]};
-
-  auto symmetricallySortedVector = GetSortedLatticeVectorStateOfPair(config,
-                                                                     jumpPair,
-                                                                     maxBondOrder);
-
-  vector<size_t> equivalentSites;
-  vector<vector<size_t>> equivalentSiteVector;
-
-  size_t idx = 0;
-
-  while (idx < symmetricallySortedVector.size())
+  for (size_t i = 0; i < ssVector.size(); ++i)
   {
-    auto latticeId = symmetricallySortedVector[idx];
-
-    auto directionVectorI =
-        config.GetNormalizedDirection(latticeId, jumpPair.first);
-    auto directionVectorII =
-        config.GetNormalizedDirection(latticeId, jumpPair.second);
-
-    if (directionVectorI == directionVectorII)
+    if (processed[i])
     {
-      equivalentSites.emplace_back(idx);
-      idx++;
-    }
-    else
-    {
-      // Sample in threes
-      // Works only till 2nd NN
-      for (size_t id = idx; id < idx + 3; id++)
-      {
-        equivalentSites.emplace_back(id);
-      }
-      idx += 3;
+      continue;
     }
 
-    equivalentSiteVector.emplace_back(equivalentSites);
-    equivalentSites = {};
-  }
+    vector<size_t> equivalentIndices = {i};
+    processed[i] = true;
 
-  return equivalentSiteVector;
-}
+    // Compute equivalent positions with PBC
+    auto equivPositions = GetEquivalentPositionUnder3BarSymmetry(
+        relativePositionVector[i], rotationAxis, center);
 
-/*
-// Pairs between Migrating Atom and Nearest Neigbours
-VectorXd GetEncodingMigratingAtomPair (
-  const Config &config,
-  const vector<vector<size_t>> &equivalentSitesEncoding,
-  const vector<size_t> &symmetricallySortedVector,
-  const unordered_map<string, RowVectorXd> &oneHotEncodingMap,
-  const Element &migratingAtom)
-{
-
-// maxBondOrder is used for getting the NN for the jumpPair
-// Currently only support till maxBondOrder = 2
-
-// for bondOrder 1, there are 6 equivalent groups
-// the two central groups will be the first nn of the migrating atom (6 atoms)
-// then the next to each of the central groups will be the second nn atom
-// for the migrating atom at transition site
-// and third nn for the migrating atom based on the cutoff described
-// so in the first nn shell of the jump pair, there will be 14 nn of the migrating Atom
-
-  // Pair of Migrating Atom and the NN
-  // Not required storing the element pairs for verification
-  // vector<vector<string>> equivalentPairsClusters.reserve();
-
-  size_t sizeEncodeNonSymmPairs = 4;
-
-  VectorXd encodeVector;
-
-  for (auto &equivalentSites : equivalentSitesEncoding)
-  {
-    vector<string> equivalentPairs;
-
-    // Since non symmetric pairs
-    // Migrating Atom will be first site
-    // Need to work on this so as to generalize this
-
-    RowVectorXd pairEncodeVector = RowVectorXd::Zero(Index(sizeEncodeNonSymmPairs));
-
-    for (auto &sites : equivalentSites)
+    for (const auto &equivPos : equivPositions)
     {
-      auto latticeId = symmetricallySortedVector[sites];
-      auto neighborElement = config.GetElementOfLattice(latticeId);
-
-      string elementPair = migratingAtom.GetElementString() +
-                                neighborElement.GetElementString();
-
-      equivalentPairs.emplace_back(elementPair);
-
-      RowVectorXd oneHotVector = oneHotEncodingMap.at(elementPair);
-
-      pairEncodeVector += oneHotVector;
-    }
-
-  // equivalentPairsClusters.emplace_back(equivalentPairs);
-
-  encodeVector.conservativeResize(encodeVector.size() + pairEncodeVector.size());
-
-  // Concatenate pairEncodeVector to the resized vector
-  encodeVector.tail(pairEncodeVector.size()) = pairEncodeVector;
-
-  }
-
-  // print2DStringVector(equivalentPairsClusters);
-
-  return encodeVector;
-}
-
-*/
-
-VectorXd GetEncodingMigratingAtomPair(
-    const Config &config,
-    const vector<vector<size_t>> &equivalentSitesEncoding,
-    const vector<size_t> &symmetricallySortedVector,
-    const unordered_map<string, RowVectorXd> &oneHotEncodingMap,
-    const Element &migratingAtom)
-{
-  // Size of non-symmetric pairs
-  size_t numElements = 2; // Considering only binary for now
-  size_t sizeEncodeNonSymmPairs = pow(numElements, 2);
-
-  // Calculate the total size needed for encodeVector
-  size_t totalSize;
-  totalSize = equivalentSitesEncoding.size() * sizeEncodeNonSymmPairs;
-
-  // Pre-allocate encodeVector with the total expected size
-  VectorXd encodeVector(totalSize);
-  size_t offset = 0;
-
-  // Loop through the equivalent sites encoding
-  for (const auto &equivalentSites : equivalentSitesEncoding)
-  {
-    RowVectorXd pairEncodeVector = RowVectorXd::Zero(sizeEncodeNonSymmPairs);
-
-    // Loop through the equivalent sites and build the pair encoding vector
-    for (auto &sites : equivalentSites)
-    {
-      auto latticeId = symmetricallySortedVector[sites];
-      auto neighborElement = config.GetElementOfLattice(latticeId);
-
-      string elementPair = migratingAtom.GetElementString() +
-                           neighborElement.GetElementString();
-
-      try
+      size_t index = findClosestMatch(positionToIndex, equivPos);
+      if (index != numeric_limits<size_t>::max() && !processed[index])
       {
-        pairEncodeVector += oneHotEncodingMap.at(elementPair);
-      }
-      catch (const out_of_range &e)
-      {
-        cout << "Error: Missing Element Pair for " << elementPair << "(" << latticeId << ")" << endl;
-        exit(1);
+        equivalentIndices.push_back(index);
+        processed[index] = true;
       }
     }
-    // Normalized encoding vector
-    // Store the result into encodeVector at the correct offset
-    encodeVector.segment(offset, pairEncodeVector.size()) = pairEncodeVector / equivalentSites.size();
-    offset += pairEncodeVector.size(); // Move the offset for next pair
+
+    // Sort indices within each equivalent set
+    sort(equivalentIndices.begin(), equivalentIndices.end());
+    equivalentEncodingVector.push_back(move(equivalentIndices));
   }
 
-  // Return the final accumulated encode vector
-  return encodeVector;
+  // Sort equivalent sets by the first index
+  sort(equivalentEncodingVector.begin(), equivalentEncodingVector.end(),
+       [](const auto &a, const auto &b)
+       { return a[0] < b[0]; });
+
+  return equivalentEncodingVector;
+}
+
+/**
+ * @brief Generates a set of points equivalent to a given point under 3-bar symmetry.
+ *
+ * This function computes the equivalent points of a given starting point under
+ * 3-bar symmetry (a combination of 3-fold rotational symmetry and inversion symmetry).
+ * The symmetry is applied around a specified axis and center.
+ *
+ * @param start_point The initial point to generate equivalent points for.
+ * @param axis The axis of symmetry for the 3-bar symmetry operation.
+ * @param center The center of symmetry for the 3-bar symmetry operation.
+ * @return A vector of Vector3d objects representing the equivalent points.
+ *
+ * The function performs the following operations:
+ * 1. Rotates the starting point around the axis by angles of 0°, 120°, and 240°,
+ *    adding the resulting points to the equivalent points list.
+ * 2. Applies inversion symmetry to the rotated points (relative to the center)
+ *    and adds these inverted points to the equivalent points list.
+ *
+ * The resulting vector contains six points: three from rotation and three from
+ * inversion symmetry.
+ */
+
+inline Eigen::RowVector3d C3(const Eigen::RowVector3d &v)
+{
+  return Eigen::RowVector3d(-v[1], v[0] - v[1], v[2]); // 120° rotation
+}
+
+inline Eigen::RowVector3d C3Sq(const Eigen::RowVector3d &v)
+{
+  return C3(C3(v)); // 240°
+}
+
+inline Eigen::RowVector3d Mod1(const Eigen::RowVector3d &v)
+{
+  return (v.array() - v.array().floor()).matrix(); // wrap to [0,1)
+}
+
+inline Eigen::RowVector3d CanonicalUnder3Bar(const Eigen::RowVector3d &v)
+{
+  std::array<Eigen::RowVector3d, 6> images = {
+      Mod1(v),
+      Mod1(C3(v)),
+      Mod1(C3Sq(v)),
+      Mod1(-v),
+      Mod1(-C3(v)),
+      Mod1(-C3Sq(v))};
+
+  return *std::min_element(images.begin(), images.end(), [](const auto &a, const auto &b)
+                           {
+    for (int i = 0; i < 3; ++i) {
+      if (a[i] + constants::kEpsilon < b[i]) return true;
+      if (a[i] - constants::kEpsilon > b[i]) return false;
+    }
+    return false; });
+}
+
+inline bool PositionCompare3BarSymmetry(
+    const std::pair<size_t, Eigen::RowVector3d> &lhs,
+    const std::pair<size_t, Eigen::RowVector3d> &rhs)
+{
+
+  const auto lhs_canon = CanonicalUnder3Bar(lhs.second);
+  const auto rhs_canon = CanonicalUnder3Bar(rhs.second);
+
+  for (int i = 0; i < 3; ++i)
+  {
+    const double diff = lhs_canon[i] - rhs_canon[i];
+    if (diff < -constants::kEpsilon)
+      return true;
+    if (diff > constants::kEpsilon)
+      return false;
+  }
+
+  return false;
+}
+
+vector<size_t> GetSortedLatticeStatesForPairUnder3BarSymmetry(const Config &config,
+                                                     const pair<size_t, size_t> &lattice_id_jump_pair,
+                                                     const size_t &max_bond_order)
+{
+  auto neighboring_lattice_ids = config.GetNeighboringLatticeIdSetOfPair(lattice_id_jump_pair,
+                                                                  max_bond_order);
+
+  size_t num_sites = neighboring_lattice_ids.size();
+  Eigen::RowVector3d move_distance =
+      Eigen::RowVector3d(0.5, 0.5, 0.5) - GetLatticePairCenter(config, lattice_id_jump_pair);
+
+  std::unordered_map<size_t, Eigen::RowVector3d> lattice_id_hashmap;
+  lattice_id_hashmap.reserve(num_sites);
+
+  // Move lattice IDs to center
+  for (const auto id : neighboring_lattice_ids)
+  {
+    Eigen::RowVector3d relative_position = config.GetRelativePositionOfLattice(id).transpose();
+    relative_position += move_distance;
+    relative_position -= relative_position.unaryExpr([](double x)
+                                                     { return std::floor(x); });
+    lattice_id_hashmap.emplace(id, relative_position);
+  }
+  
+  // Rotate lattice vectors
+  Config::RotateLatticeVector(lattice_id_hashmap, config.GetLatticePairRotationMatrix(lattice_id_jump_pair));
+
+  // Convert unordered_map to vector for sorting
+  std::vector<std::pair<size_t, Eigen::RowVector3d>>
+      lattice_id_vector(lattice_id_hashmap.begin(), lattice_id_hashmap.end());
+
+  // Sort the lattice vector based on PositionCompare
+  std::sort(lattice_id_vector.begin(), lattice_id_vector.end(), PositionCompare3BarSymmetry);
+
+  // Extract and return only the lattice IDs
+  std::vector<size_t> sorted_lattice_ids;
+  sorted_lattice_ids.reserve(lattice_id_vector.size());
+  for (const auto &pair : lattice_id_vector)
+  {
+    sorted_lattice_ids.push_back(pair.first);
+    // std::cout << pair.first << " " << pair.second << std::endl;
+  }
+  // cout  << "Jump Pair: " << lattice_id_jump_pair.first << " -> " << lattice_id_jump_pair.second << endl;
+  // cout  << "Rotation Axis: " << rotation_axis.transpose() << endl;
+  // cout  << "Center: " << center << endl;
+  // cout  << "Sorted Lattice IDs: "; print1DVector(sorted_lattice_ids);
+
+  return sorted_lattice_ids;
 }

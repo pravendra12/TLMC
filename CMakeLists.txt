@@ -164,6 +164,8 @@ if (NOT EIGEN3_FOUND)
     set(EIGEN3_INCLUDE_DIRS ${eigen3_SOURCE_DIR})
 endif ()
 target_link_libraries_system(${PROJECT_NAME} PRIVATE Eigen3::Eigen)
+
+
 ###################################################### ARMADILLO #######################################################
 #find_package(ARMADILLO REQUIRED)
 #target_include_directories(${PROJECT_NAME} PRIVATE

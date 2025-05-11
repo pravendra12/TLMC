@@ -88,7 +88,7 @@ RowVectorXd GetTensorProduct(const RowVectorXd &basisVector1,
  * @param config The configuration object representing the atomic arrangement.
  * @param elementSet A set of elements involved in the configuration.
  * @param basisType A string specifying the type of basis to use (e.g., symmetric or non-symmetric).
- * @param orbitEncoding A vector of vectors encoding the orbit of clusters.
+ * @param orbitVector A vector of vectors encoding the orbit of clusters.
  * @param isClusterSymmetric A boolean flag indicating whether the cluster is symmetric.
  * @param symmetricSortedVector A vector of sorted lattice Id's.
  * @return RowVectorXd A row vector representing the computed correlation function.
@@ -96,8 +96,7 @@ RowVectorXd GetTensorProduct(const RowVectorXd &basisVector1,
 RowVectorXd GetCorrelationFunction(const Config &config,
                                    const set<Element> &elementSet,
                                    const string &basisType,
-                                   const vector<vector<size_t>> &orbitEncoding,
-                                   const bool &isClusterSymmetric,
-                                   const vector<size_t> &symmetricSortedVector);
+                                   const vector<vector<size_t>> &orbitVector,
+                                   const bool &isClusterSymmetric);
 
 #endif // LMC_CE_INCLUDE_CORRELATIONFUNCTION_H_

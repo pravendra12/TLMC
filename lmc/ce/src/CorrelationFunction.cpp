@@ -101,9 +101,8 @@ RowVectorXd GetTensorProduct(const RowVectorXd &basisVector1,
 RowVectorXd GetCorrelationFunction(const Config &config,
                                    const set<Element> &elementSet,
                                    const string &basisType,
-                                   const vector<vector<size_t>> &orbitEncoding,
-                                   const bool &isClusterSymmetric,
-                                   const vector<size_t> &symmetricSortedVector)
+                                   const vector<vector<size_t>> &orbitVector,
+                                   const bool &isClusterSymmetric)
 
 {
 
@@ -113,7 +112,7 @@ RowVectorXd GetCorrelationFunction(const Config &config,
   /*
   // This part is not required as ]currently using ElasticNetCV
   // which takes care of the intercept term
-  if (orbitEncoding[0].empty())
+  if (orbitVector[0].empty())
   {
     RowVectorXd corrFunction(1);
     corrFunction(0) = 1.0;
@@ -128,7 +127,7 @@ RowVectorXd GetCorrelationFunction(const Config &config,
   // Number of clusters in the orbit
   int numClusters = 0;
 
-  for (auto encodedCluster : orbitEncoding)
+  for (auto cluster : orbitVector)
   {
     vector<RowVectorXd> atomBasisVector;
 
@@ -138,9 +137,9 @@ RowVectorXd GetCorrelationFunction(const Config &config,
     // Retrieve the basis vector for the cluster
     // Iterate over the encoded cluster to extract the basis for each element
     // and compute the tensor product of the basis vectors
-    for (auto idx : encodedCluster)
+    for (auto latticeId : cluster)
     {
-      auto latticeId = symmetricSortedVector[idx];
+      // auto latticeId = symmetricSortedVector[idx];
       auto element = config.GetElementOfLattice(latticeId);
 
       elementCluster += element.GetElementString();

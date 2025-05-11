@@ -447,7 +447,7 @@ void GetEquivalentClusters(const Config &config,
 
   // Non symmetric pairs
 }
-
+/*
 void TestLCEEncodingForJump(
     RowVectorXd &encodingVectorLCE,
     const Config &cfg,
@@ -481,6 +481,7 @@ void TestLCEEncodingForJump(
   std::cout << "LCE Encoding:\n"
             << encodingVectorLCE << "\n";
 }
+            */
 
 void processDirectorySymmetryEncodingLCE(const std::string &rootDir,
                                          const std::set<Element> &elementSet,
@@ -493,8 +494,8 @@ void processDirectorySymmetryEncodingLCE(const std::string &rootDir,
   // Open output files for writing results
   const vector<double> cutoffs = {3.3, 4.7, 5.6};
 
-  std::ofstream outFileOccupation("encodeVector_Occupation_ClusterSymmetry" + dirName + ".txt");
-  std::ofstream outFileChebyshev("encodeVector_Chebyshev_ClusterSymmetry" + dirName + ".txt");
+  std::ofstream outFileOccupation("encodeVector_Occupation_ClusterSymmetry_ConsistentOrder" + dirName + ".txt");
+  std::ofstream outFileChebyshev("encodeVector_Chebyshev_ClusterSymmetry_ConsistentOrder" + dirName + ".txt");
 
   if (!outFileOccupation.is_open() || !outFileChebyshev.is_open())
   {
@@ -533,27 +534,25 @@ void processDirectorySymmetryEncodingLCE(const std::string &rootDir,
         pair<size_t, size_t> backward = {latticeJumpPair.second,
                                          latticeJumpPair.first};
 
-        auto ssVectorForward = GetSortedLatticeStatesForPairUnder3BarSymmetry(cfg, forward, maxBondOrder);
-        auto equivSitesForward = GetEquivalentSitesUnder3BarSymmetry(cfg, maxBondOrder, forward);
+        // auto ssVectorForward = GetSortedLatticeStatesForPairUnder3BarSymmetry(cfg, forward, maxBondOrder);
+        auto equivSitesForward = GetEquivalentSitesUnder3BarSymmetry(cfg, forward, maxBondOrder);
 
-        auto ssVectorBackward = GetSortedLatticeStatesForPairUnder3BarSymmetry(cfg, backward, maxBondOrder);
-        auto equivSitesBackward = GetEquivalentSitesUnder3BarSymmetry(cfg, maxBondOrder, backward);
+        // auto ssVectorBackward = GetSortedLatticeStatesForPairUnder3BarSymmetry(cfg, backward, maxBondOrder);
+        auto equivSitesBackward = GetEquivalentSitesUnder3BarSymmetry(cfg, backward, maxBondOrder);
 
-        auto orbitMapF3Bar = GetOrbits(cfg, maxClusterSize, maxBondOrderOfCluster, equivSitesForward, ssVectorForward);
-        auto orbitMapB3Bar = GetOrbits(cfg, maxClusterSize, maxBondOrderOfCluster, equivSitesBackward, ssVectorBackward);
+        auto orbitMapF3Bar = GetOrbits(cfg, maxClusterSize, maxBondOrderOfCluster, equivSitesForward);
+        auto orbitMapB3Bar = GetOrbits(cfg, maxClusterSize, maxBondOrderOfCluster, equivSitesBackward);
 
         // Occupation
         RowVectorXd encodingVectorForwardOccupation = GetLocalEnvironmentEncoding(cfg,
                                                                                   elementSet,
                                                                                   "Occupation",
-                                                                                  orbitMapF3Bar,
-                                                                                  ssVectorForward);
+                                                                                  orbitMapF3Bar);
 
         RowVectorXd encodingVectorBackwardOccupation = GetLocalEnvironmentEncoding(cfg,
                                                                                    elementSet,
                                                                                    "Occupation",
-                                                                                   orbitMapB3Bar,
-                                                                                   ssVectorBackward);
+                                                                                   orbitMapB3Bar);
 
         // bool isEqualOccupation = (encodingVectorBackwardOccupation == encodingVectorForwardOccupation);
         bool isEqualOccupation = encodingVectorBackwardOccupation.isApprox(encodingVectorForwardOccupation);
@@ -569,14 +568,12 @@ void processDirectorySymmetryEncodingLCE(const std::string &rootDir,
         RowVectorXd encodingVectorForwardChebyshev = GetLocalEnvironmentEncoding(cfg,
                                                                                  elementSet,
                                                                                  "Chebyshev",
-                                                                                 orbitMapF3Bar,
-                                                                                 ssVectorForward);
+                                                                                 orbitMapF3Bar);
 
         RowVectorXd encodingVectorBackwardChebyshev = GetLocalEnvironmentEncoding(cfg,
                                                                                   elementSet,
                                                                                   "Chebyshev",
-                                                                                  orbitMapB3Bar,
-                                                                                  ssVectorBackward);
+                                                                                  orbitMapB3Bar);
 
         // bool isEqualChebyshev = (encodingVectorBackwardChebyshev == encodingVectorForwardChebyshev);
         bool isEqualChebyshev = encodingVectorBackwardChebyshev.isApprox(encodingVectorForwardChebyshev);
@@ -613,119 +610,77 @@ void processDirectorySymmetryEncodingLCE(const std::string &rootDir,
   outFileChebyshev.close();
 }
 
+// PBC
 
+void wrapMain(Vector3d &position)
+{
+  // Apply PBC: wrap position to [0, 1) by applying modulo operation
+  position = position.array() - position.array().floor(); // Element-wise operation for all coordinates
+}
+
+void encodeVector(const vector<vector<size_t>> &eqSitesVector,
+                  const vector<size_t> &ssVector)
+{
+  unordered_map<size_t, size_t> latticeIdIndexMap;
+  for (size_t i = 0; i < ssVector.size(); i++)
+  {
+    latticeIdIndexMap[ssVector[i]] = i;
+  }
+
+  vector<vector<size_t>> encodingVector;
+
+  for (const auto eqSites : eqSitesVector)
+  {
+    vector<size_t> subVector;
+    for (const auto latticeId : eqSites)
+    {
+      subVector.emplace_back(latticeIdIndexMap.at(latticeId));
+    }
+    sort(subVector.begin(), subVector.end()); // sort each group
+    encodingVector.emplace_back(subVector);
+  }
+
+  sort(encodingVector.begin(), encodingVector.end()); // sort the whole encoding vector
+  print2DVector(encodingVector);
+}
 
 using namespace Eigen;
 
 #include "KRAPredictor.h"
 
+#include <memory_resource>
+#include <map>
+#include <vector>
+#include <iostream>
+
+size_t calculateMemoryUsage(const std::map<std::string, std::vector<std::vector<size_t>>>& orbitMap) {
+  size_t totalMemory = 0;
+  
+  // Iterate through all elements in the map
+  for (const auto& entry : orbitMap) {
+      // Add memory for the std::string key
+      totalMemory += entry.first.capacity();  // Memory used by the string data
+      
+      // Add memory for the vector of vectors
+      for (const auto& innerVec : entry.second) {
+          totalMemory += innerVec.capacity() * sizeof(size_t);  // Memory for inner vectors of size_t
+      }
+  }
+  
+  return totalMemory;
+}
+
 int main()
 {
   /// Implementation and validation of E_KRA model /////////////////////
 
-
-  const string predictorFilename = "predictorFileEKRA_WTa.json";
+  const string predictorFilename = "predictorFileKRA_WTa.json";
   const size_t maxBondOrder = 3;
   const size_t maxClusterSize = 3;
   const size_t maxBondOrderOfCluster = 3;
 
-  const vector<double> cutoffs = {3.3, 4.7, 5.6};
-
-  auto cfg = Config::ReadCfg("/media/sf_Phd/WTaNEB/Ta90W10/10/Config/Ta90W10_5x5x5.cfg");
-  cfg.UpdateNeighborList(cutoffs);
-
-
-
-  Element vacancy("X");
-
-  size_t vacancyId = cfg.GetCentralAtomLatticeId();
-
-  cfg.SetElementOfLattice(vacancyId, vacancy);
-
-
-  auto atomVector = cfg.GetAtomVector();
-  set<Element> elementSet{atomVector.begin(), atomVector.end()};
-
-  pair<size_t, size_t> latticeJumpPair = {vacancyId,
-                                          cfg.GetNeighborLatticeIdVectorOfLattice(vacancyId, 1)[0]};
-
-  cout << latticeJumpPair.first << endl;
-  cout << latticeJumpPair.second << endl;
-
-
-  // KRAPredictor kraPredictor(predictorFilename,cfg,  elementSet, maxBondOrder, maxClusterSize);
-
-  // kraPredictor.GetKRA(cfg, latticeJumpPair);
-
-  // kraPredictor.GetKRA(cfg, make_pair(latticeJumpPair.second, latticeJumpPair.first));
-
-  // elementSet.insert(Element("X"));
-
-  // 
-  // PotentialEnergyEstimator peEstimator(predictorFilename,
-  //                                      cfg,
-  //                                      cfg,
-  //                                      elementSet,
-  //                                      maxClusterSize,
-  //                                      maxBondOrder);
-// 
-  // double dE = peEstimator.GetDeThreadSafe(cfg, latticeJumpPair);
-  // cout << dE << endl;
-  
-  // cfg.LatticeJump(latticeJumpPair);
-  // dE = peEstimator.GetDeThreadSafe(cfg, make_pair(latticeJumpPair.second, latticeJumpPair.first));
-  // cout << dE << endl;
-
-
-  VacancyMigrationPredictor predictor(predictorFilename, 
-                                      cfg,
-                                      cfg, 
-                                      elementSet,maxClusterSize, maxBondOrder);
-
-
-  auto dEAndBarrier = predictor.GetBarrierAndDeltaE(cfg, latticeJumpPair);
-  cout <<"Barrier : " << dEAndBarrier.first << endl;
-  cout <<"dE : " << dEAndBarrier.second << endl;
-
-  cfg.LatticeJump(latticeJumpPair);
-
-  dEAndBarrier = predictor.GetBarrierAndDeltaE(cfg, latticeJumpPair);
-  cout <<"Barrier : " << dEAndBarrier.first << endl;
-  cout <<"dE : " << dEAndBarrier.second << endl;
-
-  cout << cfg.GetVacancyLatticeId() << endl;
-
-
-
-
-
-
-  
-
-
-
-
-
-
-
-  
-
-
-
-
-  ///////////////// Generate E_KRA Data ////////////////////////
-  /*
-  // Process the directory
-  size_t maxClusterSize = 3;
-  size_t maxBondOrder = 3;
-  size_t maxBondOrderOfCluster = 3;
-
+  /* /// Getting LCE 
   set<Element> elementSet{Element("Ta"), Element("W")};
-
-  // processDirectory("/media/sf_Phd/WTaNEB/nebTa50W50/Ta50W50/Ta50W50/",
-  //                  elementSet,
-  //                  maxBondOrderOfCluster,
-  //                  maxClusterSizeOfCluster);
 
   vector<string> folderVector = {
       "Ta10W90",
@@ -747,6 +702,219 @@ int main()
                                         maxClusterSize,
                                         folderName);
   }
+  */
+  const vector<double> cutoffs = {3.3, 4.7, 5.6};
+
+  auto cfg = Config::ReadCfg("/media/sf_Phd/WTaNEB/Ta90W10/06/Config/Ta90W10_5x5x5.cfg");
+  cfg.UpdateNeighborList(cutoffs);
+
+  auto atomVector = cfg.GetAtomVector();
+  set<Element> elementSet{atomVector.begin(), atomVector.end()};
+
+  Element vacancy("X");
+
+  size_t vacancyId = cfg.GetCentralAtomLatticeId();
+  size_t nnId = cfg.GetNeighborLatticeIdVectorOfLattice(vacancyId, 1)[0];
+
+  cout << vacancyId << "-" << nnId << endl;
+  pair<size_t, size_t> latticeJumpPair = {vacancyId, nnId};
+
+  KRAPredictor kraPredictor(predictorFilename,cfg,  elementSet, maxBondOrder, maxClusterSize);
+  kraPredictor.GetKRA(cfg, latticeJumpPair);
+  // kraPredictor.GetKRA(cfg, make_pair(latticeJumpPair.second, latticeJumpPair.first));
+   
+
+   
+ 
+
+
+
+
+
+
+
+
+
+  /* //// Testing the LCE funciton and GetOrbits and GetEquivalentSites3BarSymmetry ///
+  cout << "Testing the function" << endl;
+
+  size_t vacancyId = 0;
+
+  auto nnSites = cfg.GetNeighborLatticeIdVectorOfLattice(vacancyId, 1);
+  for (auto id : nnSites)
+  { // id = 49;
+    cout << "--- ---- ---- Forward ---- ---- ---- " << endl;
+    pair<size_t, size_t> latticeJumpPair = {vacancyId,
+                                            id};
+
+    cout << latticeJumpPair.first << "-" << latticeJumpPair.second << endl;
+    cout << "BO : " << cfg.GetDistanceOrder(vacancyId, id) << endl;
+
+    cout << "----- Equivalent Sites -----" << endl;
+    auto eqSites3Bar = GetEquivalentSitesUnder3BarSymmetry(cfg, latticeJumpPair, maxBondOrder);
+
+    auto orbitMap = GetOrbits(cfg, maxClusterSize, maxBondOrder, eqSites3Bar);
+
+    cout << "----- Size of LC Encoding -----" << endl;
+
+    RowVectorXd lce1 = GetLocalEnvironmentEncoding(cfg, elementSet, "Occupation", orbitMap);
+
+    cout << lce1.size() << endl;
+
+    cout << "--- ---- ---- Backward ---- ---- ---- " << endl;
+    pair<size_t, size_t> latticeJumpPairB = {id,
+                                            vacancyId};
+
+    cout << latticeJumpPairB.first << "-" << latticeJumpPairB.second << endl;
+    cout << "BO : " << cfg.GetDistanceOrder(vacancyId, id) << endl;
+
+    cout << "----- Equivalent Sites -----" << endl;
+    eqSites3Bar = GetEquivalentSitesUnder3BarSymmetry(cfg, latticeJumpPairB, maxBondOrder);
+
+    orbitMap = GetOrbits(cfg, maxClusterSize, maxBondOrder, eqSites3Bar);
+
+    cout << "----- Size of LC Encoding -----" << endl;
+
+    RowVectorXd lce2 = GetLocalEnvironmentEncoding(cfg, elementSet, "Occupation", orbitMap);
+
+
+    cout << lce2.size() << endl;
+
+    bool isEqual = lce1 == lce2;
+
+    cout << "Are Equal: " << isEqual << endl;
+
+    // cout << "----- Symmetrically Sorted Vector -----" << endl;
+
+    // break;
+
+    // print1DVector(ssVectorF);
+
+    // cout << "----- Orbit Map -----" << endl;
+    // for (const auto &orbit : orbitMap)
+    // {
+    //   std::cout << "----- Orbit " << orbit.first << " ------\n";
+    //   print2DVector(orbit.second);
+    // }
+
+    // GetEquivalentSitesUnder3BarSymmetryCG(cfg, 1, latticeJumpPair);
+  }
+  */
+
+  /*
+   std::cout << "Orbit Map:\n";
+  for (const auto &orbit : orbitMap)
+  {
+    std::cout << "----- Orbit " << orbit.first << " ------\n";
+    print2DVector(orbit.second);
+  }
+    */
+
+  //
+  // 137-113
+  /*
+  size_t id1 = 0;
+  size_t id2 = 49;
+
+  Vector3d pos1 = cfg.GetRelativePositionOfLattice(id1);
+  Vector3d pos2 = cfg.GetRelativePositionOfLattice(id2);
+
+  // Vector3d inversionCenter = (pos1 + pos2) / 2.0;
+
+
+
+  // Compute shift needed to move inversionCenter to center of cell
+  Vector3d globalShift = Vector3d(0.5, 0.5, 0.5) - cfg.GetLatticePairCenter(make_pair(id1, id2)).transpose();
+
+  // wrapMain(inversionCenter);
+
+  Vector3d mPos1 = pos1 + globalShift;
+  Vector3d mPos2 = pos2 + globalShift;
+
+  mPos1 -= mPos1.unaryExpr([](double x)
+  { return std::floor(x); });
+
+  mPos2 -= mPos2.unaryExpr([](double x)
+  { return std::floor(x); });
+
+  cout << id1 << " - " << id2 << endl;
+
+
+
+  cout << id1 << " : " << mPos1.transpose() << endl;
+  cout << id2 << " : " << mPos2.transpose() << endl;
+
+
+
+  for (auto id : cfg.GetSortedLatticeVectorStateOfPair(make_pair(id1, id2), 3))
+  {
+    Vector3d modifiedPosition = cfg.GetRelativePositionOfLattice(id);
+    modifiedPosition += globalShift;
+    // wrapMain(modifiedPosition);
+    modifiedPosition -= modifiedPosition.unaryExpr([](double x)
+                                                   { return std::floor(x); });
+    cout << id << " : " << modifiedPosition.transpose() << endl;
+  }
+
+  cout << mPos1 - mPos2 << endl;
+  */
+
+  // print2DVector(eqSites3Bar);
+
+
+
+
+  // elementSet.insert(Element("X"));
+
+  //
+  // PotentialEnergyEstimator peEstimator(predictorFilename,
+  //                                      cfg,
+  //                                      cfg,
+  //                                      elementSet,
+  //                                      maxClusterSize,
+  //                                      maxBondOrder);
+  //
+  // double dE = peEstimator.GetDeThreadSafe(cfg, latticeJumpPair);
+  // cout << dE << endl;
+
+  // cfg.LatticeJump(latticeJumpPair);
+  // dE = peEstimator.GetDeThreadSafe(cfg, make_pair(latticeJumpPair.second, latticeJumpPair.first));
+  // cout << dE << endl;
+
+  /*
+  VacancyMigrationPredictor predictor(predictorFilename,
+                                      cfg,
+                                      cfg,
+                                      elementSet,maxClusterSize, maxBondOrder);
+
+
+  auto dEAndBarrier = predictor.GetBarrierAndDeltaE(cfg, latticeJumpPair);
+  cout <<"Barrier : " << dEAndBarrier.first << endl;
+  cout <<"dE : " << dEAndBarrier.second << endl;
+
+  cfg.LatticeJump(latticeJumpPair);
+
+  dEAndBarrier = predictor.GetBarrierAndDeltaE(cfg, latticeJumpPair);
+  cout <<"Barrier : " << dEAndBarrier.first << endl;
+  cout <<"dE : " << dEAndBarrier.second << endl;
+
+  cout << cfg.GetVacancyLatticeId() << endl;
+  */
+
+  ///////////////// Generate E_KRA Data ////////////////////////
+  /*
+  // Process the directory
+  size_t maxClusterSize = 3;
+  size_t maxBondOrder = 3;
+  size_t maxBondOrderOfCluster = 3;
+
+
+  // processDirectory("/media/sf_Phd/WTaNEB/nebTa50W50/Ta50W50/Ta50W50/",
+  //                  elementSet,
+  //                  maxBondOrderOfCluster,
+  //                  maxClusterSizeOfCluster);
+
+
   */
   /*
   string predictorFilename = "predictor_file_WTa_version2.json";
@@ -834,7 +1002,6 @@ int main()
                          maxClusterSize); // maxClusterSize
   cout << "Are equal : " << isEqual << endl;
   */
-  
 
   // auto nnFirst = cfg.GetNeighboringLatticeIdSetOfPair(latticeJumpPair, 1);
 

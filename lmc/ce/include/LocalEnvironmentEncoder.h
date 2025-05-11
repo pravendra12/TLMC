@@ -44,7 +44,6 @@ RowVectorXd GetLocalEnvironmentEncoding(
     const Config &config,
     const set<Element> &elementSet,
     const string &basisType,
-    const map<string, vector<vector<size_t>>> orbitEncodingMap,
-    const vector<size_t> symmetricallSortedVector);
+    const map<string, vector<vector<size_t>>> orbitEncodingMap);
 
 #endif // LMC_CE_INCLUDE_LOCALENVIRONMENTENCODER_H_

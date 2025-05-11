@@ -22,7 +22,7 @@ using namespace std;
  * @param config The configuration object containing lattice and simulation parameters.
  * @param maxClusterSize The maximum allowable size of a cluster.
  * @param maxBondOrder The maximum allowable bond order for the clusters.
- * @param equivalentSiteEncoding A 2D vector where each sub-vector represents a group of 
+ * @param equivalentLatticeIdsVector A 2D vector where each sub-vector represents a group of 
  *        equivalent sites based on symmetry.
  * @param symmetricallSortedVector A vector of lattice site IDs sorted based on symmetry.
  * 
@@ -48,7 +48,6 @@ map<string, vector<vector<size_t>>> GetOrbits(
     const Config &config,
     const size_t &maxClusterSize,
     const size_t &maxBondOrder,
-    const vector<vector<size_t>> &equivalentSiteEncoding,
-    const vector<size_t> &symmetricallSortedVector);
+    const vector<vector<size_t>> &equivalentLatticeIdsVector);
 
 #endif // LMC_CE_INCLUDE_GETORBITS_H_

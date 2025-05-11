@@ -47,8 +47,6 @@ private:
   // Atomic Basis
   const string basisType_ = "Occupation";
 
-  // Equivalent sites encoding under 3 Bar symmetry
-  vector<vector<size_t>> equivalentSites3Bar_;
 };
 
 #endif // LMC_PRED_INCLUDE_KRAPREDICTOR_H_

@@ -6,9 +6,10 @@
  * @Last Modified time: 2025-05-08                   *
  *******************************************************************************************/
 
-
-
 #include "KRAPredictor.h"
+#include <chrono>
+
+using namespace chrono;
 
 // Precompute all the symmetrically sorted pairs
 
@@ -77,15 +78,7 @@ KRAPredictor::KRAPredictor(
                                                 cleanedSet.erase(Element("X"));  
                                                 return cleanedSet; }()),
                                    maxBondOrder_(maxBondOrder),
-                                   maxClusterSize_(maxClusterSize),
-                                   equivalentSites3Bar_(
-                                       GetEquivalentSitesUnder3BarSymmetry(
-                                           config,
-                                           maxBondOrder,
-                                           make_pair(0, config.GetNeighborLatticeIdVectorOfLattice(0, 1)[0])))
-// Currently this equivalentSites3Bar_ is not being used as it is not consistent
-// Need to work on the symmetrically sorted vector so that it will given consistent
-// sorting order irrespective of the pair.
+                                   maxClusterSize_(maxClusterSize)
 {
 }
 
@@ -102,46 +95,63 @@ double KRAPredictor::GetKRA(const Config &config,
 
   // cout << "Migrating Atom : " << migratingAtom << endl;
 
-  // Symmetrically sorted vector, equivalent sites under 3 bar and the orbit map
-  // can be stored for each of the jump pair but currently the GetSorted... function
-  // does not work as expected, hence need to work on this.
-
-  // SS Vector
-  auto ssVector = GetSortedLatticeStatesForPairUnder3BarSymmetry(config,
-                                                                 latticeIdJumpPair,
-                                                                 maxBondOrder_);
-  // print1DVector(ssVector);
-
   // Equivalent encoding
   // Need to update the below funciton as in principle it should be independent of
   // latticeIdJumpPair
+  auto startEqSites3Bar = high_resolution_clock::now();
+
   auto eqSites3Bar = GetEquivalentSitesUnder3BarSymmetry(config,
-                                                         maxBondOrder_,
-                                                         latticeIdJumpPair);
+                                                         latticeIdJumpPair,
+                                                         maxBondOrder_);
   // print2DVector(equivalentSites3Bar_);
+  auto endEqSites3Bar = high_resolution_clock::now();
+
+  auto durationEqSites = duration_cast<microseconds>(endEqSites3Bar - startEqSites3Bar);
+  // cout << "Time to compute eq sites: " << durationEqSites.count() << " microseconds" << endl;
 
   // print2DVector(eqSites3Bar);
 
   // OrbitMap
   // size_t maxClusterSize = 3;
+  auto startOrbitMap = high_resolution_clock::now();
   auto orbitMap = GetOrbits(config,
                             maxClusterSize_,
                             maxBondOrder_,
-                            eqSites3Bar,
-                            ssVector);
+                            eqSites3Bar);
+
+  auto endOrbitMap = high_resolution_clock::now();
+
+  auto durationOrbitMap = duration_cast<microseconds>(endOrbitMap - startOrbitMap);
+  // cout << "Time to compute orbit map: " << durationOrbitMap.count() << " microseconds" << endl;
 
   // string basisType = "Occupation";
 
   // Get the LCE
+  auto startLCE = high_resolution_clock::now();
+
   VectorXd localEnvEncoding = GetLocalEnvironmentEncoding(config,
                                                           elementSet_,
                                                           basisType_,
-                                                          orbitMap,
-                                                          ssVector).transpose();
+                                                          orbitMap)
+                                  .transpose();
+
+  auto endLCE = high_resolution_clock::now();
+
+  auto durationLCE = duration_cast<microseconds>(endLCE - startLCE);
+  // cout << "Time to compute LCE: " << durationLCE.count() << " microseconds" << endl;
+
+
+  // cout << "Size of localEnvEncoding : " << localEnvEncoding.size() << endl;
+  // cout << "Size of beta Ta : " << betaKRA_Ta_.size() << endl;
+  // cout << "Size of beta W : " << betaKRA_W_.size() << endl;
 
   if (localEnvEncoding.size() != 414)
   {
     cout << "The size of localEnvEncoding is not 414, issue in GetKRA!" << endl;
+    for (auto ele : elementSet_)
+    {
+      cout << ele.GetElementString() << endl;
+    }
     exit(2);
   }
 
@@ -160,9 +170,13 @@ double KRAPredictor::GetKRA(const Config &config,
   }
   else
   {
-    cout << "Fitting Coefficients not found for " << migratingAtom << endl;
+    cout << "Fitting coefficients not found for " << migratingAtom << endl;
     exit(1);
   }
+
+  // cout << "Coeff Ta : " << betaKRA_Ta_ << endl;
+  // cout << "Intercept Ta: " << interceptKRA_Ta_ << endl;
+  // cout << "Coeff W : " << betaKRA_W_ << endl;
 
   // cout << "EKRA : " << eKRA << endl;
 

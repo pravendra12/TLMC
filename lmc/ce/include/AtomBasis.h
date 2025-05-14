@@ -9,7 +9,6 @@
  * - **Occupation Basis**: Represents the presence of an element in a set as a one-hot encoded vector.
  */
 
-
 #ifndef LMC_CE_INCLUDE_ATOMBASIS_H_
 #define LMC_CE_INCLUDE_ATOMBASIS_H_
 
@@ -21,6 +20,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include "Element.hpp"
+#include "LruCache.h"
 
 using namespace std;
 using namespace Eigen;
@@ -35,8 +35,8 @@ using namespace Eigen;
  *                  - "Occupation": Generates a one-hot encoded vector.
  * @return A RowVectorXd representing the generated basis vector.
  *
- * @throws std::invalid_argument If the element is not part of the element set.
- * @throws std::invalid_argument If the basis type is invalid.
+ * @throws invalid_argument If the element is not part of the element set.
+ * @throws invalid_argument If the basis type is invalid.
  *
  * Chebyshev Basis:
  * - Computes Chebyshev polynomials of the first kind, T_n(x), where `x` is derived
@@ -56,5 +56,46 @@ RowVectorXd GetAtomBasis(const Element &elementType,
                          const set<Element> &elementSet,
                          const string &basisType);
 
+#pragma once
+#include "LruCache.h"
+#include <Eigen/Dense>
+#include <set>
+#include <string>
+
+class AtomBasis
+{
+public:
+  AtomBasis(const set<Element> &elementSet,
+            const string &basisType,
+            size_t tensorProductCacheCapacity = 30)
+      : elementSet_(move(elementSet)),
+        basisType_(move(basisType)),
+        atomBasisHashMap_(tensorProductCacheCapacity),
+        tensorProductHashMap_(tensorProductCacheCapacity) {}
+
+  ~AtomBasis()
+  {
+    cout << "Final Size of atomBasisHashMap_: "
+         << atomBasisHashMap_.GetSizeOfCacheList() << endl;
+    cout << "Final Size of tensorProductHashMap_: " 
+         << tensorProductHashMap_.GetSizeOfCacheList() << endl;
+  }
+
+  RowVectorXd GetCachedAtomBasis(const Element &elementType);
+
+  RowVectorXd GetCachedTensorProduct(const string &elementCluster,
+                                     const vector<RowVectorXd> &basisVector,
+                                     bool isSymmetric);
+
+private:
+  RowVectorXd GetAtomBasis(const Element &elementType);
+  RowVectorXd GetTensorProduct(const vector<RowVectorXd> &basisVector,
+                               bool isSymmetric);
+
+  const set<Element> elementSet_;
+  const string basisType_;
+  LruCache<string, RowVectorXd> atomBasisHashMap_;
+  LruCache<string, RowVectorXd> tensorProductHashMap_;
+};
 
 #endif // LMC_CE_INCLUDE_ATOMBASIS_H_

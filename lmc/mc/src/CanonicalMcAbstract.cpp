@@ -56,9 +56,7 @@ CanonicalMcAbstract::CanonicalMcAbstract(Config config,
       energy_change_predictor_(json_coefficients_filename,
                                config,
                                supercell_config,
-                               element_set,
-                               max_cluster_size,
-                               max_bond_order),
+                               element_set),
       atom_index_selector_(0, config_.GetNumAtoms() - 1){
 }
 

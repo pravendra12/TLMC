@@ -106,19 +106,94 @@ RowVectorXd GetCorrelationFunction(const Config &config,
 
 {
 
-  // cout << "From Correlation Function" << endl;
+  // Φ
+  RowVectorXd corrFunction;
+  bool isCorrFunctionResized = false;
 
-  // for empty cluster
-  /*
-  // This part is not required as ]currently using ElasticNetCV
-  // which takes care of the intercept term
-  if (orbitVector[0].empty())
+  // Will be reused as many times as the function is recalled
+  static AtomBasis atomicBasis(elementSet, basisType);
+
+  // Number of clusters in the orbit
+  int numClusters = 0;
+
+  for (auto cluster : orbitVector)
   {
-    RowVectorXd corrFunction(1);
-    corrFunction(0) = 1.0;
-    return corrFunction;
+    vector<RowVectorXd> atomBasisVector;
+
+    vector<string> elementCluster;
+
+    // Retrieve the basis vector for the cluster
+    // Iterate over the encoded cluster to extract the basis for each element
+    // and compute the tensor product of the basis vectors
+    for (auto latticeId : cluster)
+    {
+      auto element = config.GetElementOfLattice(latticeId);
+      auto elementString = element.GetElementString();
+
+      elementCluster.emplace_back(elementString);
+
+      // Get the basis vector
+      RowVectorXd atomBasis = atomicBasis.GetCachedAtomBasis(element);
+
+      atomBasisVector.emplace_back(atomBasis);
+
+      // cout << element.GetElementString() << latticeId << "( " << idx << " )" << " " << atomBasis << endl;
+    }
+
+    // Key for caching the tensor product
+    string elementClusterString;
+
+    if (isClusterSymmetric)
+    {
+      sort(elementCluster.begin(), elementCluster.end());
+      for (const auto &element : elementCluster)
+      {
+        elementClusterString += element;
+      }
+    }
+    else
+    {
+      // A-B and B-A will be different
+      for (const auto &element : elementCluster)
+      {
+        elementClusterString += element + "-";
+      }
+
+      if (!elementClusterString.empty())
+        elementClusterString.pop_back();
+    }
+
+    RowVectorXd clusterBasisVector = atomicBasis.GetCachedTensorProduct(
+        elementClusterString,
+        atomBasisVector,
+        isClusterSymmetric);
+
+    if (!isCorrFunctionResized)
+    {
+      corrFunction.resize(clusterBasisVector.size());
+      corrFunction.setZero();
+      isCorrFunctionResized = true;
+    }
+
+    // Add the cluster basis vector to the correlation function
+    corrFunction += clusterBasisVector;
+    numClusters++;
   }
-  */  
+
+  // Normalize the correlation function by the number of clusters in an orbit
+  corrFunction /= numClusters;
+
+  return corrFunction;
+}
+
+/*
+RowVectorXd GetCorrelationFunction(const Config &config,
+                                   const set<Element> &elementSet,
+                                   const string &basisType,
+                                   const vector<vector<size_t>> &orbitVector,
+                                   const bool &isClusterSymmetric)
+
+{
 
   // Φ
   RowVectorXd corrFunction;
@@ -132,7 +207,7 @@ RowVectorXd GetCorrelationFunction(const Config &config,
     vector<RowVectorXd> atomBasisVector;
 
     // cout << "-------------------" << endl;
-    string elementCluster = "";
+    vector<string> elementCluster;
 
     // Retrieve the basis vector for the cluster
     // Iterate over the encoded cluster to extract the basis for each element
@@ -142,7 +217,7 @@ RowVectorXd GetCorrelationFunction(const Config &config,
       // auto latticeId = symmetricSortedVector[idx];
       auto element = config.GetElementOfLattice(latticeId);
 
-      elementCluster += element.GetElementString();
+      elementCluster.emplace_back(element.GetElementString());
 
       RowVectorXd atomBasis = GetAtomBasis(element,
                                            elementSet,
@@ -153,12 +228,13 @@ RowVectorXd GetCorrelationFunction(const Config &config,
       // cout << element.GetElementString() << latticeId << "( " << idx << " )" << " " << atomBasis << endl;
     }
 
+    // cout << "Size of atomBasisVector: " << atomBasisVector.size() << endl;
     // cout << elementCluster << endl;
 
     RowVectorXd clusterBasisVector = GetTensorProduct(atomBasisVector,
                                                       isClusterSymmetric);
 
-    // cout << clusterBasisVector << endl;
+        // cout << clusterBasisVector << endl;
 
     if (!isCorrFunctionResized)
     {
@@ -178,3 +254,4 @@ RowVectorXd GetCorrelationFunction(const Config &config,
 
   return corrFunction;
 }
+*/

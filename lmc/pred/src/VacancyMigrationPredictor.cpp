@@ -8,15 +8,11 @@ VacancyMigrationPredictor::VacancyMigrationPredictor(
     size_t maxClusterSize,
     size_t maxBondOrder) : eKRAPredictor(predictorFilename,
                                          referenceConfig,
-                                         elementSet,
-                                         maxBondOrder,
-                                         maxClusterSize),
+                                         elementSet),
                            energyChangePredictor_(predictorFilename,
                                                   referenceConfig,
                                                   supercellConfig,
-                                                  elementSet,
-                                                  maxClusterSize,
-                                                  maxBondOrder)
+                                                  elementSet)
 {
 }
 

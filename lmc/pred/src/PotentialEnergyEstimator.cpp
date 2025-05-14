@@ -31,26 +31,34 @@ PotentialEnergyEstimator::PotentialEnergyEstimator(
     const std::string &predictor_filename,
     const Config &reference_config,
     const Config &supercell_config,
-    const std::set<Element> &element_set,
-    size_t max_cluster_size,
-    size_t max_bond_order) : // ce_fitted_parameters_(ReadParametersFromJson(predictor_filename, "ce")),
-                             // adjusted_beta_ce_(ce_fitted_parameters_.first),
-                             // adjusted_intercept_ce_(ce_fitted_parameters_.second),
-                             beta_ce_(ReadParametersFromJson(predictor_filename, "ce", "beta_ce")),
-                             element_set_(element_set),
-                             initialized_cluster_type_set_(
-                                 InitializeClusterTypeSet(reference_config,
-                                                          element_set_,
-                                                          max_cluster_size,
-                                                          max_bond_order)),
-                             lattice_cluster_type_count_(
-                                 CountLatticeClusterTypes(supercell_config,
-                                                          max_cluster_size,
-                                                          max_bond_order)),
-                             max_cluster_size_(max_cluster_size),
-                             max_bond_order_(max_bond_order)
+    const std::set<Element> &element_set) : max_cluster_size_(
+                                                ReadParameterFromJson(
+                                                predictor_filename,
+                                                "maxClusterSizeCE")),
+                                            max_bond_order_(
+                                                ReadParameterFromJson(
+                                                    predictor_filename,
+                                                    "maxBondOrderCE")),
+                                            beta_ce_(
+                                              ReadParametersFromJson(
+                                                predictor_filename, 
+                                                "ce", "beta_ce")),
+                                            element_set_(element_set),
+                                            initialized_cluster_type_set_(
+                                                InitializeClusterTypeSet(reference_config,
+                                                                         element_set_,
+                                                                         max_cluster_size_,
+                                                                         max_bond_order_)),
+                                            lattice_cluster_type_count_(
+                                                CountLatticeClusterTypes(supercell_config,
+                                                                         max_cluster_size_,
+                                                                         max_bond_order_))
 
 {
+
+  cout << "Max Bond Order for CE: " << max_bond_order_ << endl;
+  cout << "Max Cluster Size for CE: " << max_cluster_size_ << endl;
+
 
   /// Todo : check the size of the effective_cluster_interaction_ and initialized_cluster_type_set_
   // if (initialized_cluster_type_set_.size() != static_cast<size_t>(effective_cluster_interaction_.size())) {
@@ -161,7 +169,7 @@ PotentialEnergyEstimator::GetDe(Config &config,
   {
     return 0;
   }
-  
+
   // Energy Before Swap
   auto E_before_swap = GetEnergyOfCluster(config, {lattice_id_pair.first, lattice_id_pair.second});
 
@@ -188,12 +196,18 @@ double PotentialEnergyEstimator::GetDeThreadSafe(
 
   if (config.GetElementOfLattice(id1) == config.GetElementOfLattice(id2))
   {
+    // cout << "0" << endl;
     return 0;
   }
 
   // Step 1: Find all clusters affected by the jump pair
   std::vector<size_t> cluster = {id1, id2};
+
+  auto start = chrono::high_resolution_clock::now();
   auto all_lattice_clusters = FindAllLatticeClusters(config, max_cluster_size_, max_bond_order_, cluster);
+  auto end = chrono::high_resolution_clock::now();
+  auto duration = duration_cast<chrono::microseconds>(end - start);
+  // cout << "Time to compute FindAllLatticeClusters: " << duration.count() << " microseconds" << endl;
 
   // Step 2: Compute encoding contributions before and after the swap
   auto cluster_type_count_hashmap_before = ConvertSetToHashMap(initialized_cluster_type_set_);
@@ -246,11 +260,16 @@ double PotentialEnergyEstimator::GetDeThreadSafe(
   }
 
   // Step 4: Compute energy difference
-  
-  double E_before_swap = beta_ce_.dot(encode_before);
-  double E_after_swap = beta_ce_.dot(encode_after);
 
-  double dE = E_after_swap - E_before_swap;
-  
+  // double E_before_swap = beta_ce_.dot(encode_before);
+  // double E_after_swap = beta_ce_.dot(encode_after);
+  //
+  // double dE = E_after_swap - E_before_swap;
+
+  VectorXd encode_diff = encode_after - encode_before;
+  double dE = beta_ce_.dot(encode_diff);
+
+  // cout << dE << endl;
+
   return dE;
 }

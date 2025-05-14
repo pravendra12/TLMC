@@ -25,8 +25,17 @@ struct Vector3dHash
 };
 
 vector<vector<size_t>> GetEquivalentSitesUnder3BarSymmetry(
-    const Config &config, 
-    const pair<size_t, size_t> latticeIdJumpPair, 
+    const Config &config,
+    const pair<size_t, size_t> latticeIdJumpPair,
     const size_t maxBondOrder);
+
+vector<size_t> GetSSVector3FSymmetry(
+    const Config &config,
+    const pair<size_t, size_t> &latticeIdJumpPair,
+    const size_t maxBondOrder);
+
+vector<vector<size_t>> GetEquivalentSiteEncoding3BarSymmetry(
+  const Config &config, 
+  size_t maxBondOrder);
 
 #endif // LMC_CE_INCLUDE_SYMMETRY_H_

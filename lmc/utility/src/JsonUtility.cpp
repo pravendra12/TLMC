@@ -1,47 +1,5 @@
 #include "JsonUtility.h"
 
-pair<VectorXd, double>
-ReadParametersFromJson(const string &json_filename,
-                       const string &json_key)
-{
-  ifstream ifs(json_filename, ifstream::in);
-  json all_parameters;
-  ifs >> all_parameters;
-
-  VectorXd adjustedBetaVector;
-  double adjustedIntercept;
-
-  for (const auto &[key, parameters] : all_parameters.items())
-  {
-    if (key == json_key)
-    {
-      for (const auto &[subKey, subParams] : parameters.items())
-      {
-        if (subKey == "adjusted_beta_" + json_key)
-        {
-
-          vector<double> adjustedBetaVec;
-
-          for (const auto &adjustedBeta : subParams)
-          {
-            adjustedBetaVec.push_back(adjustedBeta.get<double>());
-          }
-
-          // Convert the vector to VectorXd
-          adjustedBetaVector = Map<VectorXd>(adjustedBetaVec.data(),
-                                             Index(adjustedBetaVec.size()));
-        }
-        else if (subKey == "adjusted_intercept_" + json_key)
-        {
-          adjustedIntercept = subParams[0].get<double>();
-        }
-      }
-    }
-  }
-
-  return make_pair(move(adjustedBetaVector), adjustedIntercept);
-}
-
 VectorXd ReadParametersFromJson(const string &jsonFilename,
                                 const string &jsonKey,
                                 const string &jsonSubKey)
@@ -69,11 +27,42 @@ VectorXd ReadParametersFromJson(const string &jsonFilename,
 
           // Convert the vector to VectorXd
           parameterVector = Map<VectorXd>(parameterArray.data(),
-                                             Index(parameterArray.size()));
+                                          Index(parameterArray.size()));
         }
       }
     }
   }
 
   return parameterVector;
+}
+
+size_t ReadParameterFromJson(
+  const string &jsonFilename, 
+  const string &jsonKey)
+{
+  // Open the JSON file
+  ifstream ifs(jsonFilename);
+  if (!ifs.is_open())
+  {
+    cerr << "Error: Unable to open file " << jsonFilename << endl;
+    return 0; // Return default size_t value (0)
+  }
+
+  // Parse the JSON
+  json all_parameters;
+  ifs >> all_parameters;
+
+  // Check if the main key exists
+  if (all_parameters.contains(jsonKey))
+  {
+    const json &parameter = all_parameters[jsonKey];
+
+    // Return the value as size_t
+    return parameter.get<size_t>();
+  }
+  else
+  {
+    cerr << "Error: Key " << jsonKey << " not found in the JSON file" << endl;
+    exit(3);
+  }
 }

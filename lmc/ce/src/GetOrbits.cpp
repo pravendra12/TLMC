@@ -1,81 +1,78 @@
 #include "GetOrbits.h"
 #include "PrintUtility.h"
 
+#include <chrono>
+
+using namespace chrono;
+
 map<string, vector<vector<size_t>>> GetOrbits(
     const Config &config,
     const size_t &maxClusterSize,
-    const size_t &maxBondOrder,
-    const vector<vector<size_t>> &equivalentLatticeIdsVector)
+    const size_t &maxBondOrderOfClusters,
+    const vector<size_t> &ssVector,
+    const vector<vector<size_t>> &equivalentSitesEncoding)
 {
   // Map lattice Id to equivalent site index
-  /*
   unordered_map<size_t, size_t> latticeIdToIndexMap;
-  for (size_t i = 0; i < symmetricallSortedVector.size(); i++)
+  latticeIdToIndexMap.reserve(ssVector.size());
+
+  for (size_t i = 0; i < ssVector.size(); i++)
   {
-    latticeIdToIndexMap.insert(make_pair(symmetricallSortedVector[i], i));
+    latticeIdToIndexMap.insert(make_pair(ssVector[i], i));
   }
-  */
 
-  unordered_map<size_t, size_t> latticeIdToOrbitMap;
+  unordered_map<size_t, size_t> indexToOrbitMap;
+  indexToOrbitMap.reserve(ssVector.size());
 
-  for (size_t idx = 0; idx < equivalentLatticeIdsVector.size(); idx++)
+  for (size_t idx = 0; idx < equivalentSitesEncoding.size(); idx++)
   {
-    for (auto latticeId : equivalentLatticeIdsVector[idx])
+    for (auto eqSiteIndex : equivalentSitesEncoding[idx])
     {
-      latticeIdToOrbitMap.insert(make_pair(latticeId, idx));
+      indexToOrbitMap.insert(make_pair(eqSiteIndex, idx));
     }
   }
 
-  vector<size_t> allLatticeIdVector;
-  for (const auto &group : equivalentLatticeIdsVector)
-  {
-    allLatticeIdVector.insert(allLatticeIdVector.end(), group.begin(), group.end());
-  }
+  auto start = high_resolution_clock::now();
 
   auto latticeClusterHashSet = FindClustersWithinAllowedSites(
       config,
       maxClusterSize,
-      maxBondOrder,
-      allLatticeIdVector);
+      maxBondOrderOfClusters,
+      ssVector);
 
+  auto end = high_resolution_clock::now();
+
+  auto duration = duration_cast<microseconds>(end - start);
+
+  // cout << "Time to compute FindClustersWithinAllowedSites: " << duration.count() << " microseconds" << endl;
+
+  // Use of map for consistent order
   map<string, vector<vector<size_t>>> orbitMap;
-  // Iterate over all the clusters
 
+  // Iterate over all the lattice clusters
   for (const auto &latticeCluster : latticeClusterHashSet)
   {
+    const auto &latticeIdVector = latticeCluster.GetLatticeIdVector();
 
-    auto latticeIdVector = latticeCluster.GetLatticeIdVector();
-
-    // vector<size_t> indexVector;
     vector<size_t> orbitVector;
+    orbitVector.reserve(latticeIdVector.size());
 
-    // corresopind index vector and orbit
-
-    int orbitSum = 0;
-    for (auto id : latticeIdVector)
+    for (const auto &latticeId : latticeIdVector)
     {
-      // auto index = latticeIdToIndexMap.at(id);
-      auto orbit = latticeIdToOrbitMap.at(id);
-
-      // indexVector.emplace_back(index);
+      const auto &index = latticeIdToIndexMap.at(latticeId);
+      const auto &orbit = indexToOrbitMap.at(index);
       orbitVector.emplace_back(orbit);
-
-      orbitSum += orbit;
     }
-    // print1DVector(indexVector);
-    // print1DVector(orbitVector);
 
-    // Sort orbits to create a unique key
     sort(orbitVector.begin(), orbitVector.end());
+
+    // Unique key for the orbit based on the order of the equivalent sites encoding
     string orbitKey;
-    for (auto orbit : orbitVector)
-    {
+    orbitKey.reserve(orbitVector.size()); 
+    for (const auto &orbit : orbitVector)
       orbitKey += to_string(orbit);
-    }
 
-    // cout << orbitKey << endl;
-
-    // Handle empty clusters separately
+    // Store the orbits
     if (latticeIdVector.empty())
     {
       orbitMap["-1"].emplace_back(latticeIdVector);

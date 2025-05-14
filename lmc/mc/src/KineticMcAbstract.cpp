@@ -45,9 +45,7 @@ namespace mc
         energy_change_predictor_(json_coefficients_filename,
                                  config,
                                  supercell_config,
-                                 element_set,
-                                 max_cluster_size,
-                                 max_bond_order),
+                                 element_set),
         time_temperature_interpolator_(time_temperature_filename),
         is_time_temperature_interpolator_(!time_temperature_filename.empty()),
         // rate_corrector_(config_.GetVacancyConcentration(), config_.GetSoluteConcentration(Element("Al"))),
@@ -90,7 +88,7 @@ namespace mc
     {
       // config_.WriteLattice("lattice.txt");
       // config_.WriteElement("element.txt");
-      ofs_ << "steps\ttime\ttemperature\tenergy\taverage_energy\tEa\tdE\tselected\tvac1\tvac2\tvac3\t";
+      ofs_ << "steps\ttime\ttemperature\tenergy\taverage_energy\tEa\tdE\tEa_Backward\tselected\tvac1\tvac2\tvac3\t";
       
       // Test
       // for (int i = 1; i < 9; i++)
@@ -135,6 +133,7 @@ namespace mc
            << thermodynamic_averaging_.GetThermodynamicAverage(beta_) << "\t"
            << event_k_i_.GetForwardBarrier() << '\t'
            << event_k_i_.GetEnergyChange() << '\t'
+           << event_k_i_.GetBackwardBarrier() << "\t"
            << event_k_i_.GetIdJumpPair().second << '\t'
            << vacancy_trajectory_ << '\t';
 

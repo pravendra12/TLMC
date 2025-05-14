@@ -20,11 +20,11 @@ inline bool isSymmetricOrbit(const string &orbitId)
 }
 
 // This function concatenate vector which contanin RowVectorXd in to RowVectorXd
-RowVectorXd ConcatenateVector(const std::vector<RowVectorXd> &vectors)
+static RowVectorXd ConcatenateVector(const std::vector<RowVectorXd> &vectors)
 {
   std::vector<double> buffer;
-  buffer.reserve(std::accumulate(vectors.begin(), vectors.end(), 0,
-                                 [](int sum, const RowVectorXd &v)
+  buffer.reserve(std::accumulate(vectors.begin(), vectors.end(), static_cast<size_t>(0),
+                                 [](size_t sum, const RowVectorXd &v)
                                  { return sum + v.size(); }));
 
   for (const auto &v : vectors)
@@ -43,19 +43,11 @@ RowVectorXd GetLocalEnvironmentEncoding(
     const map<string, vector<vector<size_t>>> orbitEncodingMap)
 {
   vector<RowVectorXd> encodingVector;
+  encodingVector.reserve(orbitEncodingMap.size());
 
   // Iterate over the orbitEncodingMap
-  for (auto orbitEncoding : orbitEncodingMap)
+  for (const auto &orbitEncoding : orbitEncodingMap)
   {
-    // orbitEncoding.first = "12" (Orbit Id)
-    // cout << "-----------------" << endl;
-    // cout << "Orbit: " << orbitEncoding.first << endl;
-
-    // Cluster encoding
-    // print2DVector(orbitEncoding.second);
-
-    // Whether the clusters in an orbit are symmetric or not are determined
-    // by whether clusters are formed by sites which are equivalent or not
     bool isClusterSymmetric = isSymmetricOrbit(orbitEncoding.first);
 
     // Get Correlation function for each orbit
@@ -65,15 +57,9 @@ RowVectorXd GetLocalEnvironmentEncoding(
                                                                   orbitEncoding.second,
                                                                   isClusterSymmetric);
 
-    // cout << orbitCorrelationFunction << endl;
-
-    encodingVector.emplace_back(orbitCorrelationFunction);
+    if (orbitCorrelationFunction.size() > 0)
+      encodingVector.emplace_back(orbitCorrelationFunction);
   }
-  // cout << "All Correlation function  " << endl;
-  // for (RowVectorXd corFun : encodingVector)
-  // {
-  //   cout << corFun << endl;
-  // }
 
-  return ConcatenateVector(encodingVector);;
+  return ConcatenateVector(encodingVector);
 }

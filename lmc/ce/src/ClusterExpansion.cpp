@@ -551,6 +551,100 @@ static std::vector<std::vector<size_t>> AddOneSiteToExistingClusterHelper(
  *         which is used in estimation of Kinetically Resolved Barrier.
  */
 
+
+
+// Hash function for a vector<size_t> for use in unordered_set
+struct VectorHash {
+  size_t operator()(const std::vector<size_t> &vec) const {
+    size_t seed = vec.size();
+    for (auto &i : vec) {
+      seed ^= std::hash<size_t>{}(i) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    }
+    return seed;
+  }
+};
+
+static std::vector<std::vector<size_t>> AddOneSiteToExistingClusterHelperCG(
+    const Config &config,
+    const size_t maxBondOrder,
+    const std::vector<std::vector<size_t>> &oldClusters,
+    const std::vector<size_t> &allowedSites)
+{
+  std::vector<std::vector<size_t>> newClusters;
+  std::unordered_set<std::vector<size_t>, VectorHash> newClustersSet;
+
+  // Precompute neighbor map
+  std::unordered_map<size_t, std::vector<size_t>> neighborMap;
+  for (auto site : allowedSites)
+  {
+    for (auto candidate : allowedSites)
+    {
+      if (site == candidate) continue;
+      size_t order = config.GetDistanceOrder(site, candidate);
+      if (order > 0 && order <= maxBondOrder)
+      {
+        neighborMap[site].push_back(candidate);
+      }
+    }
+  }
+
+  // Cache distance orders
+  std::unordered_map<std::pair<size_t, size_t>, size_t, boost::hash<std::pair<size_t, size_t>>> distanceCache;
+  auto getCachedDistanceOrder = [&](size_t a, size_t b) -> size_t {
+    auto key = std::minmax(a, b);
+    auto it = distanceCache.find(key);
+    if (it != distanceCache.end())
+      return it->second;
+    size_t dist = config.GetDistanceOrder(key.first, key.second);
+    distanceCache[key] = dist;
+    return dist;
+  };
+
+  // Build new clusters
+  for (const auto &oldCluster : oldClusters)
+  {
+    std::set<size_t> candidateSites;
+    for (auto site : oldCluster)
+    {
+      for (auto neighbor : neighborMap[site])
+      {
+        if (std::find(oldCluster.begin(), oldCluster.end(), neighbor) == oldCluster.end())
+        {
+          candidateSites.insert(neighbor);
+        }
+      }
+    }
+
+    for (auto newSite : candidateSites)
+    {
+      bool valid = true;
+      for (auto oldSite : oldCluster)
+      {
+        auto distOrder = getCachedDistanceOrder(oldSite, newSite);
+        if (distOrder == 0 || distOrder > maxBondOrder)
+        {
+          valid = false;
+          break;
+        }
+      }
+
+      if (valid)
+      {
+        std::vector<size_t> newCluster = oldCluster;
+        newCluster.push_back(newSite);
+        std::sort(newCluster.begin(), newCluster.end());  // Ensure uniqueness
+        if (newClustersSet.insert(newCluster).second)
+        {
+          newClusters.push_back(newCluster);
+        }
+      }
+    }
+  }
+
+  return newClusters;
+}
+
+
 std::unordered_set<LatticeCluster, boost::hash<LatticeCluster>> FindClustersWithinAllowedSites(
     const Config &config,
     const size_t maxClusterSize,
@@ -579,7 +673,7 @@ std::unordered_set<LatticeCluster, boost::hash<LatticeCluster>> FindClustersWith
   {
     if (i > 0)
     {
-      clusterVector = AddOneSiteToExistingClusterHelper(config,
+      clusterVector = AddOneSiteToExistingClusterHelperCG(config,
                                                         maxBondOrder,
                                                         clusterVector,
                                                         allowedLatticeSites);

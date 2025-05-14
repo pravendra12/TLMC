@@ -16,9 +16,7 @@ public:
   PotentialEnergyEstimator(const string &predictor_filename,
                            const Config &reference_config,
                            const Config &supercell_config,
-                           const set<Element> &element_set,
-                           size_t max_cluster_size,
-                           size_t max_bond_order);
+                           const set<Element> &element_set);
   ~PotentialEnergyEstimator();
 
   /*! \brief Get the encode vector of the configuration, which is the number of
@@ -63,28 +61,25 @@ public:
   // [[nodiscard]] map<Element, double> GetChemicalPotential(Element solvent_element) const;
 
 private:
-  
+  /// Maximum Cluster Size
+  const size_t max_cluster_size_{};
+
+  /// Maximum Bond Order
+  const size_t max_bond_order_{};
+
   /// beta barrier fitted with using standard scaler
   const VectorXd beta_ce_{};
 
   /// Element set
   const set<Element> element_set_{};
-  
+
   /// Set that contains all available cluster types
   const set<ClusterType> initialized_cluster_type_set_{};
-  
+
   /// Maps each lattice cluster type to its count.
   /// Used mainly for configuration used for training Cluster Expansion Model.
   const unordered_map<LatticeClusterType, size_t,
-  boost::hash<LatticeClusterType>>
-  lattice_cluster_type_count_{};
-  
-  /// Maximum Cluster Size
-  const size_t max_cluster_size_{};
-  
-  /// Maximum Bond Order
-  const size_t max_bond_order_{};
+                      boost::hash<LatticeClusterType>> lattice_cluster_type_count_{};
 };
-
 
 #endif // LMC_PRED_INCLUDE_POTENTIALENERGYESTIMATOR_H_

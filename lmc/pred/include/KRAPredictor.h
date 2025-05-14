@@ -12,14 +12,16 @@
 using namespace std;
 using namespace Eigen;
 
+using PairMap = unordered_map<pair<size_t, size_t>,
+                              vector<size_t>,
+                              boost::hash<pair<size_t, size_t>>>;
+
 class KRAPredictor
 {
 public:
   KRAPredictor(const string &predictorFilename,
                const Config &config,
-               const set<Element> &elementSet,
-               const size_t maxBondOrder,
-               const size_t maxClusterSize);
+               const set<Element> &elementSet);
 
   // Returns Kinetically resolved activation barrier
   [[nodiscard]] double GetKRA(
@@ -42,11 +44,20 @@ private:
 
   // CE details
   const size_t maxBondOrder_;
+  const size_t maxBondOrderOfCluster_;
   const size_t maxClusterSize_;
 
-  // Atomic Basis
-  const string basisType_ = "Occupation";
+  // Equivalent sites encoding under 3 Bar symmetry
+  const vector<vector<size_t>> equivalentSiteEncoding_;
 
+  // Canonical latticeIdPair Map to ssVector
+  const PairMap latticePairToSSVectorMap_;
+
+  // Atomic Basis
+  const string basisType_ = "Chebyshev";
 };
 
+static PairMap GetSymmetricallySortedLatticePairMap(const Config &config, const size_t maxBondOrder);
+
 #endif // LMC_PRED_INCLUDE_KRAPREDICTOR_H_
+

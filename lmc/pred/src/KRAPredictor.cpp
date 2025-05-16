@@ -15,32 +15,6 @@ using namespace chrono;
 #include <map>
 #include <vector>
 
-size_t estimateVectorSize(const std::vector<std::vector<size_t>>& v) {
-    size_t total = sizeof(v);  // vector of vectors
-    total += v.capacity() * sizeof(std::vector<size_t>); // inner vectors metadata
-
-    for (const auto& inner : v) {
-        total += sizeof(inner);  // each inner vector
-        total += inner.capacity() * sizeof(size_t);  // actual data
-    }
-
-    return total;
-}
-
-size_t estimateMapSize(const std::map<string, std::vector<std::vector<size_t>>>& orbitMap) {
-    size_t total = 0;
-    size_t nodeOverhead = 48;  // map node overhead (approximate)
-
-    for (const auto& [key, value] : orbitMap) {
-        total += nodeOverhead;
-        total += sizeof(key);   // key size
-        total += estimateVectorSize(value); // value size
-    }
-
-    return total;
-}
-
-
 KRAPredictor::KRAPredictor(
     const string &predictorFilename,
     const Config &config,
@@ -114,7 +88,7 @@ double KRAPredictor::GetKRA(const Config &config,
   auto ssVector = latticePairToSSVectorMap_.at(canonicalJumpPair);
 
   // Orbit Map
-  auto startOrbitMap = high_resolution_clock::now();
+  // auto startOrbitMap = high_resolution_clock::now();
 
   auto orbitMap = GetOrbits(config,
                             maxClusterSize_,
@@ -122,11 +96,11 @@ double KRAPredictor::GetKRA(const Config &config,
                             ssVector,
                             equivalentSiteEncoding_);
 
-  cout << "Size of a single map: " << estimateMapSize(orbitMap) / (1024.0 * 1024.0) << " MB\n" << endl;
+  // cout << "Size of a single map: " << estimateMapSize(orbitMap) / (1024.0 * 1024.0) << " MB\n" << endl;
 
-  auto endOrbitMap = high_resolution_clock::now();
+  // auto endOrbitMap = high_resolution_clock::now();
 
-  auto durationOrbitMap = duration_cast<microseconds>(endOrbitMap - startOrbitMap);
+  // auto durationOrbitMap = duration_cast<microseconds>(endOrbitMap - startOrbitMap);
   // cout << "Time to compute orbit map: " << durationOrbitMap.count() << " microseconds" << endl;
 
   // string basisType = "Occupation";

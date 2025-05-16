@@ -12,9 +12,9 @@
 using namespace std;
 using namespace Eigen;
 
-using PairToOrbitMap = unordered_map<pair<size_t, size_t>,
-                                     map<string, vector<vector<size_t>>>,
-                                     boost::hash<pair<size_t, size_t>>>;
+using PairMap = unordered_map<pair<size_t, size_t>,
+                              vector<size_t>,
+                              boost::hash<pair<size_t, size_t>>>;
 
 class KRAPredictor
 {
@@ -32,8 +32,6 @@ private:
   // Need to think about to make it more generalized so that based on the initialization
   // of the simulation it can be declared
 
-  PairToOrbitMap GetPairToOrbitMap(const Config &config);
-  
   // Fitting coefficients
   const VectorXd betaKRA_W_;
   const double interceptKRA_W_;
@@ -53,11 +51,13 @@ private:
   const vector<vector<size_t>> equivalentSiteEncoding_;
 
   // Canonical latticeIdPair Map to ssVector
-  // const PairToOrbitMap latticePairToSSVectorMap_;
-  const PairToOrbitMap latticePairToOrbitMap_;
+  const PairMap latticePairToSSVectorMap_;
 
   // Atomic Basis
   const string basisType_ = "Chebyshev";
 };
 
+static PairMap GetSymmetricallySortedLatticePairMap(const Config &config, const size_t maxBondOrder);
+
 #endif // LMC_PRED_INCLUDE_KRAPREDICTOR_H_
+

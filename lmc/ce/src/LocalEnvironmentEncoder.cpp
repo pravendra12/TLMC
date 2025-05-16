@@ -40,7 +40,7 @@ RowVectorXd GetLocalEnvironmentEncoding(
     const Config &config,
     const set<Element> &elementSet,
     const string &basisType,
-    const map<string, vector<vector<size_t>>> orbitEncodingMap)
+    const map<string, vector<vector<size_t>>> &orbitEncodingMap)
 {
   vector<RowVectorXd> encodingVector;
   encodingVector.reserve(orbitEncodingMap.size());

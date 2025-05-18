@@ -53,7 +53,8 @@ namespace mc
         vacancy_lattice_id_(config_.GetVacancyLatticeId()),
         vacancy_trajectory_(vacancy_trajectory),
         event_k_i_list_(kEventListSize)
-  {}
+  {
+  }
 
   KineticMcFirstAbstract::~KineticMcFirstAbstract() = default;
 
@@ -88,14 +89,8 @@ namespace mc
     {
       // config_.WriteLattice("lattice.txt");
       // config_.WriteElement("element.txt");
-      ofs_ << "steps\ttime\ttemperature\tenergy\taverage_energy\tEa\tdE\tEa_Backward\tselected\tvac1\tvac2\tvac3\t";
-      
-      // Test
-      // for (int i = 1; i < 9; i++)
-      // {
-      //   ofs_ << "Ea" + to_string(i) << "\t";
-      // }
-      
+      ofs_ << "steps\ttime\taverage_time\ttemperature\tenergy\taverage_energy\tEa\tdE\tEa_Backward\tselected\tvacancy_trajectory";
+
       ofs_ << endl;
 
       // Test
@@ -107,10 +102,10 @@ namespace mc
       // config_.WriteConfig(std::to_string(steps_) + ".cfg.gz");
       config_.WriteConfig(std::to_string(steps_) + ".cfg.gz", config_);
     }
-    if (steps_ == maximum_steps_) {
+    if (steps_ == maximum_steps_)
+    {
       config_.WriteConfig("end.cfg", config_);
     }
-
 
     unsigned long long int log_dump_steps;
     if (steps_ > 10 * log_dump_steps_)
@@ -128,6 +123,7 @@ namespace mc
     {
       ofs_ << steps_ << '\t'
            << time_ << '\t'
+           << 1/(total_rate_k_*constants::kPrefactor) << "\t"
            << temperature_ << '\t'
            << energy_ << '\t'
            << thermodynamic_averaging_.GetThermodynamicAverage(beta_) << "\t"
@@ -135,21 +131,7 @@ namespace mc
            << event_k_i_.GetEnergyChange() << '\t'
            << event_k_i_.GetBackwardBarrier() << "\t"
            << event_k_i_.GetIdJumpPair().second << '\t'
-           << vacancy_trajectory_ << '\t';
-
-           // Output all the barriers 
-
-           // for (const auto event : event_k_i_list_)
-           // {
-           //   ofs_ << event.GetForwardBarrier() << "\t";
-           // }
-           
-           // Testing
-           // << event_k_i_.GetBackwardBarrier() << '\t'
-           // From Model
-           // << event_k_i_.GetTrueBackwardBarrier() << '\t'
-           // << event_k_i_.GetdEBarrier()
-           ofs_ << std::endl;
+           << vacancy_trajectory_ << endl;
     }
   }
 

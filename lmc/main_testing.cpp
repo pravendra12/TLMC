@@ -836,11 +836,70 @@ int main()
   }
   */
 
-  const vector<double> cutoffs = {3.3, 4.7, 5.6};
+  const vector<double> cutoffs = {3.3, 4.7, 5.6, 10.7};
 
-  auto cfg = Config::ReadCfg("/media/sf_Phd/WTaNEB/Ta90W10/06/Config/Ta90W10_5x5x5.cfg");
+  // Even though 10.7 is cutoff for the 13th NN then also it will be distance order 4
+
+  auto cfg = Config::ReadCfg("/home/pravendra3/Documents/LatticeMonteCarlo-eigen/bin/start_4.9e7_2000K.cfg.gz");
   cfg.UpdateNeighborList(cutoffs);
 
+  cout << "Central Atom Lattice ID: " << cfg.GetCentralAtomLatticeId() << endl;
+
+  auto nnListBO13 = cfg.GetNeighborLatticeIdVectorOfLattice(cfg.GetCentralAtomLatticeId(), 4);
+
+  auto nnListBO3 = cfg.GetNeighborLatticeIdVectorOfLattice(cfg.GetCentralAtomLatticeId(), 3);
+  auto nnListBO2 = cfg.GetNeighborLatticeIdVectorOfLattice(cfg.GetCentralAtomLatticeId(), 2);
+  auto nnListBO1 = cfg.GetNeighborLatticeIdVectorOfLattice(cfg.GetCentralAtomLatticeId(), 1);
+
+
+
+  cout << "Size of NN List 4: " << nnListBO13.size() << endl;
+  cout << "Size of NN List 3: " << nnListBO3.size() << endl;
+
+
+  // Store it
+  auto basis = cfg.GetBasis();
+  Eigen::Matrix3Xd relativePositionMatrix;
+  relativePositionMatrix.resize(3, 300);
+  vector<Element> atomVector;
+  // atomVector.reserve(nnListBO13.size());
+
+  cout << "Basis" << endl;
+  cout << basis << endl;
+
+  int idx = 0;
+
+  std::vector<size_t> allLatticeIds;
+allLatticeIds.reserve(nnListBO13.size() + nnListBO3.size() + nnListBO2.size() + nnListBO1.size() + 1);
+
+allLatticeIds.insert(allLatticeIds.end(), nnListBO13.begin(), nnListBO13.end());
+allLatticeIds.insert(allLatticeIds.end(), nnListBO3.begin(),  nnListBO3.end());
+allLatticeIds.insert(allLatticeIds.end(), nnListBO2.begin(),  nnListBO2.end());
+allLatticeIds.insert(allLatticeIds.end(), nnListBO1.begin(),  nnListBO1.end());
+
+allLatticeIds.emplace_back(cfg.GetCentralAtomLatticeId());
+
+
+
+  for (auto const latticeId : allLatticeIds)
+  {
+    Vector3d relativePosition = cfg.GetRelativePositionOfLattice(latticeId);
+    auto element = cfg.GetElementOfLattice(latticeId);
+
+    relativePositionMatrix.col(idx) = relativePosition;
+    atomVector.emplace_back(element);
+    idx++;
+  }
+
+  relativePositionMatrix.conservativeResize(3, idx);
+
+  cout << idx << endl;
+
+  Config supercell = Config{basis, relativePositionMatrix, atomVector};
+
+  Config::WriteConfig("testMFPTLocalEnv.cfg", supercell);
+
+  /*
   auto atomVector = cfg.GetAtomVector();
   set<Element> elementSet{atomVector.begin(), atomVector.end()};
 
@@ -858,14 +917,14 @@ int main()
   KRAPredictor kraPredictor(predictorFilename, cfg, elementSet);
   kraPredictor.GetKRA(cfg, latticeJumpPair);
   kraPredictor.GetKRA(cfg, make_pair(latticeJumpPair.second, latticeJumpPair.first));
-  
+
   elementSet.insert(vacancy);
   PotentialEnergyEstimator peEstimator(predictorFilename, cfg, cfg, elementSet);
 
   peEstimator.GetDeThreadSafe(cfg, latticeJumpPair);
   cfg.LatticeJump(latticeJumpPair);
   peEstimator.GetDeThreadSafe(cfg, latticeJumpPair);
-
+  */
 
   /*
   //// Testing the LCE funciton and GetOrbits and GetEquivalentSites3BarSymmetry ///

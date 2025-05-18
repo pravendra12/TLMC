@@ -100,4 +100,5 @@ namespace mc
     static std::uniform_real_distribution<double> uniform_distribution(0.0, 1.0);
     return -std::log(uniform_distribution(generator_)) / total_rate_k_ / constants::kPrefactor;
   }
+
 } // mc

@@ -210,7 +210,7 @@ namespace ansys
         oss << i << "\t" << time << "\t" << average_time << "\t" << temperature << "\t" << energy;
 
         // Analysis on the original configuration
-        RunAnsysOnConfig(i, config, element_set, oss);
+        RunAnsysOnConfig(i, config, element_set, oss, "AnalyzedConfigs");
 
         if (extract_LCE_)
         {
@@ -234,7 +234,8 @@ namespace ansys
       const size_t configId,
       const Config &config,
       const set<Element> &element_set,
-      ostringstream &oss) const
+      ostringstream &oss,
+      const string &outputFolder) const
   {
     // Analysis
 
@@ -296,13 +297,6 @@ namespace ansys
       }
     }
 
-    string outputFolder;
-
-    if (extract_LCE_)
-      outputFolder = "LocalEnvironment";
-    else
-      outputFolder = "AnalyzedConfigs";
-
     if (!fs::exists(outputFolder))
     {
       fs::create_directories(outputFolder);
@@ -349,7 +343,8 @@ namespace ansys
     RunAnsysOnConfig(configId,
                      localConfig,
                      element_set,
-                     oss);
+                     oss,
+                     "LocalEnvironment");
   }
 
   std::string Traverse::GetHeaderFrameString(const std::set<Element> &element_set) const
@@ -404,7 +399,6 @@ namespace ansys
     // Cluster Dynamics
 
     header_frame += "B2_cluster_size" + flag + "\t";
-
 
     return header_frame;
   }

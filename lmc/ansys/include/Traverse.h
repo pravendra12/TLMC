@@ -29,13 +29,14 @@ namespace ansys
     virtual ~Traverse();
     void RunAnsys() const;
     //  void RunReformat() const;
-
-  private:
+    
+    private:
     void RunAnsysOnConfig(
-        const size_t configId,
-        const Config &config,
-        const set<Element> &element_set,
-        ostringstream &oss) const;
+      const size_t configId, 
+      const Config &config, 
+      const set<Element> &element_set, 
+      ostringstream &oss, 
+      const string &outputFolder) const;
 
     void RunAnsysLCE(
         const size_t configId,

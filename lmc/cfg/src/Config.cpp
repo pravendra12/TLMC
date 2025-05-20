@@ -174,6 +174,29 @@ std::vector<size_t> Config::GetNeighborLatticeIdVectorOfLattice(size_t lattice_i
   return neighbor_lattice_id_vector;
 }
 
+vector<size_t> Config::GetNeighborLatticeIdsUpToOrder(size_t latticeId, size_t maxBondOrder) const
+{
+  // Validate maxBondOrder
+  if (maxBondOrder == 0 || maxBondOrder > neighbor_lists_.size())
+  {
+    std::cerr << "Error: maxBondOrder (" << maxBondOrder
+              << ") must be between 1 and " << neighbor_lists_.size()
+              << " (the number of available neighbor shells)." << std::endl;
+    throw std::out_of_range("Invalid maxBondOrder in GetNeighborLatticeIdsUpToOrder()");
+  }
+
+  std::vector<size_t> neighbors;
+  for (size_t order = 1; order < maxBondOrder + 1; ++order)
+  {
+    const auto &ids = GetNeighborLatticeIdVectorOfLattice(latticeId, order);
+    neighbors.insert(neighbors.end(), ids.begin(), ids.end());
+  }
+
+  // cout << "Number of NN upto " << maxBondOrder << " maxBondOrder: " << neighbors.size() << endl;
+
+  return neighbors;
+}
+
 Element Config::GetElementOfLattice(size_t lattice_id) const
 {
   return atom_vector_.at(lattice_to_atom_hashmap_.at(lattice_id));
@@ -295,8 +318,6 @@ Config::GetSortedLatticeVectorStateOfPair(
     sorted_lattice_ids.push_back(pair.first);
     // std::cout << pair.first << " " << pair.second << std::endl;
   }
-
-  
 
   return sorted_lattice_ids;
 }

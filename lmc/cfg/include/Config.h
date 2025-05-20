@@ -36,6 +36,8 @@
 #include <boost/iostreams/device/file.hpp>
 // #include "Atom.hpp"
 
+using namespace std;
+
 /*! \brief Class for defining a configuration of atoms and their positions.
  */
 class Config
@@ -122,6 +124,13 @@ public:
    *  \return                The vector of neighbor lattice IDs .
    */
   [[nodiscard]] std::vector<size_t> GetNeighborLatticeIdVectorOfLattice(size_t lattice_id, size_t distance_order) const;
+  
+  /*! \brief Query for the set of neighbor lattice id of a lattice.
+   *  \param lattice_id      The lattice id of the lattice.
+   *  \param distance_order  The order of distance between the two lattice.
+   *  \return                The vector of neighbor lattice IDs .
+   */
+  [[nodiscard]] vector<size_t> GetNeighborLatticeIdsUpToOrder(size_t latticeId, size_t maxBondOrder) const;
 
   /*! \brief Query for the order of distance between two lattice.
    *  \param lattice_id1  The lattice id of the first lattice.

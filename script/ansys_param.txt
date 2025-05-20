@@ -5,3 +5,11 @@ config_type config
 cutoffs 3.20, 4.6, 5.4
 initial_steps 0
 increment_steps 10000
+
+
+/// MFPT
+
+extract_LCE true
+cutoffs_LCE 3.3 4.7 5.6 10.7
+max_bond_order_LCE 3
+max_cluster_size_LCE 3

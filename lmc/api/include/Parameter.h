@@ -133,6 +133,20 @@ struct Parameter {
   /// Cutoff distances for cluster interactions.
   std::vector<double> cutoffs_{};
 
+  /// Extract the local environment
+  bool extract_local_env_{};
+
+  /// Cutoff distances for local_env cluster
+  std::vector<double> cutoffs_local_env_{};
+  
+  /// Max bond order for local_env 
+  size_t max_bond_order_local_env_{};
+
+  /// Max cluster size for local_env 
+  size_t max_cluster_size_local_env_{};
+
+
+
   /// Initial number of steps for the simulation.
   unsigned long long int initial_steps_{};
 

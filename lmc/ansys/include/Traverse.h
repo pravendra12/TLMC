@@ -23,7 +23,6 @@ namespace ansys
              std::string log_type,
              std::string config_type,
              bool extract_local_env,
-             const std::vector<double> &cutoffs_LCE,
              const size_t max_bond_order_LCE,
              const size_t max_cluster_size_LCE);
     virtual ~Traverse();
@@ -67,6 +66,7 @@ namespace ansys
     const std::vector<double> cutoffs_LCE_;
     const size_t max_bond_order_LCE_;
     const size_t max_cluster_size_LCE_;
+
   };
 
 } // namespace ansys

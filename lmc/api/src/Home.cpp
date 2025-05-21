@@ -140,11 +140,6 @@ void Print(const Parameter &parameter) {
 
     std::cout << "Parameters for Local Chemical Environment" << std::endl;
     std::cout << "extract_LCE: " << parameter.extract_local_env_ << std::endl;
-    std::cout << "cutoffs_LCE: ";
-    std::transform(parameter.cutoffs_local_env_.begin(), parameter.cutoffs_local_env_.end(),
-                   std::ostream_iterator<std::string>(std::cout, " "),
-                   [](auto cutoff) { return std::to_string(cutoff); });
-    std::cout << std::endl;
     std::cout << "max_bond_order_LCE: " << parameter.max_bond_order_local_env_ << std::endl;
     std::cout << "max_cluster_size_LCE: " << parameter.max_cluster_size_local_env_ << std::endl;
   }
@@ -381,7 +376,6 @@ ansys::Traverse BuildIteratorFromParameter(const Parameter &parameter) {
                          parameter.log_type_,
                          parameter.config_type_,
                          parameter.extract_local_env_,
-                         parameter.cutoffs_local_env_,
                          parameter.max_bond_order_local_env_,
                          parameter.max_cluster_size_local_env_};
 }

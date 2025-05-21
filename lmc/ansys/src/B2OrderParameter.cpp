@@ -72,7 +72,7 @@ unordered_set<size_t> B2OrderParameter::GetBetaLatticeSites()
 bool B2OrderParameter::isB2Ordered(const Config &config, const size_t atomId)
 {
   // Element vacancy("X");
-  
+
   // if (config.GetElementOfAtom(atomId) == vacancy)
   // {
   //   return false;
@@ -113,39 +113,55 @@ bool B2OrderParameter::isB2Ordered(const Config &config, const size_t atomId)
 
 void B2OrderParameter::InitializeAlphaLatticeSites()
 {
+  // Precompute first nearest neighbors map for constant-time lookups
+  const auto &firstNNList = config.GetNeighborLists()[0];
+  std::vector<std::unordered_set<size_t>> firstNNMap(firstNNList.size());
+
+  for (size_t i = 0; i < firstNNList.size(); ++i)
+  {
+    firstNNMap[i] = std::unordered_set<size_t>(firstNNList[i].begin(), firstNNList[i].end());
+  }
 
   auto secondNNList = config.GetNeighborLists()[1];
 
-  for (size_t id1 = 0; id1 < secondNNList.size(); id1++)
+  // To avoid processing same pair twice
+  std::set<std::pair<size_t, size_t>> visited_pairs;
+
+  for (size_t id1 = 0; id1 < secondNNList.size(); ++id1)
   {
     const auto &secondNN = secondNNList[id1];
 
     for (size_t id2 : secondNN)
     {
+      // Skip if this pair was already processed
+      auto pair_key = std::minmax(id1, id2);
+      if (visited_pairs.count(pair_key) > 0)
+        continue;
+      visited_pairs.insert(pair_key);
+
       bool id1Valid = true;
       bool id2Valid = true;
 
-      // Check if id1 has any bond order of 1 with sites already in alphaLatticeSites
+      // Check if id1 has any first NN in alphaLatticeSites
       for (size_t id3 : alphaLatticeSites)
       {
-        if (config.GetDistanceOrder(id1, id3) == 1)
+        if (firstNNMap[id1].count(id3))
         {
           id1Valid = false;
           break;
         }
       }
 
-      // Check if id2 has any bond order of 1 with sites already in alphaLatticeSites
+      // Check if id2 has any first NN in alphaLatticeSites
       for (size_t id3 : alphaLatticeSites)
       {
-        if (config.GetDistanceOrder(id2, id3) == 1)
+        if (firstNNMap[id2].count(id3))
         {
           id2Valid = false;
           break;
         }
       }
 
-      // Add valid sites to alphaLatticeSites
       if (id1Valid)
       {
         alphaLatticeSites.emplace(id1);

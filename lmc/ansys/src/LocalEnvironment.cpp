@@ -1,11 +1,11 @@
 #include "LocalEnvironment.h"
 #include "Config.h"
 
-Config GetLocalEnvironmentConfig(Config &config,
+Config GetLocalEnvironmentConfig(const Config &config,
                                  size_t latticeId,
                                  const vector<double> &cutoffs)
 {
-  config.UpdateNeighborList(cutoffs);
+  // config.UpdateNeighborList(cutoffs);
 
   size_t maxBondOrder = cutoffs.size();
   auto neighbours = config.GetNeighborLatticeIdsUpToOrder(latticeId, maxBondOrder);
@@ -35,14 +35,12 @@ Config GetLocalEnvironmentConfig(Config &config,
 }
 
 LocalEnvironment::LocalEnvironment(
-    Config config,
+    const Config &config,
     size_t latticeId,
     const vector<double> &cutoffs) : config_(GetLocalEnvironmentConfig(config, // copy
                                                                        latticeId,
                                                                        cutoffs))
-
-{
-}
+{}
 
 Config LocalEnvironment::GetLocalConfig()
 {

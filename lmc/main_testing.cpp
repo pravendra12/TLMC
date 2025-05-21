@@ -800,6 +800,7 @@ bool CheckSymmetryEncodingConsistency(Config &cfg, vector<vector<size_t>> &expec
   return true;
 }
 
+#include "ShortRangeOrder.h"
 #include "LocalEnvironment.h"
 
 int main()
@@ -838,9 +839,10 @@ int main()
   }
   */
 
-  const vector<double> cutoffs = {3.3, 4.7, 5.6, 10.7};
+  const vector<double> cutoffs = {3.3, 4.7, 5.6};
 
   size_t increment = 1000000;
+  set<Element> elementSet = {Element("Ta"), Element("W")};
 
   // Even though 10.7 is cutoff for the 13th NN then also it will be distance order 4
   for (int i = 0; i < 11; i++)
@@ -849,34 +851,30 @@ int main()
 
     cout << "------- " + filename + " ---------" << endl;
 
-    auto cfg = Config::ReadCfg("//media/sf_Phd/kmcWTa/kmc_WTa_1200/" + filename + ".cfg");
+    auto cfg = Config::ReadCfg("//media/sf_Phd/start_50x50x50_cmc_2K_1e8.cfg.gz");
 
     cfg.UpdateNeighborList(cutoffs);
-
-    size_t vacancyId = cfg.GetVacancyLatticeId();
-
-    // Outside the local environment  
     
-    cout << "---- Outside the function ----" << endl;
 
-    cout << "Lattice ID: " << vacancyId << endl;
-    cout << "Position: " << cfg.GetRelativePositionOfLattice(vacancyId).transpose() << endl;
-    cout << "Element: " << cfg.GetElementOfLattice(vacancyId).GetElementString() << endl;
+   
+
+    
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    ShortRangeOrder sro(cfg, elementSet);
+    sro.FindWarrenCowley(1);
+    sro.FindWarrenCowley(2);
+    sro.FindWarrenCowley(3);
+
+    auto end = std::chrono::high_resolution_clock::now();
+
+    std::chrono::duration<double> elapsed = end - start;
+
+    std::cout << "Total time: " << elapsed.count() << " seconds\n";
 
 
-    LocalEnvironment lce(cfg, vacancyId, cutoffs);
-    // lce.SaveLocalConfig("/home/pravendra3/Documents/LatticeMonteCarlo-eigen/bin/LCE/" + filename + "LCE.cfg");
 
-    set<Element> elementSet = { Element("W"), Element("Ta"), Element("X")};
 
-       
-    VectorXd lceEncoding = lce.GetLocalConfigEncoding( 3, 3);
-
-    auto localConfig = lce.GetLocalConfig();
-
-    cout << "Local Config: " << localConfig.GetVacancyLatticeId() << endl;
-
-    cout << localConfig.GetNeighborLatticeIdVectorOfLattice(localConfig.GetVacancyLatticeId(), 1).size() << endl;
 
     break;
   }

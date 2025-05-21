@@ -11,7 +11,7 @@ class LocalEnvironment
 {
 public:
   LocalEnvironment(
-      Config config,
+      const Config &config,
       size_t latticeId,
       const vector<double> &cutoffs);
 

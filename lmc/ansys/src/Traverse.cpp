@@ -11,7 +11,8 @@
 
 namespace ansys
 {
-  static Config GetConfig(const std::string &config_type, size_t i, std::vector<double> cutoff)
+  static Config GetConfig(
+    const std::string &config_type, size_t i, std::vector<double> cutoff)
   {
     Config config;
     if (config_type == "config")
@@ -47,7 +48,6 @@ namespace ansys
                      std::string log_type,
                      std::string config_type,
                      bool extract_LCE,
-                     const std::vector<double> &cutoffs_LCE,
                      const size_t max_bond_order_LCE,
                      const size_t max_cluster_size_LCE)
       : initial_steps_(initial_steps),
@@ -59,7 +59,6 @@ namespace ansys
         log_map_{},
         frame_ofs_("ansys_frame_log.txt", std::ofstream::out),
         extract_LCE_(extract_LCE),
-        cutoffs_LCE_(cutoffs_LCE),
         max_bond_order_LCE_(max_bond_order_LCE),
         max_cluster_size_LCE_(max_cluster_size_LCE)
   {
@@ -319,7 +318,7 @@ namespace ansys
 
     size_t vacancyId = config.GetVacancyLatticeId();
 
-    LocalEnvironment lce(config, vacancyId, cutoffs_LCE_);
+    LocalEnvironment lce(config, vacancyId, cutoffs_);
 
     // element_set.insert(Element("X"));
     VectorXd lceEncoding = lce.GetLocalConfigEncoding(max_cluster_size_LCE_,

@@ -134,14 +134,8 @@ struct Parameter {
   std::vector<double> cutoffs_{};
 
   /// Extract the local environment
-  bool extract_local_env_{};
+  bool extract_encoding_{};
   
-  /// Max bond order for local_env 
-  size_t max_bond_order_local_env_{};
-
-  /// Max cluster size for local_env 
-  size_t max_cluster_size_local_env_{};
-
   /// Initial number of steps for the simulation.
   unsigned long long int initial_steps_{};
 

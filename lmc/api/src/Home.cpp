@@ -138,10 +138,11 @@ void Print(const Parameter &parameter) {
     std::cout << "log_type: " << parameter.log_type_ << std::endl;
     std::cout << "config_type: " << parameter.config_type_ << std::endl;
 
-    std::cout << "Parameters for Local Chemical Environment" << std::endl;
-    std::cout << "extract_LCE: " << parameter.extract_local_env_ << std::endl;
-    std::cout << "max_bond_order_LCE: " << parameter.max_bond_order_local_env_ << std::endl;
-    std::cout << "max_cluster_size_LCE: " << parameter.max_cluster_size_local_env_ << std::endl;
+    std::cout << "Parameters for CE Encoding" << std::endl;
+    std::cout << "extract_encoding: " << parameter.extract_encoding_ << std::endl;
+    std::cout << "max_bond_order: " << parameter.max_bond_order_ << std::endl;
+    std::cout << "max_cluster_size: " << parameter.max_cluster_size_<< std::endl;
+
   }
 }
 
@@ -375,9 +376,9 @@ ansys::Traverse BuildIteratorFromParameter(const Parameter &parameter) {
                          parameter.cutoffs_,
                          parameter.log_type_,
                          parameter.config_type_,
-                         parameter.extract_local_env_,
-                         parameter.max_bond_order_local_env_,
-                         parameter.max_cluster_size_local_env_};
+                         parameter.extract_encoding_, 
+                         parameter.max_bond_order_,
+                         parameter.max_cluster_size_};
 }
 
 SimulatedAnnealing BuildSimulatedAnnealingFromParameter(const Parameter

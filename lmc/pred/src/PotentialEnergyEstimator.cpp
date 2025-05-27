@@ -78,7 +78,7 @@ Eigen::VectorXd PotentialEnergyEstimator::GetEncodeVector(const Config &config) 
 {
   auto cluster_type_count_hashmap(ConvertSetToHashMap(initialized_cluster_type_set_));
 
-  auto all_lattice_hashset = FindAllLatticeClusters(config, 3, 3, {});
+  auto all_lattice_hashset = FindAllLatticeClusters(config, max_cluster_size_, max_bond_order_, {});
 
   for (const auto &lattice_cluster : all_lattice_hashset)
   {
@@ -96,7 +96,7 @@ Eigen::VectorXd PotentialEnergyEstimator::GetEncodeVector(const Config &config) 
 
     encode_vector(idx) = count_bond / total_bond;
 
-    // std::cout << cluster_type << " : " << count_bond << " : " << total_bond << std::endl;
+    std::cout << cluster_type << " : " << count_bond << " : " << total_bond << std::endl;
     ++idx;
   }
 
@@ -128,7 +128,7 @@ PotentialEnergyEstimator::GetEncodeVectorOfCluster(const Config &config,
 
     encode_vector_cluster(idx) = count_bond / total_bond;
 
-    // std::cout << cluster_type << " : " << count_bond << " : " << total_bond << std::endl;
+    //std::cout << cluster_type << " : " << count_bond << " : " << total_bond << std::endl;
 
     ++idx;
   }
@@ -257,7 +257,14 @@ double PotentialEnergyEstimator::GetDeThreadSafe(
     encode_before(idx) = count_before / total_bond;
     encode_after(idx) = count_after / total_bond;
     ++idx;
+
+    // cout << cluster_type << " : " << count_before << " : " << count_after << endl;
+
   }
+
+  cout <<  "encodeBefore : " << encode_before.transpose() << endl;
+  cout <<  "encodeAfter : " << encode_after.transpose() << endl;
+
 
   // Step 4: Compute energy difference
 

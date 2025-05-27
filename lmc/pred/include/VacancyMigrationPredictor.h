@@ -26,4 +26,13 @@ private:
   PotentialEnergyEstimator energyChangePredictor_;
 };
 
+void GetDe(
+  const Config &config,
+  const set<Element> &elementSet,
+  const pair<size_t, size_t> &latticeIdJumpPair,
+  const size_t maxClusterSize,
+  const size_t maxBondOrder
+
+);
+
 #endif // LMC_PRED_INCLUDE_VACANCYMIGRATIONPREDICTOR_H_

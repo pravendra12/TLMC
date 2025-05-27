@@ -7,7 +7,8 @@
 #include "ShortRangeOrder.h"
 #include "B2OrderParameter.h"
 #include "ClusterDynamics.h"
-#include "LocalEnvironment.h"
+#include "ConfigEncoding.h"
+#include <memory>
 
 namespace fs = std::filesystem;
 
@@ -22,20 +23,22 @@ namespace ansys
              const std::vector<double> &cutoffs,
              std::string log_type,
              std::string config_type,
-             bool extract_local_env,
-             const size_t max_bond_order_LCE,
-             const size_t max_cluster_size_LCE);
+             const bool extract_encoding,
+             const size_t maxBondOrder, 
+             const size_t maxClusterSize);
     virtual ~Traverse();
     void RunAnsys() const;
     //  void RunReformat() const;
-    
-    private:
-    void RunAnsysOnConfig(
+
+
+    static void RunAnsysOnConfig(
       const size_t configId, 
       const Config &config, 
       const set<Element> &element_set, 
       ostringstream &oss, 
-      const string &outputFolder) const;
+      const string &outputFolder);
+    
+    private:
 
     void RunAnsysLCE(
         const size_t configId,
@@ -60,12 +63,11 @@ namespace ansys
     std::unordered_map<std::string, MapVariant> log_map_;
 
     mutable std::ofstream frame_ofs_;
-
-    // Local environment
-    const bool extract_LCE_;
-    const std::vector<double> cutoffs_LCE_;
-    const size_t max_bond_order_LCE_;
-    const size_t max_cluster_size_LCE_;
+    
+    // Encoding
+    const bool extract_encoding_{};
+    const size_t maxBondOrder_{};
+    const size_t maxClusterSize_{};
 
   };
 

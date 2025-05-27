@@ -28,6 +28,9 @@
 #include "Constants.hpp"
 #include "Element.hpp"
 #include <utility>
+
+#include <stdexcept>
+#include <optional>
 #include <boost/filesystem.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
@@ -87,10 +90,10 @@ public:
    *  \return  The vacancy lattice ID site for the configuration.
    */
   [[nodiscard]] size_t GetVacancyLatticeId() const;
-   
+
   /*! \brief Returns the relative position matrix for the configuration
-  */
-  [[nodiscard]] const Eigen::Matrix3Xd & GetRelativePositionMatrix() const;
+   */
+  [[nodiscard]] const Eigen::Matrix3Xd &GetRelativePositionMatrix() const;
 
   [[nodiscard]] size_t GetCentralAtomLatticeId() const;
 
@@ -124,7 +127,7 @@ public:
    *  \return                The vector of neighbor lattice IDs .
    */
   [[nodiscard]] std::vector<size_t> GetNeighborLatticeIdVectorOfLattice(size_t lattice_id, size_t distance_order) const;
-  
+
   /*! \brief Query for the set of neighbor lattice id of a lattice.
    *  \param lattice_id      The lattice id of the lattice.
    *  \param distance_order  The order of distance between the two lattice.
@@ -185,28 +188,32 @@ public:
 
   std::vector<size_t> GetSortedLatticeVectorStateOfPair(
       const std::pair<size_t, size_t> &lattice_id_pair, const size_t &max_bond_order) const;
+  
+  // Returns the sorted lattice vector including the lattice pair
+  std::vector<size_t> GetSortedLatticeVectorStateWithPair(
+    const std::pair<size_t, size_t> &lattice_id_jump_pair, 
+    const size_t &max_bond_order) const;
 
   /*! \brief Computes the center position of a lattice pair while accounting for
-             periodic boundary conditions.
-   *
-   * This function calculates the geometric center of two lattice points specified
-   * by their IDs. It adjusts the relative positions of the lattice points to
-   * ensure that the computed distance between them is within the range (0, 0.5)
-   * in each dimension, considering periodic boundaries.
-   *
-   *  \param config               A reference to the Config object containing
-   *                              lattice configurations and relative positions.
-   *  \param lattice_id_jump_pair A pair of lattice IDs representing the two
-   *                              lattice points.
-   *  \return                     Eigen::Vector3d The computed center position of
-   *                              the lattice pair in three dimensions.
-   */
+               periodic boundary conditions.
+     *
+     * This function calculates the geometric center of two lattice points specified
+     * by their IDs. It adjusts the relative positions of the lattice points to
+     * ensure that the computed distance between them is within the range (0, 0.5)
+     * in each dimension, considering periodic boundaries.
+     *
+     *  \param config               A reference to the Config object containing
+     *                              lattice configurations and relative positions.
+     *  \param lattice_id_jump_pair A pair of lattice IDs representing the two
+     *                              lattice points.
+     *  \return                     Eigen::Vector3d The computed center position of
+     *                              the lattice pair in three dimensions.
+     */
   [[nodiscard]] Eigen::RowVector3d GetLatticePairCenter(
       const std::pair<size_t, size_t> &lattice_id_jump_pair) const;
 
-  
-      static void RotateLatticeVector(std::unordered_map<size_t, Eigen::RowVector3d> &lattice_id_hashmap,
-        const Eigen::Matrix3d &rotation_matrix);
+  static void RotateLatticeVector(std::unordered_map<size_t, Eigen::RowVector3d> &lattice_id_hashmap,
+                                  const Eigen::Matrix3d &rotation_matrix);
 
   [[nodiscard]] Eigen::Matrix3d GetLatticePairRotationMatrix(const std::pair<size_t, size_t> &lattice_id_jump_pair) const;
 
@@ -342,6 +349,9 @@ public:
   //  *  \param max_bond_order: The maximum bond order to include in the written configuration.
   //  */
   void WriteLattice(const std::string &filename, size_t &max_bond_order) const;
+
+  Config ExtractLocalSupercell(const std::pair<size_t,size_t>& latticeJumpPair, size_t supercellSize, double latticeParam) const;
+  Config ExtractLocalSupercellGrok(const std::pair<size_t, size_t> &latticeJumpPair, size_t supercellSize, double latticeParam) const;
 
 private:
   /*! \brief Sort lattice sites by the positions (x, y, z)

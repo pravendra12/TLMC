@@ -135,16 +135,12 @@ void Parameter::ReadParam(const std::string &param_filename) {
                      [](const auto &number) { return stoul(number); });
     } else if (segs[0] == "early_stop_steps") {
       early_stop_steps_ = stoull(segs[1]);
-    } else if (segs[0] == "max_bond_order_LCE") {
-      max_bond_order_local_env_ = stoul(segs[1]);
-    } else if (segs[0] == "max_cluster_size_LCE") {
-      max_cluster_size_local_env_ = stoul(segs[1]);
-    } else if (segs[0] == "extract_LCE") {
+    } else if (segs[0] == "extract_encoding") {
       std::string bool_string = std::string(segs[1]);
       if (bool_string == "true") {
-        extract_local_env_ = true;
+        extract_encoding_ = true;
       } else {
-        extract_local_env_ = false;
+        extract_encoding_ = false;
       }
     }
   }

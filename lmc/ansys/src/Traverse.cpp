@@ -12,7 +12,7 @@
 namespace ansys
 {
   static Config GetConfig(
-    const std::string &config_type, size_t i, std::vector<double> cutoff)
+      const std::string &config_type, size_t i, std::vector<double> cutoff)
   {
     Config config;
     if (config_type == "config")
@@ -47,9 +47,9 @@ namespace ansys
                      const std::vector<double> &cutoffs,
                      std::string log_type,
                      std::string config_type,
-                     bool extract_LCE,
-                     const size_t max_bond_order_LCE,
-                     const size_t max_cluster_size_LCE)
+                     const bool extract_encoding,
+                     const size_t maxBondOrder,
+                     const size_t maxClusterSize)
       : initial_steps_(initial_steps),
         increment_steps_(increment_steps),
         final_steps_(increment_steps),
@@ -58,9 +58,9 @@ namespace ansys
         config_type_(std::move(config_type)),
         log_map_{},
         frame_ofs_("ansys_frame_log.txt", std::ofstream::out),
-        extract_LCE_(extract_LCE),
-        max_bond_order_LCE_(max_bond_order_LCE),
-        max_cluster_size_LCE_(max_cluster_size_LCE)
+        extract_encoding_(extract_encoding),
+        maxBondOrder_(maxBondOrder),
+        maxClusterSize_(maxClusterSize)
   {
 
     std::string log_file_name;
@@ -171,11 +171,27 @@ namespace ansys
     int total_configs = static_cast<int>(config_indices.size());
     int num_threads = omp_get_max_threads();
 
+    const Config referenceConfig;
+    const set<Element> elementSet;
+
+    std::unique_ptr<ConfigEncoding> configEncoder;
+
     // Write header once
     {
       auto config = GetConfig(config_type_, config_indices[0], cutoffs_);
       auto atomVector = config.GetAtomVector();
       element_set = std::set<Element>(atomVector.begin(), atomVector.end());
+
+      if (extract_encoding_)
+      {
+        // Declare configEncoder once
+        configEncoder = std::make_unique<ConfigEncoding>(
+            config,
+            element_set,
+            maxBondOrder_,
+            maxClusterSize_);
+      }
+
       element_set.erase(Element("X"));
       frame_ofs_ << GetHeaderFrameString(element_set) << std::flush;
     }
@@ -211,9 +227,13 @@ namespace ansys
         // Analysis on the original configuration
         RunAnsysOnConfig(i, config, element_set, oss, "AnalyzedConfigs");
 
-        if (extract_LCE_)
+        if (extract_encoding_)
         {
-          RunAnsysLCE(i, config, element_set, oss);
+          // Write the ce encoding to the file
+          oss << "\t";
+          VectorXd encodingVector = configEncoder->GetEncodeVector(config);
+
+          oss << encodingVector.transpose() << "\t";
         }
 
         oss << "\n";
@@ -234,7 +254,7 @@ namespace ansys
       const Config &config,
       const set<Element> &element_set,
       ostringstream &oss,
-      const string &outputFolder) const
+      const string &outputFolder)
   {
     // Analysis
 
@@ -308,44 +328,6 @@ namespace ansys
                              globalList);
   }
 
-  void Traverse::RunAnsysLCE(
-      const size_t configId,
-      const Config &config,
-      set<Element> element_set,
-      ostringstream &oss) const
-  {
-    // Local environment around vacancy
-
-    size_t vacancyId = config.GetVacancyLatticeId();
-
-    LocalEnvironment lce(config, vacancyId, cutoffs_);
-
-    // element_set.insert(Element("X"));
-    VectorXd lceEncoding = lce.GetLocalConfigEncoding(max_cluster_size_LCE_,
-                                                      max_bond_order_LCE_);
-
-    oss << "\t";
-    for (size_t i = 0; i < lceEncoding.size(); ++i)
-    {
-      if (i == lceEncoding.size() - 1)
-      {
-        oss << lceEncoding[i];
-      }
-      else
-      {
-        oss << lceEncoding[i] << ", ";
-      }
-    }
-
-    auto localConfig = lce.GetLocalConfig();
-
-    RunAnsysOnConfig(configId,
-                     localConfig,
-                     element_set,
-                     oss,
-                     "LocalEnvironment");
-  }
-
   std::string Traverse::GetHeaderFrameString(const std::set<Element> &element_set) const
   {
     std::string header_frame = "steps\ttime\taverage_time\ttemperature\tenergy\t";
@@ -354,11 +336,9 @@ namespace ansys
     header_frame += GetHeaderFrameStringWithFlag(element_set, "");
 
     // Local Config
-    if (extract_LCE_)
+    if (extract_encoding_)
     {
-      header_frame += "local_env_encoding\t";
-
-      header_frame += GetHeaderFrameStringWithFlag(element_set, "_LCE");
+      header_frame += "ce_encoding\t";
     }
 
     if (!header_frame.empty() && header_frame.back() == '\t')

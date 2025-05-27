@@ -801,322 +801,421 @@ bool CheckSymmetryEncodingConsistency(Config &cfg, vector<vector<size_t>> &expec
 }
 
 #include "ShortRangeOrder.h"
-#include "LocalEnvironment.h"
+Config makeSupercell(const Config &config, const std::set<size_t> &latticeIdVector)
+{
+  Eigen::Matrix3d basis = config.GetBasis();
 
+  vector<Element> atomVector;
+  atomVector.reserve(latticeIdVector.size());
+
+  Eigen::Matrix3Xd relativePositionMatrix;
+  relativePositionMatrix.resize(3, latticeIdVector.size());
+
+  size_t i = 0;
+  for (auto const latticeId : latticeIdVector)
+  {
+    Vector3d position = config.GetRelativePositionOfLattice(latticeId);
+
+    relativePositionMatrix.col(i) = position;
+    atomVector.emplace_back(config.GetElementOfLattice(latticeId));
+    i++;
+  }
+
+  return Config(basis, relativePositionMatrix, atomVector);
+}
+
+#include "Traverse.h"
+#include <chrono>
+#include <iostream>
+#include "PotentialEnergyEstimator.h"
+#include "ConfigEncoding.h"
+
+using namespace std::chrono;
 int main()
 {
-  /// Implementation and validation of E_KRA model /////////////////////
-
-  const string predictorFilename = "predictorFileKRA_BO2_WTa.json";
-  const size_t maxBondOrder = 2;
+  const std::string predictorFilename = "predictorFileKRA_BO2_WTa.json";
+  const size_t maxBondOrder = 3;
   const size_t maxClusterSize = 3;
-  const size_t maxBondOrderOfCluster = 3;
-  /*
-    /// Getting LCE
-    set<Element> elementSet{Element("Ta"), Element("W")};
 
-    vector<string> folderVector = {
-        "Ta10W90",
-        "Ta40W60",
-        "Ta70W30",
-        "Ta20W80",
-        "Ta50W50",
-        "Ta90W10",
-        "Ta30W70",
-        "Ta60W40",
-    };
+  // auto cfg = Config::ReadConfig("LocalConfig/localConfig_8.cfg");
+  // auto cfg = Config::ReadCfg("/media/sf_Phd/runKMC/Ta50W50/qSim1400K/ss50x50x50/run_10um_1.4K_0.5K/23700000.cfg.gz");
+  auto cfg = Config::ReadCfg("/home/pravendra3/Documents/LatticeMonteCarlo-eigen/bin/start_W50Ta50_20x20x20.cfg");
 
-    for (auto folderName : folderVector)
-    {
-      processDirectorySymmetryEncodingLCE("/media/sf_Phd/WTaNEB/" + folderName,
-                                          elementSet,
-                                          maxBondOrder,
-                                          maxBondOrderOfCluster,
-                                          maxClusterSize,
-                                          folderName);
-    }
+  cfg.UpdateNeighborList({3.3, 4.7, 5.6});
 
-  }
-  */
-
-  const vector<double> cutoffs = {3.3, 4.7, 5.6};
-
-  size_t increment = 1000000;
-  set<Element> elementSet = {Element("Ta"), Element("W")};
-
-  // Even though 10.7 is cutoff for the 13th NN then also it will be distance order 4
-  for (int i = 0; i < 11; i++)
-  {
-    string filename = to_string(increment * i);
-
-    cout << "------- " + filename + " ---------" << endl;
-
-    auto cfg = Config::ReadCfg("//media/sf_Phd/start_50x50x50_cmc_2K_1e8.cfg.gz");
-
-    cfg.UpdateNeighborList(cutoffs);
-    
-
-   
-
-    
-    auto start = std::chrono::high_resolution_clock::now();
-    
-    ShortRangeOrder sro(cfg, elementSet);
-    sro.FindWarrenCowley(1);
-    sro.FindWarrenCowley(2);
-    sro.FindWarrenCowley(3);
-
-    auto end = std::chrono::high_resolution_clock::now();
-
-    std::chrono::duration<double> elapsed = end - start;
-
-    std::cout << "Total time: " << elapsed.count() << " seconds\n";
-
-
-
-
-
-    break;
-  }
-
-  //
-  //  cout << "Central Atom Lattice ID: " << cfg.GetCentralAtomLatticeId() << endl;
-  //
-  //  auto nnListBO13 = cfg.GetNeighborLatticeIdVectorOfLattice(cfg.GetCentralAtomLatticeId(), 4);
-  //
-  //  auto nnListBO3 = cfg.GetNeighborLatticeIdVectorOfLattice(cfg.GetCentralAtomLatticeId(), 3);
-  //  auto nnListBO2 = cfg.GetNeighborLatticeIdVectorOfLattice(cfg.GetCentralAtomLatticeId(), 2);
-  //  auto nnListBO1 = cfg.GetNeighborLatticeIdVectorOfLattice(cfg.GetCentralAtomLatticeId(), 1);
-  //
-  //
-  //
-  //  cout << "Size of NN List 4: " << nnListBO13.size() << endl;
-  //  cout << "Size of NN List 3: " << nnListBO3.size() << endl;
-  //
-  //
-  //  // Store it
-  //  auto basis = cfg.GetBasis();
-  //  Eigen::Matrix3Xd relativePositionMatrix;
-  //  relativePositionMatrix.resize(3, 300);
-  //  vector<Element> atomVector;
-  //  // atomVector.reserve(nnListBO13.size());
-  //
-  //  cout << "Basis" << endl;
-  //  cout << basis << endl;
-  //
-  //  int idx = 0;
-  //
-  //  std::vector<size_t> allLatticeIds;
-  // allLatticeIds.reserve(nnListBO13.size() + nnListBO3.size() + nnListBO2.size() + nnListBO1.size() + 1);
-  //
-  // allLatticeIds.insert(allLatticeIds.end(), nnListBO13.begin(), nnListBO13.end());
-  // allLatticeIds.insert(allLatticeIds.end(), nnListBO3.begin(),  nnListBO3.end());
-  // allLatticeIds.insert(allLatticeIds.end(), nnListBO2.begin(),  nnListBO2.end());
-  // allLatticeIds.insert(allLatticeIds.end(), nnListBO1.begin(),  nnListBO1.end());
-  //
-  // allLatticeIds.emplace_back(cfg.GetCentralAtomLatticeId());
-  //
-  //
-  //
-  //  for (auto const latticeId : allLatticeIds)
-  //  {
-  //    Vector3d relativePosition = cfg.GetRelativePositionOfLattice(latticeId);
-  //    auto element = cfg.GetElementOfLattice(latticeId);
-  //
-  //    relativePositionMatrix.col(idx) = relativePosition;
-  //    atomVector.emplace_back(element);
-  //    idx++;
-  //  }
-  //
-  //  relativePositionMatrix.conservativeResize(3, idx);
-  //
-  //  cout << idx << endl;
-  //
-  //  Config supercell = Config{basis, relativePositionMatrix, atomVector};
-
-  // Config::WriteConfig("testMFPTLocalEnv.cfg", supercell);
-  // cfg.GetNeighborLatticeIdsUpToOrder(cfg.GetCentralAtomLatticeId(), 2);
-  // cfg.GetNeighborLatticeIdsUpToOrder(cfg.GetCentralAtomLatticeId(), 3);
-  // cfg.GetNeighborLatticeIdsUpToOrder(cfg.GetCentralAtomLatticeId(), 4);
-  // cfg.GetNeighborLatticeIdsUpToOrder(cfg.GetCentralAtomLatticeId(), 5);
-
-  /*
   auto atomVector = cfg.GetAtomVector();
-  set<Element> elementSet{atomVector.begin(), atomVector.end()};
+  cout << "Size of atomvector: " << atomVector.size() << endl;
 
-  Element vacancy("X");
+  set<Element> elementSet(atomVector.begin(), atomVector.end());
 
-  size_t vacancyId = cfg.GetCentralAtomLatticeId();
-  cfg.SetElementOfLattice(vacancyId, vacancy);
-  size_t nnId = cfg.GetNeighborLatticeIdVectorOfLattice(vacancyId, 1)[6];
+  auto vacancyId = cfg.GetVacancyLatticeId();
+  auto neighbourVacancyId = cfg.GetNeighborLatticeIdVectorOfLattice(vacancyId, 1)[0];
 
-  cout << cfg.GetElementOfLattice(vacancyId).GetElementString() << " " << cfg.GetElementOfLattice(nnId).GetElementString() << endl;
+  ConfigEncoding configEncoding(
+      cfg,
+      elementSet,
+      maxBondOrder,
+      maxClusterSize);
 
-  cout << vacancyId << "-" << nnId << endl;
-  pair<size_t, size_t> latticeJumpPair = {vacancyId, nnId};
+  // Timing for cfg
+  cout << "For supercell size of 20x20x20: " << endl;
 
-  KRAPredictor kraPredictor(predictorFilename, cfg, elementSet);
-  kraPredictor.GetKRA(cfg, latticeJumpPair);
-  kraPredictor.GetKRA(cfg, make_pair(latticeJumpPair.second, latticeJumpPair.first));
+  auto t_start_cfg = std::chrono::high_resolution_clock::now();
+  configEncoding.GetEncodeVector(cfg);
+  auto t_end_cfg = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> time_elapsed_cfg = t_end_cfg - t_start_cfg;
+  std::cout << "Time taken for cfg: " << time_elapsed_cfg.count() << " seconds\n";
 
-  elementSet.insert(vacancy);
-  PotentialEnergyEstimator peEstimator(predictorFilename, cfg, cfg, elementSet);
-
-  peEstimator.GetDeThreadSafe(cfg, latticeJumpPair);
-  cfg.LatticeJump(latticeJumpPair);
-  peEstimator.GetDeThreadSafe(cfg, latticeJumpPair);
-  */
-
-  /*
-  //// Testing the LCE funciton and GetOrbits and GetEquivalentSites3BarSymmetry ///
-
-    cout << "Testing the function" << endl;
-
-  size_t vacancyId = 3;
-  int i =0;
-  auto nnSites = cfg.GetNeighborLatticeIdVectorOfLattice(vacancyId, 1);
-  for (auto id : nnSites)
-  { // id = 49;
-
-
-    pair<size_t, size_t> latticeJumpPair = {vacancyId,
-                                            id};
-
-    cout << latticeJumpPair.first << "-" << latticeJumpPair.second << endl;
-    cout << "BO : " << cfg.GetDistanceOrder(vacancyId, id) << endl;
-
-
-    // cout << "--- ---- ---- Backward ---- ---- ---- " << endl;
-
-    // ssVector = GetSortedVector3BarSymmetry(cfg, make_pair(latticeJumpPair.second, latticeJumpPair.first), 1);
-
-    // print1DVector(ssVector);
-
-
-    cout << "Symmetrically sorted under 3 Bar symmetry" << endl;
-
-    auto ssVector = GetSSVector3FSymmetry(cfg,latticeJumpPair, 2);
-
-    print1DVector(ssVector);
-
-    unordered_map<size_t, size_t> latticeToIndexMap;
-
-
-    size_t localIdx = 0;
-    for (size_t localId : ssVector)
-    {
-      latticeToIndexMap[localId] = localIdx;
-      localIdx++;
-    }
-
-
-    cout << "----- Equivalent Sites -----" << endl;
-    auto eqSites3Bar = GetEquivalentSitesUnder3BarSymmetry(cfg, latticeJumpPair, 2);
-
-    print2DVector(eqSites3Bar);
-
-    cout << " ----- Encoded ----- " <<endl;
-    vector<vector<size_t>> encoding;
-
-    for (auto eqSite : eqSites3Bar)
-    {
-      vector<size_t> localEncoding;
-      for (auto site : eqSite)
-      {
-        localEncoding.emplace_back(latticeToIndexMap.at(site));
-      }
-      sort(localEncoding.begin(), localEncoding.end());
-      encoding.emplace_back(localEncoding);
-    }
-
-    print2DVector(encoding);
-
-    cout << "--- ---- ---- Backward ---- ---- ---- " << endl;
-    cout << "Symmetrically sorted under 3 Bar symmetry" << endl;
-
-    ssVector = GetSSVector3FSymmetry(cfg,make_pair(latticeJumpPair.second, latticeJumpPair.first), 2);
-
-    print1DVector(ssVector);
-
-    size_t idx = 0;
-    for (size_t id : ssVector)
-    {
-      latticeToIndexMap[id] = idx;
-      idx++;
-    }
-
-
-    cout << "----- Equivalent Sites -----" << endl;
-    eqSites3Bar = GetEquivalentSitesUnder3BarSymmetry(cfg, make_pair(latticeJumpPair.second, latticeJumpPair.first), 2);
-
-    print2DVector(eqSites3Bar);
-
-    cout << " ----- Encoded ----- " <<endl;
-    vector<vector<size_t>> encodingB;
-
-    for (auto eqSite : eqSites3Bar)
-    {
-      vector<size_t> localEncoding;
-      for (auto site : eqSite)
-      {
-        localEncoding.emplace_back(latticeToIndexMap.at(site));
-      }
-      sort(localEncoding.begin(), localEncoding.end());
-      encodingB.emplace_back(localEncoding);
-    }
-
-    print2DVector(encodingB);
-
-
-     //
-     // cout << "----- Orbit Map -----" << endl;
-     // for (const auto &orbit : orbitMap)
-     // {
-     //   std::cout << "----- Orbit " << orbit.first << " ------\n";
-     //   // print2DVector(orbit.second);
-     //   vector<vector<size_t>> orbitEncoding;
-     //   for (auto latticeIdVector : orbit.second)
-     //   {
-     //    vector<size_t> localEncoding;
-     //    for (auto latticeId : latticeIdVector)
-     //    {
-     //      localEncoding.emplace_back(latticeToIndexMap.at(latticeId));
-     //    }
-     //    sort(localEncoding.begin(), localEncoding.end());
-     //    orbitEncoding.emplace_back(localEncoding);
-     //   }
-     //   print2DVector(orbit.second);
-     //   cout << " ----- Orbit Encoding ----- " << endl;
-     //   print2DVector(orbitEncoding);
-     // }
-
-
-
-    }
-
-    auto eqSiteEncoding = GetEquivalentSiteEncoding3BarSymmetry(cfg, 2);
-
-    print2DVector(eqSiteEncoding);
-
-    /// Checking whether the encodings are consistent for all the possible jump pairs
-    /*
-    vector<vector<size_t>> expectedEncodingBO2 = {{0, 19, },
-    {7, 8, 9, 10, 11, 12, },
-    {4, 5, 6, 13, 14, 15, },
-    {1, 2, 3, 16, 17, 18, }};
-
-
-
-    vector<vector<size_t>> expectedEncodingBO3  {{0, 1, 2, 35, 36, 37, },
-      {3, 34, },
-      {4, 5, 6, 31, 32, 33, },
-      {7, 8, 9, 28, 29, 30, },
-      {10, 13, 14, 23, 25, 27, },
-      {11, 12, 15, 22, 24, 26, },
-      {16, 17, 18, 19, 20, 21, }};
-
-
-    // For BO = 2
-    CheckSymmetryEncodingConsistency(cfg, expectedEncodingBO3, 3);
-    */
 }
+
+//
+//  std::set<Element> elementSet = {Element("W"), Element("Ta")};
+//  const std::vector<double> cutoffs = {3.3, 4.7, 5.6};
+//
+//  auto cfg = Config::ReadCfg("/media/sf_Phd/runKMC/Ta50W50/qSim1400K/ss50x50x50/run_10um_1.4K_0.5K/23700000.cfg.gz");
+//  cfg.UpdateNeighborList(cutoffs);
+//
+//  auto vacancyId = cfg.GetVacancyLatticeId();
+//  auto nnId = cfg.GetNeighborLatticeIdVectorOfLattice(vacancyId, 1)[0];
+//
+//  std::cout << "Central Lattice Id: " << vacancyId << std::endl;
+//
+//  std::set<size_t> latticeIdSet = {vacancyId, nnId};
+//  std::set<size_t> latticeIdSetNN = {nnId};
+//
+//  std::set<size_t> currentShell = {vacancyId};
+//  std::set<size_t> currentShellNN = {nnId};
+//
+//  const int maxShell = 10;
+//
+//  std::vector<std::string> results;
+//
+//  for (int shell = 0; shell < maxShell; ++shell)
+//  {
+//    ostringstream oss;
+//
+//    std::set<size_t> nextShell;
+//    std::set<size_t> nextShellNN;
+//
+//    for (auto latticeId : currentShell)
+//    {
+//      auto neighbors = cfg.GetNeighborLatticeIdVectorOfLattice(latticeId, 1);
+//      for (auto nId : neighbors)
+//      {
+//        if (latticeIdSet.insert(nId).second)
+//        {
+//          nextShell.insert(nId);
+//        }
+//      }
+//    }
+//
+//    for (auto latticeId : currentShellNN)
+//    {
+//      auto neighbors = cfg.GetNeighborLatticeIdVectorOfLattice(latticeId, 1);
+//      for (auto nId : neighbors)
+//      {
+//        if (latticeIdSetNN.insert(nId).second)
+//        {
+//          nextShellNN.insert(nId);
+//        }
+//      }
+//    }
+//
+//    currentShell = nextShell;
+//    currentShellNN = nextShellNN;
+//
+//    // ✅ FIXED: Accumulate NN set instead of overwriting
+//    latticeIdSetNN.insert(nextShellNN.begin(), nextShellNN.end());
+//
+//    auto t_start = std::chrono::high_resolution_clock::now();
+//    if (shell > 0)
+//    { // Config cfgShell = makeSupercell(cfg, latticeIdSet, shell+1);
+//      // Config cfgShellNN = makeSupercell(cfg, latticeIdSetNN, shell+1);
+//
+//      auto combinedLatticeIds = latticeIdSet;
+//      combinedLatticeIds.insert(latticeIdSetNN.begin(), latticeIdSetNN.end());
+//      Config combinedCfg = makeSupercell(cfg, combinedLatticeIds);
+//
+//      auto t_end = std::chrono::high_resolution_clock::now();
+//      std::chrono::duration<double> time_elapsed = t_end - t_start;
+//
+//      std::string filePath = "/home/pravendra3/Documents/LatticeMonteCarlo-eigen/bin/MFPT/shell_" + std::to_string(shell + 1) + ".cfg";
+//      // Config::WriteConfig(filePath, cfgShell);
+//
+//      std::string filePathNN = "/home/pravendra3/Documents/LatticeMonteCarlo-eigen/bin/MFPT/shellNN_" + std::to_string(shell + 1) + ".cfg";
+//      // Config::WriteConfig(filePathNN, cfgShellNN);
+//
+//      std::string filePathCombined = "/home/pravendra3/Documents/LatticeMonteCarlo-eigen/bin/MFPT/combined_" + std::to_string(shell + 1) + ".cfg";
+//      Config::WriteConfig(filePathCombined, combinedCfg);
+//
+//      // Analyses
+//
+//      combinedCfg.UpdateNeighborList(cutoffs);
+//
+//      ansys::Traverse::RunAnsysOnConfig(
+//          shell,
+//          combinedCfg,
+//          elementSet,
+//          oss,
+//          "/home/pravendra3/Documents/LatticeMonteCarlo-eigen/bin/MFPT/combinedConfigAnsys");
+//
+//      results.emplace_back(oss.str());
+//
+//      std::cout << "Shell " << shell + 1 << ": supercell created in " << time_elapsed.count() << " seconds." << std::endl;
+//    }
+//  }
+//
+//  std::ofstream outFile("/home/pravendra3/Documents/LatticeMonteCarlo-eigen/bin/MFPT/analysis_output.txt");
+//  for (const auto &entry : results)
+//  {
+//    outFile << entry;
+//    outFile << endl;
+//  }
+//  outFile.close();
+//
+//  auto cfgLocal = cfg.ExtractLocalSupercell(make_pair(vacancyId, nnId), 8);
+//
+//  Config::WriteConfig("LocalConfig8x8x8.cfg",cfgLocal);
+//
+//  return 0;
+
+//
+//  cout << "Central Atom Lattice ID: " << cfg.GetCentralAtomLatticeId() << endl;
+//
+//  auto nnListBO13 = cfg.GetNeighborLatticeIdVectorOfLattice(cfg.GetCentralAtomLatticeId(), 4);
+//
+//  auto nnListBO3 = cfg.GetNeighborLatticeIdVectorOfLattice(cfg.GetCentralAtomLatticeId(), 3);
+//  auto nnListBO2 = cfg.GetNeighborLatticeIdVectorOfLattice(cfg.GetCentralAtomLatticeId(), 2);
+//  auto nnListBO1 = cfg.GetNeighborLatticeIdVectorOfLattice(cfg.GetCentralAtomLatticeId(), 1);
+//
+//
+//
+//  cout << "Size of NN List 4: " << nnListBO13.size() << endl;
+//  cout << "Size of NN List 3: " << nnListBO3.size() << endl;
+//
+//
+//  // Store it
+//  auto basis = cfg.GetBasis();
+//  Eigen::Matrix3Xd relativePositionMatrix;
+//  relativePositionMatrix.resize(3, 300);
+//  vector<Element> atomVector;
+//  // atomVector.reserve(nnListBO13.size());
+//
+//  cout << "Basis" << endl;
+//  cout << basis << endl;
+//
+//  int idx = 0;
+//
+//  std::vector<size_t> allLatticeIds;
+// allLatticeIds.reserve(nnListBO13.size() + nnListBO3.size() + nnListBO2.size() + nnListBO1.size() + 1);
+//
+// allLatticeIds.insert(allLatticeIds.end(), nnListBO13.begin(), nnListBO13.end());
+// allLatticeIds.insert(allLatticeIds.end(), nnListBO3.begin(),  nnListBO3.end());
+// allLatticeIds.insert(allLatticeIds.end(), nnListBO2.begin(),  nnListBO2.end());
+// allLatticeIds.insert(allLatticeIds.end(), nnListBO1.begin(),  nnListBO1.end());
+//
+// allLatticeIds.emplace_back(cfg.GetCentralAtomLatticeId());
+//
+//
+//
+//  for (auto const latticeId : allLatticeIds)
+//  {
+//    Vector3d relativePosition = cfg.GetRelativePositionOfLattice(latticeId);
+//    auto element = cfg.GetElementOfLattice(latticeId);
+//
+//    relativePositionMatrix.col(idx) = relativePosition;
+//    atomVector.emplace_back(element);
+//    idx++;
+//  }
+//
+//  relativePositionMatrix.conservativeResize(3, idx);
+//
+//  cout << idx << endl;
+//
+//  Config supercell = Config{basis, relativePositionMatrix, atomVector};
+
+// Config::WriteConfig("testMFPTLocalEnv.cfg", supercell);
+// cfg.GetNeighborLatticeIdsUpToOrder(cfg.GetCentralAtomLatticeId(), 2);
+// cfg.GetNeighborLatticeIdsUpToOrder(cfg.GetCentralAtomLatticeId(), 3);
+// cfg.GetNeighborLatticeIdsUpToOrder(cfg.GetCentralAtomLatticeId(), 4);
+// cfg.GetNeighborLatticeIdsUpToOrder(cfg.GetCentralAtomLatticeId(), 5);
+
+/*
+auto atomVector = cfg.GetAtomVector();
+set<Element> elementSet{atomVector.begin(), atomVector.end()};
+
+Element vacancy("X");
+
+size_t vacancyId = cfg.GetCentralAtomLatticeId();
+cfg.SetElementOfLattice(vacancyId, vacancy);
+size_t nnId = cfg.GetNeighborLatticeIdVectorOfLattice(vacancyId, 1)[6];
+
+cout << cfg.GetElementOfLattice(vacancyId).GetElementString() << " " << cfg.GetElementOfLattice(nnId).GetElementString() << endl;
+
+cout << vacancyId << "-" << nnId << endl;
+pair<size_t, size_t> latticeJumpPair = {vacancyId, nnId};
+
+KRAPredictor kraPredictor(predictorFilename, cfg, elementSet);
+kraPredictor.GetKRA(cfg, latticeJumpPair);
+kraPredictor.GetKRA(cfg, make_pair(latticeJumpPair.second, latticeJumpPair.first));
+
+elementSet.insert(vacancy);
+PotentialEnergyEstimator peEstimator(predictorFilename, cfg, cfg, elementSet);
+
+peEstimator.GetDeThreadSafe(cfg, latticeJumpPair);
+cfg.LatticeJump(latticeJumpPair);
+peEstimator.GetDeThreadSafe(cfg, latticeJumpPair);
+*/
+
+/*
+//// Testing the LCE funciton and GetOrbits and GetEquivalentSites3BarSymmetry ///
+
+  cout << "Testing the function" << endl;
+
+size_t vacancyId = 3;
+int i =0;
+auto nnSites = cfg.GetNeighborLatticeIdVectorOfLattice(vacancyId, 1);
+for (auto id : nnSites)
+{ // id = 49;
+
+
+  pair<size_t, size_t> latticeJumpPair = {vacancyId,
+                                          id};
+
+  cout << latticeJumpPair.first << "-" << latticeJumpPair.second << endl;
+  cout << "BO : " << cfg.GetDistanceOrder(vacancyId, id) << endl;
+
+
+  // cout << "--- ---- ---- Backward ---- ---- ---- " << endl;
+
+  // ssVector = GetSortedVector3BarSymmetry(cfg, make_pair(latticeJumpPair.second, latticeJumpPair.first), 1);
+
+  // print1DVector(ssVector);
+
+
+  cout << "Symmetrically sorted under 3 Bar symmetry" << endl;
+
+  auto ssVector = GetSSVector3FSymmetry(cfg,latticeJumpPair, 2);
+
+  print1DVector(ssVector);
+
+  unordered_map<size_t, size_t> latticeToIndexMap;
+
+
+  size_t localIdx = 0;
+  for (size_t localId : ssVector)
+  {
+    latticeToIndexMap[localId] = localIdx;
+    localIdx++;
+  }
+
+
+  cout << "----- Equivalent Sites -----" << endl;
+  auto eqSites3Bar = GetEquivalentSitesUnder3BarSymmetry(cfg, latticeJumpPair, 2);
+
+  print2DVector(eqSites3Bar);
+
+  cout << " ----- Encoded ----- " <<endl;
+  vector<vector<size_t>> encoding;
+
+  for (auto eqSite : eqSites3Bar)
+  {
+    vector<size_t> localEncoding;
+    for (auto site : eqSite)
+    {
+      localEncoding.emplace_back(latticeToIndexMap.at(site));
+    }
+    sort(localEncoding.begin(), localEncoding.end());
+    encoding.emplace_back(localEncoding);
+  }
+
+  print2DVector(encoding);
+
+  cout << "--- ---- ---- Backward ---- ---- ---- " << endl;
+  cout << "Symmetrically sorted under 3 Bar symmetry" << endl;
+
+  ssVector = GetSSVector3FSymmetry(cfg,make_pair(latticeJumpPair.second, latticeJumpPair.first), 2);
+
+  print1DVector(ssVector);
+
+  size_t idx = 0;
+  for (size_t id : ssVector)
+  {
+    latticeToIndexMap[id] = idx;
+    idx++;
+  }
+
+
+  cout << "----- Equivalent Sites -----" << endl;
+  eqSites3Bar = GetEquivalentSitesUnder3BarSymmetry(cfg, make_pair(latticeJumpPair.second, latticeJumpPair.first), 2);
+
+  print2DVector(eqSites3Bar);
+
+  cout << " ----- Encoded ----- " <<endl;
+  vector<vector<size_t>> encodingB;
+
+  for (auto eqSite : eqSites3Bar)
+  {
+    vector<size_t> localEncoding;
+    for (auto site : eqSite)
+    {
+      localEncoding.emplace_back(latticeToIndexMap.at(site));
+    }
+    sort(localEncoding.begin(), localEncoding.end());
+    encodingB.emplace_back(localEncoding);
+  }
+
+  print2DVector(encodingB);
+
+
+   //
+   // cout << "----- Orbit Map -----" << endl;
+   // for (const auto &orbit : orbitMap)
+   // {
+   //   std::cout << "----- Orbit " << orbit.first << " ------\n";
+   //   // print2DVector(orbit.second);
+   //   vector<vector<size_t>> orbitEncoding;
+   //   for (auto latticeIdVector : orbit.second)
+   //   {
+   //    vector<size_t> localEncoding;
+   //    for (auto latticeId : latticeIdVector)
+   //    {
+   //      localEncoding.emplace_back(latticeToIndexMap.at(latticeId));
+   //    }
+   //    sort(localEncoding.begin(), localEncoding.end());
+   //    orbitEncoding.emplace_back(localEncoding);
+   //   }
+   //   print2DVector(orbit.second);
+   //   cout << " ----- Orbit Encoding ----- " << endl;
+   //   print2DVector(orbitEncoding);
+   // }
+
+
+
+  }
+
+  auto eqSiteEncoding = GetEquivalentSiteEncoding3BarSymmetry(cfg, 2);
+
+  print2DVector(eqSiteEncoding);
+
+  /// Checking whether the encodings are consistent for all the possible jump pairs
+  /*
+  vector<vector<size_t>> expectedEncodingBO2 = {{0, 19, },
+  {7, 8, 9, 10, 11, 12, },
+  {4, 5, 6, 13, 14, 15, },
+  {1, 2, 3, 16, 17, 18, }};
+
+
+
+  vector<vector<size_t>> expectedEncodingBO3  {{0, 1, 2, 35, 36, 37, },
+    {3, 34, },
+    {4, 5, 6, 31, 32, 33, },
+    {7, 8, 9, 28, 29, 30, },
+    {10, 13, 14, 23, 25, 27, },
+    {11, 12, 15, 22, 24, 26, },
+    {16, 17, 18, 19, 20, 21, }};
+
+
+  // For BO = 2
+  CheckSymmetryEncodingConsistency(cfg, expectedEncodingBO3, 3);
+  */

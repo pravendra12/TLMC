@@ -322,6 +322,57 @@ Config::GetSortedLatticeVectorStateOfPair(
   return sorted_lattice_ids;
 }
 
+std::vector<size_t> Config::GetSortedLatticeVectorStateWithPair(
+    const std::pair<size_t, size_t> &lattice_id_jump_pair,
+    const size_t &max_bond_order) const
+{
+
+  auto neighboring_lattice_ids = GetNeighboringLatticeIdSetOfPair(lattice_id_jump_pair,
+                                                                  max_bond_order);
+  neighboring_lattice_ids.reserve(neighboring_lattice_ids.size() + 2);
+
+  neighboring_lattice_ids.insert(lattice_id_jump_pair.first);
+  neighboring_lattice_ids.insert(lattice_id_jump_pair.second);
+
+  size_t num_sites = neighboring_lattice_ids.size();
+  Eigen::RowVector3d move_distance =
+      Eigen::RowVector3d(0.5, 0.5, 0.5) - GetLatticePairCenter(lattice_id_jump_pair);
+
+  std::unordered_map<size_t, Eigen::RowVector3d> lattice_id_hashmap;
+  lattice_id_hashmap.reserve(num_sites);
+
+  // Move lattice IDs to center
+  for (const auto id : neighboring_lattice_ids)
+  {
+    Eigen::RowVector3d relative_position = GetRelativePositionOfLattice(id).transpose();
+    relative_position += move_distance;
+    relative_position -= relative_position.unaryExpr([](double x)
+                                                     { return std::floor(x); });
+    lattice_id_hashmap.emplace(id, relative_position);
+  }
+
+  // Rotate lattice vectors
+  RotateLatticeVector(lattice_id_hashmap, GetLatticePairRotationMatrix(lattice_id_jump_pair));
+
+  // Convert unordered_map to vector for sorting
+  std::vector<std::pair<size_t, Eigen::RowVector3d>>
+      lattice_id_vector(lattice_id_hashmap.begin(), lattice_id_hashmap.end());
+
+  // Sort the lattice vector based on PositionCompare
+  std::sort(lattice_id_vector.begin(), lattice_id_vector.end(), PositionCompareState);
+
+  // Extract and return only the lattice IDs
+  std::vector<size_t> sorted_lattice_ids;
+  sorted_lattice_ids.reserve(lattice_id_vector.size());
+  for (const auto &pair : lattice_id_vector)
+  {
+    sorted_lattice_ids.push_back(pair.first);
+    // std::cout << pair.first << " " << pair.second << std::endl;
+  }
+
+  return sorted_lattice_ids;
+}
+
 Eigen::RowVector3d Config::GetLatticePairCenter(
     const std::pair<size_t, size_t> &lattice_id_jump_pair) const
 {
@@ -1012,7 +1063,11 @@ Config Config::ReadConfig(const std::string &filename)
       ". Supported formats are: .cfg, .POSCAR, .cfg.gz, .cfg.bz2, .POSCAR.gz, .POSCAR.bz2");
 }
 
-Config Config::GenerateSupercell(size_t supercell_size, double lattice_param, const std::string &element_symbol, const std::string &structure_type)
+Config Config::GenerateSupercell(
+    size_t supercell_size,
+    double lattice_param,
+    const std::string &element_symbol,
+    const std::string &structure_type)
 {
   size_t num_atoms = (structure_type == "BCC") ? supercell_size * supercell_size * supercell_size * 2
                                                : supercell_size * supercell_size * supercell_size * 4;
@@ -1253,19 +1308,76 @@ void Config::WriteLattice(const std::string &filename, size_t &max_bond_order) c
   buffer.close(); // Ensures all data is written at once
 }
 
-//   ofs << basis_ << std::endl;
-//   for (size_t i = 0; i < lattice_vector_.size(); ++i) {
-//     ofs << lattice_vector_[i].GetRelativePosition();
-//     ofs << " # ";
-//     for (const auto neighbor_lattice_index: first_neighbors_adjacency_list_[i]) {
-//       ofs << neighbor_lattice_index << ' ';
-//     }
-//     for (const auto neighbor_lattice_index: second_neighbors_adjacency_list_[i]) {
-//       ofs << neighbor_lattice_index << ' ';
-//     }
-//     for (const auto neighbor_lattice_index: third_neighbors_adjacency_list_[i]) {
-//       ofs << neighbor_lattice_index << ' ';
-//     }
-//     ofs << std::endl;
-//   }
-// }
+static void ExpandShell(
+    const Config &config,
+    const std::unordered_set<size_t> &currentShell,
+    std::unordered_set<size_t> &visitedSet,
+    std::unordered_set<size_t> &nextShell)
+{
+  for (const auto latticeId : currentShell)
+  {
+    const auto &neighbors = config.GetNeighborLatticeIdVectorOfLattice(latticeId, 1);
+    for (const auto nId : neighbors)
+    {
+      if (visitedSet.insert(nId).second) // Insert only if not already present
+      {
+        nextShell.insert(nId);
+      }
+    }
+  }
+}
+
+Config Config::ExtractLocalSupercell(
+    const std::pair<size_t, size_t> &latticeJumpPair,
+    size_t supercellSize,
+    double latticeParam) const
+{
+  if (supercellSize < 2)
+  {
+    throw std::invalid_argument("Supercell size should be at least 2");
+  }
+
+  int maxShell = static_cast<int>(supercellSize - 1);
+
+  std::unordered_set<size_t> latticeIdSet{latticeJumpPair.first, latticeJumpPair.second};
+  std::unordered_set<size_t> latticeIdSetNN{latticeJumpPair.second};
+
+  std::unordered_set<size_t> currentShell{latticeJumpPair.first};
+  std::unordered_set<size_t> currentShellNN{latticeJumpPair.second};
+
+  for (int shell = 0; shell < maxShell; ++shell)
+  {
+    std::unordered_set<size_t> nextShell;
+    std::unordered_set<size_t> nextShellNN;
+
+    ExpandShell(*this, currentShell, latticeIdSet, nextShell);
+    ExpandShell(*this, currentShellNN, latticeIdSetNN, nextShellNN);
+
+    currentShell = std::move(nextShell);
+    currentShellNN = std::move(nextShellNN);
+  }
+
+  // Merge the two lattice ID sets
+  latticeIdSet.insert(latticeIdSetNN.begin(), latticeIdSetNN.end());
+
+  // Construct the output configuration
+  size_t numSites = latticeIdSet.size();
+
+  Eigen::Matrix3Xd relativePositionMatrix(3, numSites);
+  std::vector<Element> atomVector;
+  atomVector.reserve(numSites);
+
+  size_t i = 0;
+  for (const auto latticeId : latticeIdSet)
+  {
+    Eigen::Vector3d relativePosition = GetRelativePositionOfLattice(latticeId);
+
+    relativePositionMatrix.col(i++) = relativePosition;
+    atomVector.emplace_back(GetElementOfLattice(latticeId));
+  }
+
+  // Eigen::Matrix3d newBasis = Eigen::Matrix3d::Identity() * supercellSize * latticeParam;
+  Eigen::Matrix3d newBasis = GetBasis();
+  return Config(newBasis, relativePositionMatrix, atomVector);
+}
+

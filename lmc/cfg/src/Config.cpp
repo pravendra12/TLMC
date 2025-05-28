@@ -100,7 +100,7 @@ size_t Config::GetCentralAtomLatticeId() const
 
   // Exit the program if no match is found
   std::cerr << "Error: Central atom not found in the lattice!" << std::endl;
-  // exit(EXIT_FAILURE); // Exit with failure status
+   exit(EXIT_FAILURE); // Exit with failure status
 }
 
 size_t Config::GetVacancyAtomId() const

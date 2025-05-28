@@ -221,6 +221,13 @@ namespace ansys
         const auto temperature = std::get<std::unordered_map<unsigned long long, double>>(log_map_.at("temperature")).at(i);
         const auto energy = std::get<std::unordered_map<unsigned long long, double>>(log_map_.at("energy")).at(i);
 
+        size_t selected_lattice_id = SIZE_MAX;
+
+        if (log_type_ == "kinetic_mc")
+        {
+          selected_lattice_id = static_cast<size_t>(std::get<std::unordered_map<unsigned long long, double>>(log_map_.at("selected")).at(i));
+        }
+
         std::ostringstream &oss = output_buffers[local_index];
         oss << i << "\t" << time << "\t" << average_time << "\t" << temperature << "\t" << energy;
 
@@ -231,9 +238,22 @@ namespace ansys
         {
           // Write the ce encoding to the file
           oss << "\t";
-          VectorXd encodingVector = configEncoder->GetEncodeVector(config);
+          VectorXd encodingVectorBefore = configEncoder->GetEncodeVector(config);
 
-          oss << encodingVector.transpose() << "\t";
+          oss << encodingVectorBefore.transpose();
+
+          // Lattice Jump
+          oss << "\t";
+          size_t vacancyId = config.GetVacancyLatticeId();
+
+          // cout << "VacancyId: " << vacancyId << endl;
+          // cout << "Selected_Id: " << selected_lattice_id << endl;
+          // cout << "Distance Order: " << config.GetDistanceOrder(vacancyId, selected_lattice_id) << endl;
+
+          config.LatticeJump(make_pair(vacancyId, selected_lattice_id));
+          VectorXd encodingVectorAfter = configEncoder->GetEncodeVector(config);
+
+          oss << encodingVectorAfter.transpose();
         }
 
         oss << "\n";
@@ -338,7 +358,7 @@ namespace ansys
     // Local Config
     if (extract_encoding_)
     {
-      header_frame += "ce_encoding\t";
+      header_frame += "ce_encoding_before_jump\tce_encoding_after_jump\t";
     }
 
     if (!header_frame.empty() && header_frame.back() == '\t')

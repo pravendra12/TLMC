@@ -96,7 +96,7 @@ Eigen::VectorXd PotentialEnergyEstimator::GetEncodeVector(const Config &config) 
 
     encode_vector(idx) = count_bond / total_bond;
 
-    std::cout << cluster_type << " : " << count_bond << " : " << total_bond << std::endl;
+    // std::cout << cluster_type << " : " << count_bond << " : " << total_bond << std::endl;
     ++idx;
   }
 
@@ -262,16 +262,7 @@ double PotentialEnergyEstimator::GetDeThreadSafe(
 
   }
 
-  cout <<  "encodeBefore : " << encode_before.transpose() << endl;
-  cout <<  "encodeAfter : " << encode_after.transpose() << endl;
-
-
   // Step 4: Compute energy difference
-
-  // double E_before_swap = beta_ce_.dot(encode_before);
-  // double E_after_swap = beta_ce_.dot(encode_after);
-  //
-  // double dE = E_after_swap - E_before_swap;
 
   VectorXd encode_diff = encode_after - encode_before;
   double dE = beta_ce_.dot(encode_diff);

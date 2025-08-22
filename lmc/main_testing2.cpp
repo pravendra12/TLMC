@@ -25,6 +25,50 @@ int main()
   cfgInitial.UpdateNeighborList(cutoffs);
   cfgFinal.UpdateNeighborList(cutoffs);
 
+  set<Element> elementSet = {Element("Mo"), Element("Ta"), Element("X")};
+
+  PotentialEnergyEstimator energyPredictor("/home/pravendra3/Documents/LatticeMonteCarlo-eigen/script/coefficientFileV2_MoTa.json",
+                                           cfgInitial,
+                                           cfgInitial,
+                                           elementSet);
+
+
+  cout << "Energy Initial: " << energyPredictor.GetEnergy(cfgInitial) << endl;
+  cout << "Energy Final: " << energyPredictor.GetEnergy(cfgFinal) << endl;
+
+  cout << "dE: " << energyPredictor.GetEnergy(cfgFinal) - energyPredictor.GetEnergy(cfgInitial) << endl;
+
+  auto vacancyId = cfgInitial.GetVacancyLatticeId();
+
+  // From dE Predictor
+  for (auto id : cfgInitial.GetNeighborLatticeIdVectorOfLattice(vacancyId, 1))
+  {
+    cout << id << " : " << energyPredictor.GetDeSwap(cfgInitial, make_pair(vacancyId, id)) << " : ";
+
+    auto eInitial = energyPredictor.GetEnergy(cfgInitial);
+    cfgInitial.LatticeJump(make_pair(vacancyId, id));
+
+    auto eFinal = energyPredictor.GetEnergy(cfgInitial);
+
+    cout << "dE: " << eFinal - eInitial << endl;
+
+    cfgInitial.LatticeJump(make_pair(vacancyId, id));
+  }
+
+  cout << cfgFinal.GetVacancyLatticeId() << endl;
+}
+
+/*
+int main()
+{
+  const vector<double> cutoffs = {3, 4, 5};
+
+  auto cfgInitial = Config::ReadPoscar("/home/pravendra3/Documents/nebOutput/nebOutput/0_path2/structures/unrelaxed/POSCAR_unrelaxed_initial");
+  auto cfgFinal = Config::ReadPoscar("/home/pravendra3/Documents/nebOutput/nebOutput/0_path2/structures/unrelaxed/POSCAR_unrelaxed_final");
+
+  cfgInitial.UpdateNeighborList(cutoffs);
+  cfgFinal.UpdateNeighborList(cutoffs);
+
 
   ClusterExpansionParameters ceParams("/home/pravendra3/Documents/LatticeMonteCarlo-eigen/script/coefficientFile_MoTa.json");
 
@@ -39,9 +83,21 @@ int main()
   auto vacancyId = cfgInitial.GetVacancyLatticeId();
 
 
+  // From dE Predictor
   for (auto id : cfgInitial.GetNeighborLatticeIdVectorOfLattice(vacancyId, 1))
   {
-    cout << energyPredictor.GetDeSwap(cfgInitial, make_pair(vacancyId, id)) << " : " << id << endl;
+    cout << id << " : " << energyPredictor.GetDeSwap(cfgInitial, make_pair(vacancyId, id)) << " : " ;
+
+    auto eInitial = energyPredictor.ComputeEnergyOfConfig(cfgInitial);
+    cfgInitial.LatticeJump(make_pair(vacancyId, id));
+
+    auto eFinal = energyPredictor.ComputeEnergyOfConfig(cfgInitial);
+
+
+    cout << "dE: " << eFinal-eInitial << endl;
+
+    cfgInitial.LatticeJump(make_pair(vacancyId, id));
+
 
 
   }
@@ -49,9 +105,8 @@ int main()
   cout << cfgFinal.GetVacancyLatticeId() << endl;
 
 
-
-
 }
+  */
 
 /*
 VectorXd GetKRAEncoding(
@@ -132,7 +187,8 @@ VectorXd GetConfigEncoding(const Config &config,
 
   return totalCorrelation;
 }
-
+*/
+/*
 int main()
 {
 
@@ -206,6 +262,7 @@ int main()
   nebOutput["ceEncodingInitial"] = {};
   nebOutput["ceEncodingFinal"] = {};
   nebOutput["kraEncoding"] = {};
+
 
   for (const auto &entry : fs::directory_iterator(pathNebOutput))
   {
@@ -285,7 +342,7 @@ int main()
     }
   }
 
-  std::ofstream out("/home/pravendra3/Documents/nebOutput/nebOutputV2.json");
+  std::ofstream out("/home/pravendra3/Documents/nebOutput/nebOutputV3.json");
   out << nebOutput.dump(4); // pretty print with indent = 4
   out.close();
 }

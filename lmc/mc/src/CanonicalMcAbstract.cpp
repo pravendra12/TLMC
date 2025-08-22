@@ -38,10 +38,12 @@ namespace mc
                    elementSet,
                    predictorFilename,
                    "cmc_log.txt"),
-        ceParams_(predictorFilename),
         energyChangePredictor_(
-            ceParams_,
-            config),
+          predictorFilename, 
+          config, 
+          supercellConfig, 
+          elementSet
+        ),
         atomIndexSelector_(0, config_.GetNumAtoms() - 1)
   {
   }

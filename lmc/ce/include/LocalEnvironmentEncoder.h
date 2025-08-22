@@ -46,4 +46,12 @@ RowVectorXd GetLocalEnvironmentEncoding(
     const string &basisType,
     const map<string, vector<vector<size_t>>> &orbitEncodingMap);
 
+// With symmetry + encoding
+RowVectorXd GetLocalEnvironmentEncoding(
+    const Config &config, 
+    const set<Element> &elementSet, 
+    const string &basisType, 
+    const vector<size_t> &canonicalSortedLatticeIds, 
+    const vector<pair<vector<vector<size_t>>, LatticeClusterType>> &equivalentEncodedClusters);
+
 #endif // LMC_CE_INCLUDE_LOCALENVIRONMENTENCODER_H_

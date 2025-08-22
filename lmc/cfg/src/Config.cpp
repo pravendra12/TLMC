@@ -212,6 +212,11 @@ size_t Config::GetAtomIdOfLattice(size_t latticeId) const
   return lattice_to_atom_hashmap_.at(latticeId);
 }
 
+size_t Config::GetLatticeIdOfAtom(size_t atomId) const
+{
+  return atom_to_lattice_hashmap_.at(atomId);
+}
+
 Eigen::Ref<const Eigen::Vector3d> Config::GetRelativePositionOfLattice(size_t lattice_id) const
 {
   return relative_position_matrix_.col(static_cast<int>(lattice_id));
@@ -279,6 +284,10 @@ Config::GetSortedLatticeVectorStateOfPair(
     const std::pair<size_t, size_t> &lattice_id_jump_pair,
     const size_t &max_bond_order) const
 {
+
+  // Take one direction as canonical direction : 111
+  // Get the position for this direction
+  // Then for other direction use the symmetry operation to match the cords
 
   auto neighboring_lattice_ids = GetNeighboringLatticeIdSetOfPair(lattice_id_jump_pair,
                                                                   max_bond_order);

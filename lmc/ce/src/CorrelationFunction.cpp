@@ -186,12 +186,12 @@ RowVectorXd GetCorrelationFunction(const Config &config,
   return corrFunction;
 }
 
-/*
+// Return correlation function for an orbit
 RowVectorXd GetCorrelationFunction(const Config &config,
                                    const set<Element> &elementSet,
                                    const string &basisType,
-                                   const vector<vector<size_t>> &orbitVector,
-                                   const bool &isClusterSymmetric)
+                                   const vector<size_t> &canonicalSortedLatticeIds,
+                                   const vector<vector<size_t>> &encodedOrbitVector)
 
 {
 
@@ -199,42 +199,57 @@ RowVectorXd GetCorrelationFunction(const Config &config,
   RowVectorXd corrFunction;
   bool isCorrFunctionResized = false;
 
+  // Will be reused as many times as the function is recalled
+  static AtomBasis atomicBasis(elementSet, basisType);
+
   // Number of clusters in the orbit
   int numClusters = 0;
 
-  for (auto cluster : orbitVector)
+  for (auto encodedCluster : encodedOrbitVector)
   {
     vector<RowVectorXd> atomBasisVector;
-
-    // cout << "-------------------" << endl;
     vector<string> elementCluster;
 
     // Retrieve the basis vector for the cluster
     // Iterate over the encoded cluster to extract the basis for each element
     // and compute the tensor product of the basis vectors
-    for (auto latticeId : cluster)
+    for (auto idx : encodedCluster)
     {
-      // auto latticeId = symmetricSortedVector[idx];
+      auto latticeId = canonicalSortedLatticeIds[idx];
+
       auto element = config.GetElementOfLattice(latticeId);
+      auto elementString = element.GetElementString();
 
-      elementCluster.emplace_back(element.GetElementString());
+      elementCluster.emplace_back(elementString);
 
-      RowVectorXd atomBasis = GetAtomBasis(element,
-                                           elementSet,
-                                           basisType);
+      // Get the basis vector
+      RowVectorXd atomBasis = atomicBasis.GetCachedAtomBasis(element);
 
       atomBasisVector.emplace_back(atomBasis);
 
-      // cout << element.GetElementString() << latticeId << "( " << idx << " )" << " " << atomBasis << endl;
+      // cout << element.GetElementString() << " " << latticeId << "( " << idx << " )" << " " << atomBasis << endl;
     }
 
-    // cout << "Size of atomBasisVector: " << atomBasisVector.size() << endl;
-    // cout << elementCluster << endl;
+    // Key for caching the tensor product
+    string elementClusterString;
 
-    RowVectorXd clusterBasisVector = GetTensorProduct(atomBasisVector,
-                                                      isClusterSymmetric);
+    // Will assume all the clusters to be non symmetric
+    bool isClusterSymmetric = false;
 
-        // cout << clusterBasisVector << endl;
+    // A-B and B-A will be different
+    for (const auto &element : elementCluster)
+    {
+      elementClusterString += element + "-";
+    }
+    if (!elementClusterString.empty())
+      elementClusterString.pop_back();
+
+    // cout << elementClusterString << endl;
+
+    RowVectorXd clusterBasisVector = atomicBasis.GetCachedTensorProduct(
+        elementClusterString,
+        atomBasisVector,
+        isClusterSymmetric);
 
     if (!isCorrFunctionResized)
     {
@@ -250,8 +265,60 @@ RowVectorXd GetCorrelationFunction(const Config &config,
 
   // Normalize the correlation function by the number of clusters in an orbit
   corrFunction /= numClusters;
-  // cout << "Normalized Correlation Function: " << corrFunction << endl;
 
   return corrFunction;
 }
-*/
+
+
+// Class wh
+
+// Return correlation function for an orbit
+VectorXd GetCorrelationFunction(const Config &config,
+                                BasisSet &atomicBasis,
+                                const vector<size_t> &canonicalSortedLatticeIds,
+                                const vector<vector<size_t>> &encodedOrbitVector)
+
+{
+  // Φ
+  VectorXd corrFunction;
+  bool isCorrFunctionResized = false;
+
+  // Number of clusters in the orbit
+  int numClusters = 0;
+
+  for (auto encodedCluster : encodedOrbitVector)
+  {
+    vector<Element> elementVector;
+
+    // Retrieve the basis vector for the cluster
+    // Iterate over the encoded cluster to extract the basis for each element
+    // and compute the tensor product of the basis vectors
+    for (auto idx : encodedCluster)
+    {
+      auto latticeId = canonicalSortedLatticeIds[idx];
+
+      auto element = config.GetElementOfLattice(latticeId);
+      elementVector.emplace_back(element);
+    }
+
+    AtomClusterType atomClusterType(elementVector);
+
+    VectorXd clusterBasisVector = atomicBasis.GetCachedTensorProduct(atomClusterType);
+
+    if (!isCorrFunctionResized)
+    {
+      corrFunction.resize(clusterBasisVector.size());
+      corrFunction.setZero();
+      isCorrFunctionResized = true;
+    }
+
+    // Add the cluster basis vector to the correlation function
+    corrFunction += clusterBasisVector;
+    numClusters++;
+  }
+
+  // Normalize the correlation function by the number of clusters in an orbit
+  corrFunction /= numClusters;
+
+  return corrFunction;
+}

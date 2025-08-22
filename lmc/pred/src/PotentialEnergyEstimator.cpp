@@ -1,273 +1,299 @@
-/**************************************************************************************************
- * Copyright (c) 2022-2023. All rights reserved.                                                  *
- * @Author: Zhucong Xi                                                                            *
- * @Date: 6/14/22 12:36 PM                                                                        *
- * @Last Modified by: pravendra12                                                                  *
- * @Last Modified time: 10/30/23 3:13 PM                                                          *
- **************************************************************************************************/
+/*******************************************************************************
+ * Copyright (c) 2022-2023. All rights reserved.
+ * @Author: Zhucong Xi
+ * @Date: 6/14/22 12:36 PM
+ * @Last Modified by: pravendra12
+ * @Last Modified: 2025-06-01
+ ******************************************************************************/
 
-/*! \file  PotentialEnergyEstimator.cpp
- *  \brief File for the PotentialEnergyEstimator class implementation.
+/*! @file  PotentialEnergyEstimator.cpp
+ *  @brief File for the PotentialEnergyEstimator class implementation.
  */
 
 #include "PotentialEnergyEstimator.h"
 
-/*! \brief Convert cluster set to a map with the number of appearance of each cluster type.
- *  \param cluster_type_set : The set of cluster types
- *  \return                 : A map with the number of appearance of each cluster type
+/*! @brief Convert cluster set to a map with the number of appearance of each cluster type.
+ *  @param clusterTypeSet  The set of cluster types
+ *  @return                A map with the number of appearance of each cluster type
  */
-static std::unordered_map<ClusterType, size_t, boost::hash<ClusterType>> ConvertSetToHashMap(
-    const std::set<ClusterType> &cluster_type_set)
+static unordered_map<ClusterType, size_t, boost::hash<ClusterType>> ConvertSetToHashMap(
+    const set<ClusterType> &clusterTypeSet)
 {
-  std::unordered_map<ClusterType, size_t, boost::hash<ClusterType>> cluster_type_count;
-  for (const auto &cluster_type : cluster_type_set)
+  unordered_map<ClusterType, size_t, boost::hash<ClusterType>> clusterTypeCount;
+  for (const auto &clusterType : clusterTypeSet)
   {
-    cluster_type_count[cluster_type] = 0;
+    clusterTypeCount[clusterType] = 0;
   }
-  return cluster_type_count;
+  return clusterTypeCount;
 }
 
 PotentialEnergyEstimator::PotentialEnergyEstimator(
-    const std::string &predictor_filename,
-    const Config &reference_config,
-    const Config &supercell_config,
-    const std::set<Element> &element_set) : max_cluster_size_(
-                                                ReadParameterFromJson(
-                                                predictor_filename,
-                                                "maxClusterSizeCE")),
-                                            max_bond_order_(
-                                                ReadParameterFromJson(
-                                                    predictor_filename,
-                                                    "maxBondOrderCE")),
-                                            beta_ce_(
-                                              ReadParametersFromJson(
-                                                predictor_filename, 
-                                                "ce", "beta_ce")),
-                                            element_set_(element_set),
-                                            initialized_cluster_type_set_(
-                                                InitializeClusterTypeSet(reference_config,
-                                                                         element_set_,
-                                                                         max_cluster_size_,
-                                                                         max_bond_order_)),
-                                            lattice_cluster_type_count_(
-                                                CountLatticeClusterTypes(supercell_config,
-                                                                         max_cluster_size_,
-                                                                         max_bond_order_))
+    const string &predictorFilename,
+    const Config &referenceConfig,
+    const Config &supercellConfig,
+    const set<Element> &element_set) : maxClusterSize_(ReadParameterFromJson(predictorFilename,
+                                                                             "maxClusterSizeCE")),
+                                       maxBondOrder_(
+                                           ReadParameterFromJson(
+                                               predictorFilename,
+                                               "maxBondOrderCE")),
+                                       betaCE_(
+                                           ReadParametersFromJson(
+                                               predictorFilename,
+                                               "ce", "beta_ce")),
+                                       elementSet_(element_set),
+
+                                       initializedClusterTypeSet_(
+                                           InitializeClusterTypeSet(
+                                               referenceConfig,
+                                               elementSet_,
+                                               maxClusterSize_,
+                                               maxBondOrder_)),
+                                       clusterTypeCountHashMap_(
+                                           ConvertSetToHashMap(
+                                               initializedClusterTypeSet_)),
+                                       latticeClusterTypeCount_(
+                                           CountLatticeClusterTypes(
+                                               supercellConfig,
+                                               maxClusterSize_,
+                                               maxBondOrder_))
 
 {
 
-  cout << "Max Bond Order for CE: " << max_bond_order_ << endl;
-  cout << "Max Cluster Size for CE: " << max_cluster_size_ << endl;
+  cout << "Max Bond Order for CE: " << maxBondOrder_ << endl;
+  cout << "Max Cluster Size for CE: " << maxClusterSize_ << endl;
 
-
-  /// Todo : check the size of the effective_cluster_interaction_ and initialized_cluster_type_set_
-  // if (initialized_cluster_type_set_.size() != static_cast<size_t>(effective_cluster_interaction_.size())) {
-  //   // here 1 is for void cluster
-  //   throw std::invalid_argument(
-  //       "The size of the ECI vector is not compatible with the number of types of clusters. They are "
-  //           + std::to_string(effective_cluster_interaction_.size()) + " and "
-  //           + std::to_string(initialized_cluster_type_set_.size()) + " respectively.");
-  // }
+  if (initializedClusterTypeSet_.size() != static_cast<size_t>(betaCE_.size()))
+  {
+    throw std::invalid_argument(
+        "Error in PotentialEnergyEstimator: The size of 'betaCE_' (" + std::to_string(betaCE_.size()) + ") is not compatible with the number of initialized cluster types in 'initializedClusterTypeSet_' (" + std::to_string(initializedClusterTypeSet_.size()) + "). Please ensure they are consistent.");
+  }
 }
-PotentialEnergyEstimator::~PotentialEnergyEstimator() = default;
 
-// This is the function used to generate the encode_vector which has the count
-// corresponding to each cluster
+PotentialEnergyEstimator::~PotentialEnergyEstimator() = default;
 
 Eigen::VectorXd PotentialEnergyEstimator::GetEncodeVector(const Config &config) const
 {
-  auto cluster_type_count_hashmap(ConvertSetToHashMap(initialized_cluster_type_set_));
+  auto clusterTypeCountHashMap = clusterTypeCountHashMap_;
 
-  auto all_lattice_hashset = FindAllLatticeClusters(config, max_cluster_size_, max_bond_order_, {});
+  auto allLatticeClusterSet = FindAllLatticeClusters(config, maxClusterSize_, maxBondOrder_, {});
 
-  for (const auto &lattice_cluster : all_lattice_hashset)
+  for (const auto &latticeCluster : allLatticeClusterSet)
   {
-    auto atom_cluster_type = IdentifyAtomClusterType(config, lattice_cluster.GetLatticeIdVector());
-    cluster_type_count_hashmap.at(ClusterType(atom_cluster_type, lattice_cluster.GetClusterType()))++;
+    auto atomClusterType = IdentifyAtomClusterType(config, latticeCluster.GetLatticeIdVector());
+    clusterTypeCountHashMap.at(ClusterType(atomClusterType, latticeCluster.GetClusterType()))++;
   }
-  Eigen::VectorXd encode_vector(initialized_cluster_type_set_.size());
+  Eigen::VectorXd encodeVector(initializedClusterTypeSet_.size());
   int idx = 0;
-  for (const auto &cluster_type : initialized_cluster_type_set_)
+  for (const auto &clusterType : initializedClusterTypeSet_)
   {
     // Count of Cluster Types for given configuration
-    auto count_bond = static_cast<double>(cluster_type_count_hashmap.at(cluster_type));
+    auto count_bond = static_cast<double>(clusterTypeCountHashMap.at(clusterType));
     // Count of Cluster Types for normalization
-    auto total_bond = static_cast<double>(lattice_cluster_type_count_.at(cluster_type.lattice_cluster_type_));
+    auto total_bond = static_cast<double>(latticeClusterTypeCount_.at(clusterType.lattice_cluster_type_));
 
-    encode_vector(idx) = count_bond / total_bond;
-
-    // std::cout << cluster_type << " : " << count_bond << " : " << total_bond << std::endl;
+    encodeVector(idx) = count_bond / total_bond;
     ++idx;
   }
 
-  return encode_vector;
+  return encodeVector;
 }
 
-Eigen::VectorXd
-PotentialEnergyEstimator::GetEncodeVectorOfCluster(const Config &config,
-                                                   const std::vector<size_t> &cluster) const
+Eigen::VectorXd PotentialEnergyEstimator::GetEncodeVectorOfCluster(
+    const Config &config,
+    const vector<size_t> &cluster) const
 {
-  auto cluster_type_count_hashmap(ConvertSetToHashMap(initialized_cluster_type_set_));
+  auto clusterTypeCountHashMap = clusterTypeCountHashMap_;
 
-  auto all_lattice_clusters = FindAllLatticeClusters(config, max_cluster_size_, max_bond_order_, cluster);
+  auto allLatticeClusterSet = FindAllLatticeClusters(config, maxClusterSize_, maxBondOrder_, cluster);
 
-  for (auto &lattice_cluster : all_lattice_clusters)
+  for (auto &latticeCluster : allLatticeClusterSet)
   {
-    auto atom_cluster_type = IdentifyAtomClusterType(config, lattice_cluster.GetLatticeIdVector());
-    cluster_type_count_hashmap.at(ClusterType(atom_cluster_type, lattice_cluster.GetClusterType()))++;
+    auto atomClusterType = IdentifyAtomClusterType(config, latticeCluster.GetLatticeIdVector());
+    clusterTypeCountHashMap.at(ClusterType(atomClusterType, latticeCluster.GetClusterType()))++;
   }
 
-  Eigen::VectorXd encode_vector_cluster(initialized_cluster_type_set_.size());
+  Eigen::VectorXd encodeVectorCluster(initializedClusterTypeSet_.size());
   int idx = 0;
-  for (const auto &cluster_type : initialized_cluster_type_set_)
+  for (const auto &clusterType : initializedClusterTypeSet_)
   {
     // Count of Cluster Types for given configuration
-    auto count_bond = static_cast<double>(cluster_type_count_hashmap.at(cluster_type));
+    auto count_bond = static_cast<double>(clusterTypeCountHashMap.at(clusterType));
     // Count of Cluster Types for normalization
-    auto total_bond = static_cast<double>(lattice_cluster_type_count_.at(cluster_type.lattice_cluster_type_));
+    auto total_bond = static_cast<double>(latticeClusterTypeCount_.at(clusterType.lattice_cluster_type_));
 
-    encode_vector_cluster(idx) = count_bond / total_bond;
-
-    //std::cout << cluster_type << " : " << count_bond << " : " << total_bond << std::endl;
-
+    encodeVectorCluster(idx) = count_bond / total_bond;
     ++idx;
   }
 
-  return encode_vector_cluster;
+  return encodeVectorCluster;
 }
 
-double
-PotentialEnergyEstimator::GetEnergy(const Config &config) const
+double PotentialEnergyEstimator::GetEnergy(const Config &config) const
 {
-  auto encode_vector = GetEncodeVector(config);
+  auto encodeVector = GetEncodeVector(config);
 
-  // double energy = adjusted_beta_ce_.dot(encode_vector) + adjusted_intercept_ce_;
-
-  double energy = beta_ce_.dot(encode_vector);
+  double energy = betaCE_.dot(encodeVector);
 
   return energy;
 }
 
-double
-PotentialEnergyEstimator::GetEnergyOfCluster(const Config &config,
-                                             const std::vector<size_t> &cluster) const
+// Need to change the name of this
+double PotentialEnergyEstimator::GetEnergyOfCluster(const Config &config,
+                                                    const vector<size_t> &cluster) const
 {
-  Eigen::VectorXd encode_vector_cluster = GetEncodeVectorOfCluster(config,
-                                                                   cluster);
+  Eigen::VectorXd encodeVectorCluster = GetEncodeVectorOfCluster(config,
+                                                                 cluster);
 
-  // double energy_cluster = adjusted_beta_ce_.dot(encode_vector_cluster) +
-  //                         adjusted_intercept_ce_;
-  double energy_cluster = beta_ce_.dot(encode_vector_cluster);
-  return energy_cluster;
+  double energyOfCluster = betaCE_.dot(encodeVectorCluster);
+  return energyOfCluster;
 }
 
-double
-PotentialEnergyEstimator::GetDe(Config &config,
-                                const std::pair<size_t, size_t> &lattice_id_pair) const
+Eigen::VectorXd PotentialEnergyEstimator::GetEncodeVectorWithinAllowedSites(
+    const Config &config,
+    const vector<size_t> &allowedSites) const
 {
-  if (config.GetElementOfLattice(lattice_id_pair.first) == config.GetElementOfLattice(lattice_id_pair.second))
+  auto clusterTypeCountHashMap = clusterTypeCountHashMap_;
+
+  auto allLatticeClusterSet = FindClustersWithinAllowedSites(config, maxClusterSize_, maxBondOrder_, allowedSites);
+  for (auto &latticeCluster : allLatticeClusterSet)
+  {
+    auto atomClusterType = IdentifyAtomClusterType(config, latticeCluster.GetLatticeIdVector());
+    clusterTypeCountHashMap.at(ClusterType(atomClusterType, latticeCluster.GetClusterType()))++;
+  }
+
+  Eigen::VectorXd encodeVectorCluster(initializedClusterTypeSet_.size());
+  int idx = 0;
+  for (const auto &clusterType : initializedClusterTypeSet_)
+  {
+    // Count of Cluster Types for given configuration
+    auto count_bond = static_cast<double>(clusterTypeCountHashMap.at(clusterType));
+    // Count of Cluster Types for normalization
+    auto total_bond = static_cast<double>(latticeClusterTypeCount_.at(clusterType.lattice_cluster_type_));
+
+    encodeVectorCluster(idx) = count_bond / total_bond;
+
+    // cout << clusterType.lattice_cluster_type_ << " " << clusterType.atom_cluster_type_ << " : " << count_bond << endl;
+
+    ++idx;
+  }
+
+  return encodeVectorCluster;
+}
+
+double PotentialEnergyEstimator::GetEnergyOfClusterWithinAllowedSites(
+    const Config &config,
+    const vector<size_t> &allowedSites) const
+{
+  // allowed sites would contain the lattice Ids
+  Eigen::VectorXd encodeVectorCluster = GetEncodeVectorWithinAllowedSites(config,
+                                                                          allowedSites);
+
+  double energyOfCluster = betaCE_.dot(encodeVectorCluster);
+  return energyOfCluster;
+}
+
+double PotentialEnergyEstimator::GetDeSwap(Config &config,
+                                           const pair<size_t, size_t> &latticeIdPair) const
+{
+  if (config.GetElementOfLattice(latticeIdPair.first) == config.GetElementOfLattice(latticeIdPair.second))
   {
     return 0;
   }
 
   // Energy Before Swap
-  auto E_before_swap = GetEnergyOfCluster(config, {lattice_id_pair.first, lattice_id_pair.second});
+  auto energyBeforeSwap = GetEnergyOfCluster(config, {latticeIdPair.first, latticeIdPair.second});
 
   // Swapping the Elements
-  config.LatticeJump(lattice_id_pair);
+  config.LatticeJump(latticeIdPair);
 
   // Energy After Swap
-  auto E_after_swap = GetEnergyOfCluster(config, {lattice_id_pair.first, lattice_id_pair.second});
+  auto energyAfterSwap = GetEnergyOfCluster(config, {latticeIdPair.first, latticeIdPair.second});
 
   // Going back to Original Config
-  config.LatticeJump(lattice_id_pair);
+  config.LatticeJump(latticeIdPair);
 
-  auto dE = E_after_swap - E_before_swap;
+  auto dE = energyAfterSwap - energyBeforeSwap;
 
   return dE;
 }
 
-double PotentialEnergyEstimator::GetDeThreadSafe(
+double PotentialEnergyEstimator::GetDeMigration(
     const Config &config,
-    const std::pair<size_t, size_t> &lattice_id_pair) const
+    const pair<size_t, size_t> &latticeIdPair) const
 {
-  const size_t id1 = lattice_id_pair.first;  // Vacancy (X)
-  const size_t id2 = lattice_id_pair.second; // Migrating atom
+  const size_t id1 = latticeIdPair.first;  // Vacancy (X)
+  const size_t id2 = latticeIdPair.second; // Migrating atom
 
   if (config.GetElementOfLattice(id1) == config.GetElementOfLattice(id2))
   {
-    // cout << "0" << endl;
     return 0;
   }
 
-  // Step 1: Find all clusters affected by the jump pair
-  std::vector<size_t> cluster = {id1, id2};
+  // Find all clusters affected by the jump pair
+  vector<size_t> cluster = {id1, id2};
 
-  auto start = chrono::high_resolution_clock::now();
-  auto all_lattice_clusters = FindAllLatticeClusters(config, max_cluster_size_, max_bond_order_, cluster);
-  auto end = chrono::high_resolution_clock::now();
-  auto duration = duration_cast<chrono::microseconds>(end - start);
-  // cout << "Time to compute FindAllLatticeClusters: " << duration.count() << " microseconds" << endl;
+  auto allLatticeClusterSet = FindAllLatticeClusters(config,
+                                                     maxClusterSize_,
+                                                     maxBondOrder_,
+                                                     cluster);
 
-  // Step 2: Compute encoding contributions before and after the swap
-  auto cluster_type_count_hashmap_before = ConvertSetToHashMap(initialized_cluster_type_set_);
-  auto cluster_type_count_hashmap_after = cluster_type_count_hashmap_before;
+  // Compute encoding contributions before and after the swap
+  auto clusterTypeCountHashMapBefore = clusterTypeCountHashMap_;
+  auto clusterTypeCountHashMapAfter = clusterTypeCountHashMap_;
 
-  for (const auto &lattice_cluster : all_lattice_clusters)
+  for (const auto &latticeCluster : allLatticeClusterSet)
   {
-    auto lattice_ids = lattice_cluster.GetLatticeIdVector();
+    auto lattice_ids = latticeCluster.GetLatticeIdVector();
 
     // Before swap: Use current config state
-    auto atom_cluster_type_before = IdentifyAtomClusterType(config, lattice_ids);
-    auto cluster_type_before = ClusterType(atom_cluster_type_before, lattice_cluster.GetClusterType());
-    cluster_type_count_hashmap_before.at(cluster_type_before)++;
+    auto atomClusterTypeBefore = IdentifyAtomClusterType(config, lattice_ids);
+    auto clusterTypeBefore = ClusterType(atomClusterTypeBefore, latticeCluster.GetClusterType());
+    clusterTypeCountHashMapBefore.at(clusterTypeBefore)++;
 
     // After swap: Simulate the swap locally
-    std::vector<Element> swapped_elements;
+    vector<Element> swappedElements;
     for (auto id : lattice_ids)
     {
       if (id == id1)
       {
-        swapped_elements.push_back(config.GetElementOfLattice(id2)); // id1 gets id2's element
+        // id1 gets id2's element
+        swappedElements.push_back(config.GetElementOfLattice(id2));
       }
       else if (id == id2)
       {
-        // swapped_elements.push_back(Element("X")); // id2 gets id1's element
-        swapped_elements.push_back(config.GetElementOfLattice(id1));
+        swappedElements.push_back(config.GetElementOfLattice(id1));
       }
       else
       {
-        swapped_elements.push_back(config.GetElementOfLattice(id));
+        swappedElements.push_back(config.GetElementOfLattice(id));
       }
     }
-    auto atom_cluster_type_after = AtomClusterType(swapped_elements);
-    auto cluster_type_after = ClusterType(atom_cluster_type_after, lattice_cluster.GetClusterType());
-    cluster_type_count_hashmap_after.at(cluster_type_after)++;
+    auto atomClusterTypeAfter = AtomClusterType(swappedElements);
+    auto clusterTypeAfter = ClusterType(atomClusterTypeAfter, latticeCluster.GetClusterType());
+    clusterTypeCountHashMapAfter.at(clusterTypeAfter)++;
   }
 
-  // Step 3: Convert to encoding vectors
-  Eigen::VectorXd encode_before(initialized_cluster_type_set_.size());
-  Eigen::VectorXd encode_after(initialized_cluster_type_set_.size());
+  // Convert to encoding vectors
+  Eigen::VectorXd encodeBefore(initializedClusterTypeSet_.size());
+  Eigen::VectorXd encodeAfter(initializedClusterTypeSet_.size());
+
   int idx = 0;
-  for (const auto &cluster_type : initialized_cluster_type_set_)
+  for (const auto &clusterType : initializedClusterTypeSet_)
   {
-    auto count_before = static_cast<double>(cluster_type_count_hashmap_before.at(cluster_type));
-    auto count_after = static_cast<double>(cluster_type_count_hashmap_after.at(cluster_type));
-    auto total_bond = static_cast<double>(lattice_cluster_type_count_.at(cluster_type.lattice_cluster_type_));
-    encode_before(idx) = count_before / total_bond;
-    encode_after(idx) = count_after / total_bond;
+    auto count_before = static_cast<double>(clusterTypeCountHashMapBefore.at(clusterType));
+    auto count_after = static_cast<double>(clusterTypeCountHashMapAfter.at(clusterType));
+    auto total_bond = static_cast<double>(latticeClusterTypeCount_.at(clusterType.lattice_cluster_type_));
+
+    encodeBefore(idx) = count_before / total_bond;
+    encodeAfter(idx) = count_after / total_bond;
     ++idx;
-
-    // cout << cluster_type << " : " << count_before << " : " << count_after << endl;
-
   }
 
-  // Step 4: Compute energy difference
+  // Compute energy difference
 
-  VectorXd encode_diff = encode_after - encode_before;
-  double dE = beta_ce_.dot(encode_diff);
-
-  // cout << dE << endl;
+  VectorXd encode_diff = encodeAfter - encodeBefore;
+  double dE = betaCE_.dot(encode_diff);
 
   return dE;
 }

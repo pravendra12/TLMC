@@ -1,46 +1,53 @@
+/*******************************************************************************
+ * Copyright (c) 2022-2025. All rights reserved.
+ * @Author: Zhucong Xi
+ * @Date: 2022
+ * @Last Modified by: pravendra12
+ * @Last Modified: 2025-06-01
+ ******************************************************************************/
+
+/*! \file CanonicalMcOmp.cpp
+ *  @brief File for CanonicalMcOmp class implementation.
+ */
+
 #include "CanonicalMcOmp.h"
-#include <omp.h>
 namespace mc
 {
   CanonicalMcOmp::CanonicalMcOmp(Config config,
-                                 Config supercell_config,
-                                 unsigned long long int log_dump_steps,
-                                 unsigned long long int config_dump_steps,
-                                 unsigned long long int maximum_steps,
-                                 unsigned long long int thermodynamic_averaging_steps,
-                                 unsigned long long int restart_steps,
-                                 double restart_energy,
+                                 Config supercellConfig,
+                                 unsigned long long int logDumpSteps,
+                                 unsigned long long int configDumpStep,
+                                 unsigned long long int maximumSteps,
+                                 unsigned long long int thermodynamicAveragingSteps,
+                                 unsigned long long int restartSteps,
+                                 double restartEnergy,
                                  double temperature,
-                                 const std::set<Element> &element_set,
-                                 const size_t max_cluster_size,
-                                 const size_t max_bond_order,
-                                 const std::string &json_coefficients_filename)
-      : CanonicalMcAbstract(std::move(config),
-                            supercell_config,
-                            log_dump_steps,
-                            config_dump_steps,
-                            maximum_steps,
-                            thermodynamic_averaging_steps,
-                            restart_steps,
-                            restart_energy,
+                                 const set<Element> &elementSet,
+                                 const string &predictorFilename)
+      : CanonicalMcAbstract(move(config),
+                            supercellConfig,
+                            logDumpSteps,
+                            configDumpStep,
+                            maximumSteps,
+                            thermodynamicAveragingSteps,
+                            restartSteps,
+                            restartEnergy,
                             temperature,
-                            element_set,
-                            max_cluster_size,
-                            max_bond_order,
-                            json_coefficients_filename)
+                            elementSet,
+                            predictorFilename)
   {
     if (world_size_ != 1)
     {
-      std::cout << "Must use 1 process. Terminating...\n"
-                << std::endl;
+      cout << "Must use 1 process. Terminating...\n"
+           << endl;
       MPI_Finalize();
       exit(0);
     }
-#pragma omp parallel default(none) shared(std::cout)
+#pragma omp parallel default(none) shared(cout)
     {
 #pragma omp master
       {
-        std::cout << "Using " << omp_get_num_threads() << " threads." << std::endl;
+        cout << "Using " << omp_get_num_threads() << " threads." << endl;
         num_threads_ = static_cast<size_t>(omp_get_num_threads());
       }
     }
@@ -51,7 +58,7 @@ namespace mc
     event_vector_.clear();
     unavailable_position_.clear();
 
-    std::pair<size_t, size_t> lattice_id_jump_pair;
+    pair<size_t, size_t> lattice_id_jump_pair;
     for (size_t i = 0; i < num_threads_; ++i)
     {
       size_t ct = 0;
@@ -73,39 +80,38 @@ namespace mc
         unavailable_position_.emplace(selected_lattice_index);
 
         auto firstNN = config_.GetNeighborLatticeIdVectorOfLattice(selected_lattice_index, 1);
-        std::copy(firstNN.begin(), firstNN.end(),
-                  std::inserter(unavailable_position_,
-                                unavailable_position_.end()));
+        copy(firstNN.begin(), firstNN.end(),
+             inserter(unavailable_position_,
+                      unavailable_position_.end()));
 
         auto secondNN = config_.GetNeighborLatticeIdVectorOfLattice(selected_lattice_index, 2);
-        std::copy(secondNN.begin(), secondNN.end(),
-                  std::inserter(unavailable_position_,
-                                unavailable_position_.end()));
+        copy(secondNN.begin(), secondNN.end(),
+             inserter(unavailable_position_,
+                      unavailable_position_.end()));
 
         auto thirdNN = config_.GetNeighborLatticeIdVectorOfLattice(selected_lattice_index, 3);
-        std::copy(thirdNN.begin(), thirdNN.end(),
-                  std::inserter(unavailable_position_,
-                                unavailable_position_.end()));
+        copy(thirdNN.begin(), thirdNN.end(),
+             inserter(unavailable_position_,
+                      unavailable_position_.end()));
       }
       event_vector_.emplace_back(lattice_id_jump_pair, 0);
     }
 #pragma omp parallel for default(none)
     for (auto &event : event_vector_)
     {
-      event.second = energy_change_predictor_.GetDeThreadSafe(config_, event.first);
+      event.second = energyChangePredictor_.GetDeMigration(config_, event.first);
     }
   }
   void CanonicalMcOmp::Simulate()
   {
-    // while (steps_ <= maximum_steps_ * static_cast<unsigned long long int>(initial_temperature_ / decrement_temperature_ + 1)) {
-    while (steps_ <= maximum_steps_)
+
+    while (steps_ <= maximumSteps_)
     {
       BuildEventVector();
       for (auto [lattice_id_jump_pair, dE] : event_vector_)
       {
-        thermodynamic_averaging_.AddEnergy(energy_);
+        thermodynamicAveraging_.AddEnergy(energy_);
         Dump();
-        // UpdateTemperature();
         SelectEvent(lattice_id_jump_pair, dE);
         ++steps_;
       }

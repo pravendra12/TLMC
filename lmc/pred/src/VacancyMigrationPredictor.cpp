@@ -1,46 +1,38 @@
+/*******************************************************************************
+ * Copyright (c) 2025. All rights reserved.
+ * @Author: Pravendra Patel
+ * @Date:    2025-06-02
+ * @Last Modified by: pravendra12
+ * @Last Modified: 2025-06-02
+ *******************************************************************************/
+
+/*! @file VacancyMigrationPredictor.h
+    @brief File contains implementation of vacancy migration predictor class.
+*/
+
 #include "VacancyMigrationPredictor.h"
 
 VacancyMigrationPredictor::VacancyMigrationPredictor(
-    const string &predictorFilename,
-    const Config &referenceConfig,
-    const Config &supercellConfig,
-    const set<Element> &elementSet,
-    size_t maxClusterSize,
-    size_t maxBondOrder) : eKRAPredictor(predictorFilename,
-                                         referenceConfig,
-                                         elementSet),
-                           energyChangePredictor_(predictorFilename,
-                                                  referenceConfig,
-                                                  supercellConfig,
-                                                  elementSet)
+    const ClusterExpansionParameters &ceParams,
+    const Config &config) : eKRAPredictor_(ceParams,
+                                           config),
+                            energyPredictor_(
+                                ceParams,
+                                config)
 {
 }
 
-// (barrier, dE)
 pair<double, double> VacancyMigrationPredictor::GetBarrierAndDeltaE(
     const Config &config,
-    const pair<size_t, size_t> &latticeIdJumpPair) const
+    const pair<size_t, size_t> &latticeIdJumpPair) 
 {
-  double eKRA = eKRAPredictor.GetKRA(config,
-                                     latticeIdJumpPair);
+  double eKRA = eKRAPredictor_.GetKRA(config, latticeIdJumpPair);
 
-  double dE = energyChangePredictor_.GetDeThreadSafe(config,
-                                                     latticeIdJumpPair);
-
-  // EKRA = Ea - 1/2*dE
+  double dE = energyPredictor_.GetDeMigration(
+      config,
+      latticeIdJumpPair);
 
   double barrier = eKRA + (dE / 2);
 
   return pair<double, double>(barrier, dE);
-}
-
-static std::unordered_map<ClusterType, size_t, boost::hash<ClusterType>> ConvertSetToHashMap(
-    const std::set<ClusterType> &cluster_type_set)
-{
-  std::unordered_map<ClusterType, size_t, boost::hash<ClusterType>> cluster_type_count;
-  for (const auto &cluster_type : cluster_type_set)
-  {
-    cluster_type_count[cluster_type] = 0;
-  }
-  return cluster_type_count;
 }

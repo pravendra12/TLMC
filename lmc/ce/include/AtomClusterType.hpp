@@ -110,6 +110,13 @@ class AtomClusterType {
   [[nodiscard]] size_t GetSize() const {
     return element_vector_.size();
   }
+  
+  /*! \brief Query the sorted element vector.
+   *  \return : The size of the cluster.
+   */
+  [[nodiscard]] const std::vector<Element> &GetElementVector() const {
+    return element_vector_;
+  }
 
  private:
   /// The chemical elements of the cluster.

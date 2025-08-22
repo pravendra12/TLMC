@@ -20,10 +20,7 @@
 #include "Traverse.h"
 #include "SimulatedAnnealing.h"
 
-// #include "KineticMcFirstOmp.h"
-// #include "SimulatedAnnealing.h"
-// #include "CanonicalMcOmp.h"
-// #include "Traverse.h"
+using namespace std;
 
 namespace api {
 
@@ -75,11 +72,8 @@ namespace api {
    */
   ansys::Traverse BuildIteratorFromParameter(const Parameter &parameter);
 
-  SimulatedAnnealing BuildSimulatedAnnealingFromParameter(const Parameter &parameter);
+  mc::SimulatedAnnealing BuildSimulatedAnnealingFromParameter(const Parameter &parameter);
 
-  // mc::KineticMcFirstOmp BuildKineticMcFirstOmpFromParameter(const Parameter &parameter);
-  // ansys::SimulatedAnnealing BuildSimulatedAnnealingFromParameter(const Parameter &parameter);
-  // mc::CanonicalMcOmp BuildCanonicalMcOmpFromParameter(const Parameter &parameter);
 } // api
 
 #endif //LMC_API_INCLUDE_HOME_H_

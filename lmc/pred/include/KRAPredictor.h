@@ -1,63 +1,74 @@
+/*******************************************************************************
+ * Copyright (c) 2025. All rights reserved.
+ * @Author: Pravendra Patel
+ * @Date:    2025-06-01
+ * @Last Modified by: pravendra12
+ * @Last Modified: 2025-06-01
+ ******************************************************************************/
+
+/*! @file KRAPredictor.h
+    @brief File contains declaration of Kinetically Resolved Activation Barrier
+*/
+
 #ifndef LMC_PRED_INCLUDE_KRAPREDICTOR_H_
 #define LMC_PRED_INCLUDE_KRAPREDICTOR_H_
 
-#include <Eigen/Dense>
+#include <map>
+#include <vector>
 #include <string>
+#include <iostream>
+#include <Eigen/Dense>
 #include "Config.h"
-#include "Symmetry.h"
-#include "GetOrbits.h"
-#include "JsonUtility.h"
-#include "LocalEnvironmentEncoder.h"
+#include "SymmetrySpglib.h"
+#include "ClusterExpansionParameters.h"
+#include "CorrelationVector.h"
 
 using namespace std;
 using namespace Eigen;
 
-using PairMap = unordered_map<pair<size_t, size_t>,
-                              vector<size_t>,
-                              boost::hash<pair<size_t, size_t>>>;
-
 class KRAPredictor
 {
 public:
-  KRAPredictor(const string &predictorFilename,
-               const Config &config,
-               const set<Element> &elementSet);
+    /*! @brief KRAPredictor Constructor
+        @param predictorFilename Predictor filename which contains the fitting coefficient
+        @param referenceConfig   Reference config
+        @param elementSet        Element Set
+     */
 
-  // Returns Kinetically resolved activation barrier
-  [[nodiscard]] double GetKRA(
-      const Config &config,
-      const pair<size_t, size_t> &latticeIdJumpPair) const;
+    KRAPredictor(
+        const ClusterExpansionParameters &ceParams,
+        const Config &config);
+
+    /*! @brief Function to compute Kinetically resolved activation barrier
+        @param config            Configuration used for computing KRA
+        @param latticeIdJumpPair Lattice id jump pair
+        @return Kinetically resolved activation barrier
+     */
+    [[nodiscard]] double GetKRA(
+        const Config &config,
+        const pair<size_t, size_t> &latticeIdJumpPair);
 
 private:
-  // Need to think about to make it more generalized so that based on the initialization
-  // of the simulation it can be declared
+    const size_t maxBondOrder_;
+    const size_t maxBondOrderOfCluster_;
+    const size_t maxClusterSize_;
 
-  // Fitting coefficients
-  const VectorXd betaKRA_W_;
-  const double interceptKRA_W_;
+    BasisSet atomicBasis_;
 
-  const VectorXd betaKRA_Ta_;
-  const double interceptKRA_Ta_;
+    const unordered_map<Element, VectorXd, boost::hash<Element>> kecisMap_;
 
-  // Element set (without X)
-  const set<Element> elementSet_;
+    const Vector3d referenceJumpDirection_{1, 1, 1};
 
-  // CE details
-  const size_t maxBondOrder_;
-  const size_t maxBondOrderOfCluster_;
-  const size_t maxClusterSize_;
+    const unordered_map<size_t, RowVector3d> canonicalReferenceMap_;
 
-  // Equivalent sites encoding under 3 Bar symmetry
-  const vector<vector<size_t>> equivalentSiteEncoding_;
+    // Contains space group symmetry operation
+    const vector<pair<Matrix3d, Vector3d>> symmetryOperations_;
 
-  // Canonical latticeIdPair Map to ssVector
-  const PairMap latticePairToSSVectorMap_;
-
-  // Atomic Basis
-  const string basisType_ = "Chebyshev";
+    /*! @brief Equivalent Clusters Encoding
+     */
+    const vector<pair<vector<vector<size_t>>,
+                      LatticeClusterType>>
+        equivalentClustersEncoding_;
 };
 
-static PairMap GetSymmetricallySortedLatticePairMap(const Config &config, const size_t maxBondOrder);
-
 #endif // LMC_PRED_INCLUDE_KRAPREDICTOR_H_
-

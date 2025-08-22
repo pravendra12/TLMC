@@ -1,58 +1,63 @@
+/*******************************************************************************
+ * Copyright (c) 2022-2025. All rights reserved.
+ * @Author: Zhucong Xi
+ * @Date: 2022
+ * @Last Modified by: pravendra12
+ * @Last Modified: 2025-06-01
+ ******************************************************************************/
+
+/**
+ * @file KineticMcAbstract.h
+ * @brief File contains implementation of KineticMcAbstract Class.
+ */
+
 #include "KineticMcAbstract.h"
 
 namespace mc
 {
 
   KineticMcFirstAbstract::KineticMcFirstAbstract(Config config,
-                                                 Config supercell_config,
-                                                 const unsigned long long int log_dump_steps,
-                                                 const unsigned long long int config_dump_steps,
-                                                 const unsigned long long int maximum_steps,
-                                                 const unsigned long long int thermodynamic_averaging_steps,
-                                                 const unsigned long long int restart_steps,
-                                                 const double restart_energy,
-                                                 const double restart_time,
+                                                 Config supercellConfig,
+                                                 const unsigned long long int logDumpSteps,
+                                                 const unsigned long long int configDumpSteps,
+                                                 const unsigned long long int maximumSteps,
+                                                 const unsigned long long int thermodynamicAveragingSteps,
+                                                 const unsigned long long int restartSteps,
+                                                 const double restartEnergy,
+                                                 const double restartTime,
                                                  const double temperature,
-                                                 const std::set<Element> &element_set,
-                                                 const size_t max_cluster_size,
-                                                 const size_t max_bond_order,
-                                                 const std::string &json_coefficients_filename,
-                                                 const std::string &time_temperature_filename,
-                                                 const bool is_rate_corrector,
-                                                 const Eigen::RowVector3d &vacancy_trajectory)
-      : McAbstract(std::move(config),
-                   supercell_config,
-                   log_dump_steps,
-                   config_dump_steps,
-                   maximum_steps,
-                   thermodynamic_averaging_steps,
-                   restart_steps,
-                   restart_energy,
-                   restart_time,
+                                                 const set<Element> &elementSet,
+                                                 const string &predictorFilename,
+                                                 const string &timeTemperatureFilename,
+                                                 const bool isRateCorrector,
+                                                 const Eigen::RowVector3d &vacancyTrajectory)
+      : McAbstract(move(config),
+                   supercellConfig,
+                   logDumpSteps,
+                   configDumpSteps,
+                   maximumSteps,
+                   thermodynamicAveragingSteps,
+                   restartSteps,
+                   restartEnergy,
+                   restartTime,
                    temperature,
-                   element_set,
-                   max_cluster_size,
-                   max_bond_order,
-                   json_coefficients_filename,
+                   elementSet,
+                   predictorFilename,
                    "kmc_log.txt"),
-        kEventListSize(config.GetNeighborLatticeIdVectorOfLattice(0, 1).size()),
-        vacancy_migration_predictor_(json_coefficients_filename,
-                                     config,
-                                     supercell_config,
-                                     element_set,
-                                     max_cluster_size,
-                                     max_bond_order),
-        energy_change_predictor_(json_coefficients_filename,
-                                 config,
-                                 supercell_config,
-                                 element_set),
-        time_temperature_interpolator_(time_temperature_filename),
-        is_time_temperature_interpolator_(!time_temperature_filename.empty()),
-        // rate_corrector_(config_.GetVacancyConcentration(), config_.GetSoluteConcentration(Element("Al"))),
-        is_rate_corrector_(is_rate_corrector),
-        vacancy_lattice_id_(config_.GetVacancyLatticeId()),
-        vacancy_trajectory_(vacancy_trajectory),
-        event_k_i_list_(kEventListSize)
+        kEventListSize_(config.GetNeighborLatticeIdVectorOfLattice(0, 1).size()),
+        ceParams_(predictorFilename),
+        vacancyMigrationPredictor_(ceParams_,
+                                   config),
+        energyChangePredictor_(predictorFilename,
+                               config,
+                               supercellConfig,
+                               elementSet),
+        timeTemperatureInterpolator_(timeTemperatureFilename),
+        isTimeTemperatureInterpolator_(!timeTemperatureFilename.empty()),
+        isRateCorrector_(isRateCorrector),
+        vacancyLatticeId_(config_.GetVacancyLatticeId()),
+        vacancyTrajectory_(vacancyTrajectory),
+        event_k_i_list_(kEventListSize_)
   {
   }
 
@@ -60,15 +65,16 @@ namespace mc
 
   void KineticMcFirstAbstract::UpdateTemperature()
   {
-    if (is_time_temperature_interpolator_)
+    if (isTimeTemperatureInterpolator_)
     {
-      temperature_ = time_temperature_interpolator_.GetTemperature(time_);
+      temperature_ = timeTemperatureInterpolator_.GetTemperature(time_);
       beta_ = 1.0 / constants::kBoltzmann / temperature_;
     }
   }
+
   //
   // double KineticMcFirstAbstract::GetTimeCorrectionFactor() {
-  //   if (is_rate_corrector_) {
+  //   if (isRateCorrector_) {
   //     return rate_corrector_.GetTimeCorrectionFactor(temperature_);
   //   }
   //   return 1.0;
@@ -87,60 +93,53 @@ namespace mc
     }
     if (steps_ == 0)
     {
-      // config_.WriteLattice("lattice.txt");
-      // config_.WriteElement("element.txt");
       ofs_ << "steps\ttime\taverage_time\ttemperature\tenergy\taverage_energy\tEa\tdE\tEa_Backward\tselected\tvacancy_trajectory";
-
       ofs_ << endl;
-
-      // Test
-      // ofs_ << "\tEa_backward\tEa_backwardModel\tdE_barrier" << std::endl;
     }
-    if (steps_ % config_dump_steps_ == 0)
+    if (steps_ % configDumpSteps_ == 0)
     {
-      // config_.WriteMap("map" + std::to_string(step_) + ".txt");
-      // config_.WriteConfig(std::to_string(steps_) + ".cfg.gz");
-      config_.WriteConfig(std::to_string(steps_) + ".cfg.gz", config_);
+      config_.WriteConfig(to_string(steps_) + ".cfg.gz", config_);
     }
-    if (steps_ == maximum_steps_)
+    if (steps_ == maximumSteps_)
     {
       config_.WriteConfig("end.cfg", config_);
     }
 
-    unsigned long long int log_dump_steps;
-    if (steps_ > 10 * log_dump_steps_)
+    unsigned long long int logDumpSteps;
+    if (steps_ > 10 * logDumpSteps_)
     {
-      log_dump_steps = log_dump_steps_;
+      logDumpSteps = logDumpSteps_;
     }
     else
     {
-      log_dump_steps = static_cast<unsigned long long int>(
-          std::pow(10, static_cast<unsigned long long int>(std::log10(steps_ + 1) - 1)));
-      log_dump_steps = std::max(log_dump_steps, static_cast<unsigned long long int>(1));
-      log_dump_steps = std::min(log_dump_steps, log_dump_steps_);
+      logDumpSteps = static_cast<unsigned long long int>(
+          pow(10, static_cast<unsigned long long int>(log10(steps_ + 1) - 1)));
+      logDumpSteps = max(logDumpSteps, static_cast<unsigned long long int>(1));
+      logDumpSteps = min(logDumpSteps, logDumpSteps_);
     }
-    if (steps_ % log_dump_steps == 0)
+    if (steps_ % logDumpSteps == 0)
     {
       ofs_ << steps_ << '\t'
            << time_ << '\t'
-           << 1/(total_rate_k_*constants::kPrefactor) << "\t"
+           << 1 / (total_rate_k_ * constants::kPrefactor) << "\t"
            << temperature_ << '\t'
            << energy_ << '\t'
-           << thermodynamic_averaging_.GetThermodynamicAverage(beta_) << "\t"
+           << thermodynamicAveraging_.GetThermodynamicAverage(beta_) << "\t"
            << event_k_i_.GetForwardBarrier() << '\t'
            << event_k_i_.GetEnergyChange() << '\t'
            << event_k_i_.GetBackwardBarrier() << "\t"
            << event_k_i_.GetIdJumpPair().second << '\t'
-           << vacancy_trajectory_ << endl;
+           << vacancyTrajectory_ << endl;
     }
   }
 
   size_t KineticMcFirstAbstract::SelectEvent() const
   {
-    const double random_number = unit_distribution_(generator_);
-    auto it = std::lower_bound(
+    const double random_number = unitDistribution_(generator_);
+    auto it = lower_bound(
         event_k_i_list_.begin(), event_k_i_list_.end(), random_number, [](const auto &lhs, double value)
         { return lhs.GetCumulativeProbability() < value; });
+
     // If not find (maybe generated 1), which rarely happens, returns the last event
     if (it == event_k_i_list_.cend())
     {
@@ -162,18 +161,18 @@ namespace mc
   {
     if (world_rank_ == 0)
     {
-      if (std::isnan(one_step_time) or std::isinf(one_step_time) or one_step_time < 0.0)
+      if (isnan(one_step_time) or isinf(one_step_time) or one_step_time < 0.0)
       {
-        // config_.WriteConfig("debug" + std::to_string(steps_) + ".cfg.gz");
-        config_.WriteConfig("debug" + std::to_string(steps_) + ".cfg", config_);
-        std::cerr << "Invalid time step: " << one_step_time << std::endl;
-        std::cerr << "For each event: Energy Barrier, Energy Change, Probability, " << std::endl;
+
+        config_.WriteConfig("debug" + to_string(steps_) + ".cfg.gz", config_);
+        cerr << "Invalid time step: " << one_step_time << endl;
+        cerr << "For each event: Energy Barrier, Energy Change, Probability, " << endl;
         for (auto &event : event_k_i_list_)
         {
-          std::cerr << event.GetForwardBarrier() << '\t' << event.GetEnergyChange() << '\t'
-                    << event.GetCumulativeProbability() << std::endl;
+          cerr << event.GetForwardBarrier() << '\t' << event.GetEnergyChange() << '\t'
+               << event.GetCumulativeProbability() << endl;
         }
-        throw std::runtime_error("Invalid time step");
+        throw runtime_error("Invalid time step");
       }
     }
   }
@@ -182,7 +181,7 @@ namespace mc
   {
     UpdateTemperature();
 
-    thermodynamic_averaging_.AddEnergy(energy_);
+    thermodynamicAveraging_.AddEnergy(energy_);
 
     BuildEventList();
 
@@ -199,75 +198,60 @@ namespace mc
     energy_ += event_k_i_.GetEnergyChange();
     absolute_energy_ += event_k_i_.GetEnergyChange();
 
-    // std::cout << "Energy Change: " << event_k_i_.GetEnergyChange() << std::endl;
-    // std::cout << "Energy Barrier Forward: " << event_k_i_.GetForwardBarrier() << std::endl;
-    // std::cout << "Energy Barrier Backward: " << event_k_i_.GetBackwardBarrier() << std::endl;
-
-    Eigen::RowVector3d vacancy_trajectory_step =
-        (config_.GetRelativeDistanceVectorLattice(vacancy_lattice_id_,
+    Eigen::RowVector3d vacancyTrajectory_step =
+        (config_.GetRelativeDistanceVectorLattice(vacancyLatticeId_,
                                                   event_k_i_.GetIdJumpPair().second))
             .transpose() *
         config_.GetBasis();
 
-    vacancy_trajectory_ += vacancy_trajectory_step;
+    vacancyTrajectory_ += vacancyTrajectory_step;
 
     config_.LatticeJump(event_k_i_.GetIdJumpPair());
     ++steps_;
-    vacancy_lattice_id_ = event_k_i_.GetIdJumpPair().second;
+    vacancyLatticeId_ = event_k_i_.GetIdJumpPair().second;
   }
 
   void KineticMcFirstAbstract::Simulate()
   {
-    while (steps_ <= maximum_steps_)
+    while (steps_ <= maximumSteps_)
     {
-
-      // std::cout << "Step " << steps_ << std::endl;
-
       OneStepSimulation();
-
-      // std::cout << std::endl;
     }
   }
 
   KineticMcChainAbstract::KineticMcChainAbstract(Config config,
-                                                 Config supercell_config,
-                                                 const unsigned long long int log_dump_steps,
-                                                 const unsigned long long int config_dump_steps,
-                                                 const unsigned long long int maximum_steps,
-                                                 const unsigned long long int thermodynamic_averaging_steps,
-                                                 const unsigned long long int restart_steps,
-                                                 const double restart_energy,
-                                                 const double restart_time,
+                                                 Config supercellConfig,
+                                                 const unsigned long long int logDumpSteps,
+                                                 const unsigned long long int configDumpSteps,
+                                                 const unsigned long long int maximumSteps,
+                                                 const unsigned long long int thermodynamicAveragingSteps,
+                                                 const unsigned long long int restartSteps,
+                                                 const double restartEnergy,
+                                                 const double restartTime,
                                                  const double temperature,
-                                                 const std::set<Element> &element_set,
-                                                 const size_t max_cluster_size,
-                                                 const size_t max_bond_order,
-                                                 const std::string &json_coefficients_filename,
-                                                 const std::string &time_temperature_filename,
-                                                 const bool is_rate_corrector,
-                                                 const Eigen::RowVector3d &vacancy_trajectory)
-      : KineticMcFirstAbstract(std::move(config),
-                               supercell_config,
-                               log_dump_steps,
-                               config_dump_steps,
-                               maximum_steps,
-                               thermodynamic_averaging_steps,
-                               restart_steps,
-                               restart_energy,
-                               restart_time,
+                                                 const set<Element> &elementSet,
+                                                 const string &predictorFilename,
+                                                 const string &timeTemperatureFilename,
+                                                 const bool isRateCorrector,
+                                                 const Eigen::RowVector3d &vacancyTrajectory)
+      : KineticMcFirstAbstract(move(config),
+                               supercellConfig,
+                               logDumpSteps,
+                               configDumpSteps,
+                               maximumSteps,
+                               thermodynamicAveragingSteps,
+                               restartSteps,
+                               restartEnergy,
+                               restartTime,
                                temperature,
-                               element_set,
-                               max_cluster_size,
-                               max_bond_order,
-                               json_coefficients_filename,
-                               time_temperature_filename,
-                               is_rate_corrector,
-                               vacancy_trajectory),
-        // previous_j_lattice_id_(config_.GetFirstNeighborsAdjacencyList()[vacancy_lattice_id_][0]) {
-        previous_j_lattice_id_(config_.GetNeighborLatticeIdVectorOfLattice(vacancy_lattice_id_, 1)[0]),
-        l_lattice_id_list_(kEventListSize)
+                               elementSet,
+                               predictorFilename,
+                               timeTemperatureFilename,
+                               isRateCorrector,
+                               vacancyTrajectory),
+        previous_j_lattice_id_(config_.GetNeighborLatticeIdVectorOfLattice(vacancyLatticeId_, 1)[0]),
+        l_lattice_id_list_(kEventListSize_)
   {
-    // std::cout << " I am here in KineticMcChainAbstract ...... " << std::endl;
     MPI_Op_create(DataSum, 1, &mpi_op_);
     DefineStruct(&mpi_datatype_);
   }

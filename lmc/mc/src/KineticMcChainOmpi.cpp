@@ -1,49 +1,55 @@
+/*******************************************************************************
+ * Copyright (c) 2022-2025. All rights reserved.
+ * @Author: Zhucong Xi
+ * @Date: 2022
+ * @Last Modified by: pravendra12
+ * @Last Modified: 2025-06-01
+ ******************************************************************************/
+
+/**
+ * @file KineticMcChainOmpi.h
+ * @brief Implementation of the KineticMcChainOmpi class for OMPI-based kinetic Monte Carlo simulations.
+ */
+
 #include "KineticMcChainOmpi.h"
-#include "PotentialEnergyEstimator.h"
+
 namespace mc
 {
-  //  j -> k -> i ->l
-  //       |
-  // current position
 
   KineticMcChainOmpi::KineticMcChainOmpi(Config config,
-                                         Config supercell_config,
-                                         const unsigned long long int log_dump_steps,
-                                         const unsigned long long int config_dump_steps,
-                                         const unsigned long long int maximum_steps,
-                                         const unsigned long long int thermodynamic_averaging_steps,
-                                         const unsigned long long int restart_steps,
-                                         const double restart_energy,
-                                         const double restart_time,
-                                         const double temperature,
-                                         const std::set<Element> &element_set,
-                                         const size_t max_cluster_size,
-                                         const size_t max_bond_order,
-                                         const std::string &json_coefficients_filename,
-                                         const std::string &time_temperature_filename,
-                                         const bool is_rate_corrector,
-                                         const Eigen::RowVector3d &vacancy_trajectory)
-      : KineticMcChainAbstract(std::move(config),
-                               supercell_config,
-                               log_dump_steps,
-                               config_dump_steps,
-                               maximum_steps,
-                               thermodynamic_averaging_steps,
-                               restart_steps,
-                               restart_energy,
-                               restart_time,
+                                       Config supercellConfig,
+                                       const unsigned long long int logDumpSteps,
+                                       const unsigned long long int configDumpSteps,
+                                       const unsigned long long int maximumSteps,
+                                       const unsigned long long int thermodynamicAveragingSteps,
+                                       const unsigned long long int restartSteps,
+                                       const double restartEnergy,
+                                       const double restartTime,
+                                       const double temperature,
+                                       const set<Element> &elementSet,
+                                       const string &predictorFilename,
+                                       const string &timeTemperatureFilename,
+                                       const bool isRateCorrector,
+                                       const Eigen::RowVector3d &vacancyTrajectory)
+      : KineticMcChainAbstract(move(config),
+                               supercellConfig,
+                               logDumpSteps,
+                               configDumpSteps,
+                               maximumSteps,
+                               thermodynamicAveragingSteps,
+                               restartSteps,
+                               restartEnergy,
+                               restartTime,
                                temperature,
-                               element_set,
-                               max_cluster_size,
-                               max_bond_order,
-                               json_coefficients_filename,
-                               time_temperature_filename,
-                               is_rate_corrector,
-                               vacancy_trajectory)
+                               elementSet,
+                               predictorFilename,
+                               timeTemperatureFilename,
+                               isRateCorrector,
+                               vacancyTrajectory)
   {
-    if (world_size_ != kEventListSize)
+    if (world_size_ != kEventListSize_)
     {
-      std::cout << "Must use " << kEventListSize << " processes. Terminating...\n"
+      std::cout << "Must use " << kEventListSize_ << " processes. Terminating...\n"
                 << std::endl;
       MPI_Finalize();
       exit(0);
@@ -61,10 +67,10 @@ namespace mc
     }
   }
 
-  // update  first_event_ki and l_index_list for each process
+  // Update  first_event_ki and l_index_list for each process
   void KineticMcChainOmpi::BuildEventList()
   {
-    const auto k_lattice_id = vacancy_lattice_id_;
+    const auto k_lattice_id = vacancyLatticeId_;
 
     const auto i_lattice_id = config_.GetNeighborLatticeIdVectorOfLattice(k_lattice_id, 1)[static_cast<size_t>(world_rank_)];
 
@@ -79,27 +85,23 @@ namespace mc
     total_rate_k_ = 0.0;
     total_rate_i_ = 0.0;
 
-    // std::cout << k_lattice_id << " " << i_lattice_id << std::endl;
-    // std::cout << config_.GetElementOfLattice(k_lattice_id) << ", " << config_.GetElementOfLattice(i_lattice_id) << std::endl;
-
     config_.LatticeJump({k_lattice_id, i_lattice_id});
 
-    // std::cout << config_.GetElementOfLattice(k_lattice_id) << ", " << config_.GetElementOfLattice(i_lattice_id) << std::endl;
 
 #pragma omp parallel default(none) shared(i_lattice_id, k_lattice_id) reduction(+ : total_rate_i_)
     {
 #pragma omp for
-      for (size_t ii = 0; ii < kEventListSize; ++ii)
+      for (size_t ii = 0; ii < kEventListSize_; ++ii)
       {
 
         const auto l_lattice_id = l_lattice_id_list_[ii];
-        // std::cout << config_.GetElementOfLattice(i_lattice_id) << ", " << config_.GetElementOfLattice(l_lattice_id) << std::endl;
 
         JumpEvent event_i_l(
             // Jump Pair
+            // {Vacancy, Migrating Atom}
             {i_lattice_id, l_lattice_id},
 
-            vacancy_migration_predictor_.GetBarrierAndDeltaE(config_,
+            vacancyMigrationPredictor_.GetBarrierAndDeltaE(config_,
                                                              {i_lattice_id,
                                                               l_lattice_id}),
 

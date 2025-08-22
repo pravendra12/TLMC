@@ -1,10 +1,14 @@
-/**************************************************************************************************
- * Copyright (c) 2023. All rights reserved.                                                       *
- * @Author: Zhucong Xi                                                                            *
- * @Date:                                                                                         *
- * @Last Modified by: zhucongx                                                                    *
- * @Last Modified time: 10/30/23 3:09 PM                                                          *
- **************************************************************************************************/
+/*******************************************************************************
+ * Copyright (c) 2022-2025. All rights reserved.
+ * @Author: Zhucong Xi
+ * @Date: 2022
+ * @Last Modified by: pravendra12
+ * @Last Modified: 2025-06-01
+ ******************************************************************************/
+
+/*! \file CanonicalMcOmp.h
+ *  @brief File for CanonicalMcOmp class implementation.
+ */
 
 #include "CanonicalMcSerial.h"
 #include <utility>
@@ -13,36 +17,27 @@
 namespace mc
 {
   CanonicalMcSerial::CanonicalMcSerial(Config config,
-                                       Config supercell_config,
-                                       const unsigned long long int log_dump_steps,
-                                       const unsigned long long int config_dump_steps,
-                                       const unsigned long long int maximum_steps,
-                                       const unsigned long long int thermodynamic_averaging_steps,
-                                       const unsigned long long int restart_steps,
-                                       const double restart_energy,
-                                       const double temperature,
-
-                                       // const double initial_temperature,
-                                       // const double decrement_temperature,
-                                       const std::set<Element> &element_set,
-                                       const size_t max_cluster_size,
-                                       const size_t max_bond_order,
-                                       const std::string &json_coefficients_filename)
-      : CanonicalMcAbstract(std::move(config),
-                            supercell_config,
-                            log_dump_steps,
-                            config_dump_steps,
-                            maximum_steps,
-                            thermodynamic_averaging_steps,
-                            restart_steps,
-                            restart_energy,
+                                       Config supercellConfig,
+                                       unsigned long long int logDumpSteps,
+                                       unsigned long long int configDumpStep,
+                                       unsigned long long int maximumSteps,
+                                       unsigned long long int thermodynamicAveragingSteps,
+                                       unsigned long long int restartSteps,
+                                       double restartEnergy,
+                                       double temperature,
+                                       const set<Element> &elementSet,
+                                       const string &predictorFilename)
+      : CanonicalMcAbstract(move(config),
+                            supercellConfig,
+                            logDumpSteps,
+                            configDumpStep,
+                            maximumSteps,
+                            thermodynamicAveragingSteps,
+                            restartSteps,
+                            restartEnergy,
                             temperature,
-                            // initial_temperature,
-                            // decrement_temperature,
-                            element_set,
-                            max_cluster_size,
-                            max_bond_order,
-                            json_coefficients_filename)
+                            elementSet,
+                            predictorFilename)
   {
     if (world_size_ != 1)
     {
@@ -62,15 +57,13 @@ namespace mc
 
   void CanonicalMcSerial::Simulate()
   {
-    while (steps_ <= maximum_steps_)
+    while (steps_ <= maximumSteps_)
     {
 
       auto latticeIdJumpPair = GenerateLatticeIdJumpPair();
 
-      // auto dE = energy_change_predictor_.GetDe(config_,
-      //                                          latticeIdJumpPair);
-      auto dE = energy_change_predictor_.GetDeThreadSafe(config_,
-                                                         latticeIdJumpPair);
+      auto dE = energyChangePredictor_.GetDeSwap(config_,
+                                                 latticeIdJumpPair);
       Dump();
 
       SelectEvent(latticeIdJumpPair, dE);

@@ -160,6 +160,12 @@ public:
    */
   [[nodiscard]] size_t GetAtomIdOfLattice(size_t latticeId) const;
 
+  /*! \brief Query for lattice id of the atom.
+   *  \param atomId  The atom id of the atom.
+   *  \return         The lattice id for the atom.
+   */
+  [[nodiscard]]size_t GetLatticeIdOfAtom(size_t atomId) const;
+
   /*! \brief Query for the cartesian position of a lattice site. //prav: relative position of lattice
    *  \param lattice_id  The lattice id of the lattice site.
    *  \return            The cartesian position of the lattice site.

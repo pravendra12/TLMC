@@ -1062,9 +1062,9 @@ kraPredictor.GetKRA(cfg, make_pair(latticeJumpPair.second, latticeJumpPair.first
 elementSet.insert(vacancy);
 PotentialEnergyEstimator peEstimator(predictorFilename, cfg, cfg, elementSet);
 
-peEstimator.GetDeThreadSafe(cfg, latticeJumpPair);
+peEstimator.GetDeMigration(cfg, latticeJumpPair);
 cfg.LatticeJump(latticeJumpPair);
-peEstimator.GetDeThreadSafe(cfg, latticeJumpPair);
+peEstimator.GetDeMigration(cfg, latticeJumpPair);
 */
 
 /*

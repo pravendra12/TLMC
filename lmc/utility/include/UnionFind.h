@@ -19,4 +19,4 @@ private:
 
 #include "UnionFind.inl"
 
-#endif
+#endif //LMC_UTILITY_INCLUDE_UNIONFIND_H_

@@ -1,41 +1,45 @@
 /*******************************************************************************
- * Copyright (c) 2023. All rights reserved.                                    *                   
- * @Author: Zhucong Xi                                                         *                   
- * @Date:                                                                      *                   
- * @Last Modified by: pravendra                                                *                    
- * @Last Modified time: 05/08/2025                                             *                   
+ * Copyright (c) 2022-2025. All rights reserved.
+ * @Author: Zhucong Xi
+ * @Date: 2022
+ * @Last Modified by: pravendra12
+ * @Last Modified: 2025-06-01
  ******************************************************************************/
 
-#include <cmath>
-#include <utility>
+/*! \file JumpEvent.cpp
+ *  @brief File for JumpEvent class implementation.
+ */
+
 #include "JumpEvent.h"
+
 namespace mc
 {
   JumpEvent::JumpEvent() = default;
-  JumpEvent::JumpEvent(const std::pair<size_t, size_t> &jump_pair,
-                       const std::pair<double, double> &barrierAndDe,
+  JumpEvent::JumpEvent(const pair<size_t, size_t> &jumpPair,
+                       const pair<double, double> &barrierAndDe,
                        double beta)
       : beta_(beta),
-        jump_pair_(std::move(jump_pair)),
+        jump_pair_(move(jumpPair)),
         forward_barrier_(barrierAndDe.first),
         energy_change_(barrierAndDe.second),
-        forward_rate_(std::exp(-forward_barrier_ * beta_))
+        forward_rate_(exp(-forward_barrier_ * beta_))
   {}
 
-  const std::pair<size_t, size_t> &JumpEvent::GetIdJumpPair() const
+  const pair<size_t, size_t> &JumpEvent::GetIdJumpPair() const
   {
     return jump_pair_;
   }
+
   double JumpEvent::GetForwardBarrier() const
   {
     return forward_barrier_;
   }
+  
   double JumpEvent::GetForwardRate() const
   {
     return forward_rate_;
   }
-
-  // Using Zhucong's way
+  
   double JumpEvent::GetBackwardBarrier() const
   {
     return forward_barrier_ - energy_change_;
@@ -43,7 +47,7 @@ namespace mc
 
   double JumpEvent::GetBackwardRate() const
   {
-    return std::exp(-GetBackwardBarrier() * beta_);
+    return exp(-GetBackwardBarrier() * beta_);
   }
 
   double JumpEvent::GetEnergyChange() const

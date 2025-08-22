@@ -1,12 +1,18 @@
-#include "ClusterDynamics.h"
+#include "B2Cluster.h"
 
-ClusterDynamics::ClusterDynamics(const Config &config) : config_(config),
+B2Cluster::B2Cluster(const Config &config) : config_(config),
                                                          clusters_{},
                                                          visited_{}
-{}
+{
+  detectB2Clusters();
+}
 
-void ClusterDynamics::detectB2Clusters(map<string, Config::VectorVariant> &auxiliaryList,
-                                       vector<int> &clusterSizeVector)
+vector<unordered_set<size_t>> B2Cluster::GetB2Clusters()
+{
+  return clusters_;
+}
+
+void B2Cluster::detectB2Clusters()
 {
   size_t numAtoms = config_.GetNumAtoms();
   for (size_t i = 0; i < numAtoms; ++i)
@@ -22,9 +28,10 @@ void ClusterDynamics::detectB2Clusters(map<string, Config::VectorVariant> &auxil
   }
 
   mergeAllClusters();
-
+  
+  /*
   size_t vacancyId = static_cast<size_t>(-1);
-
+  
   try
   {
     vacancyId = config_.GetVacancyAtomId();
@@ -62,9 +69,12 @@ void ClusterDynamics::detectB2Clusters(map<string, Config::VectorVariant> &auxil
 
   auxiliaryList["clusterType"] = atomClusterTypeVector;
   auxiliaryList["clusterSize"] = atomClusterSizeVector;
+  */
 }
 
-bool ClusterDynamics::growB2Cluster(size_t atomId,
+
+
+bool B2Cluster::growB2Cluster(size_t atomId,
                                     unordered_set<size_t> &cluster)
 {
   if (!visited_.emplace(atomId).second)
@@ -90,7 +100,7 @@ bool ClusterDynamics::growB2Cluster(size_t atomId,
   return true;
 }
 
-unordered_set<size_t> ClusterDynamics::mergeIfIntersect(
+unordered_set<size_t> B2Cluster::mergeIfIntersect(
     const unordered_set<size_t> &set1,
     const unordered_set<size_t> &set2)
 {
@@ -107,7 +117,7 @@ unordered_set<size_t> ClusterDynamics::mergeIfIntersect(
   return {};
 }
 
-void ClusterDynamics::mergeAllClusters()
+void B2Cluster::mergeAllClusters()
 {
   for (size_t i = 0; i < clusters_.size(); ++i)
   {

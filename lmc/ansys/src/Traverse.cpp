@@ -253,6 +253,11 @@ namespace ansys
           config.LatticeJump(make_pair(vacancyId, selected_lattice_id));
           VectorXd encodingVectorAfter = configEncoder->GetEncodeVector(config);
 
+
+          // Also need to run the analysis on this config 
+          // but in principle these two config are just one step away hence we can assume
+          // that the sro param and B2 order param will be nearly same
+
           oss << encodingVectorAfter.transpose();
         }
 

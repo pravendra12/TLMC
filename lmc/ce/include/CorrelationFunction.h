@@ -26,6 +26,8 @@
 #include "AtomBasis.h"
 #include "Config.h"
 #include "LatticeCluster.hpp"
+#include "BasisSet.h"
+#include "AtomClusterType.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -98,5 +100,19 @@ RowVectorXd GetCorrelationFunction(const Config &config,
                                    const string &basisType,
                                    const vector<vector<size_t>> &orbitVector,
                                    const bool &isClusterSymmetric);
+
+// Use symmetry to reduce the number of clusters
+RowVectorXd GetCorrelationFunction(
+  const Config &config, 
+  const set<Element> &elementSet, 
+  const string &basisType, 
+  const vector<size_t> &canonicalSortedLatticeIds, 
+  const vector<vector<size_t>> &encodedOrbitVector);
+
+VectorXd GetCorrelationFunction(
+  const Config &config, 
+  BasisSet &atomicBasis, 
+  const vector<size_t> &canonicalSortedLatticeIds, 
+  const vector<vector<size_t>> &encodedOrbitVector);
 
 #endif // LMC_CE_INCLUDE_CORRELATIONFUNCTION_H_

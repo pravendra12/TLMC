@@ -21,11 +21,9 @@ namespace mc
   {
     if (energy_list_.size() == size_)
     {
-      // std::cout << "I am here in inside Add Energy" << std::endl;
       sum_ -= energy_list_.front();
       energy_list_.pop_front();
     }
-    // std::cout << "i m here at loc3" << std::endl;
     energy_list_.push_back(value);
     sum_ += value;
   }

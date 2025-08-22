@@ -36,9 +36,39 @@ VectorXd ReadParametersFromJson(const string &jsonFilename,
   return parameterVector;
 }
 
+vector<string> ReadStringParametersFromJson(const string &jsonFilename,
+                                            const string &jsonKey,
+                                            const string &jsonSubKey)
+{
+  ifstream ifs(jsonFilename, ifstream::in);
+  json all_parameters;
+  ifs >> all_parameters;
+
+  vector<string> parameterVector;
+
+  for (const auto &[key, parameters] : all_parameters.items())
+  {
+    if (key == jsonKey)
+    {
+      for (const auto &[subKey, subParams] : parameters.items())
+      {
+        if (subKey == jsonSubKey)
+        {
+          for (const auto &param : subParams)
+          {
+            parameterVector.push_back(param.get<string>());
+          }
+        }
+      }
+    }
+  }
+
+  return parameterVector;
+}
+
 size_t ReadParameterFromJson(
-  const string &jsonFilename, 
-  const string &jsonKey)
+    const string &jsonFilename,
+    const string &jsonKey)
 {
   // Open the JSON file
   ifstream ifs(jsonFilename);
@@ -63,6 +93,39 @@ size_t ReadParameterFromJson(
   else
   {
     cerr << "Error: Key " << jsonKey << " not found in the JSON file" << endl;
+    exit(3);
+  }
+}
+
+
+
+string ReadBasisType(
+    const string &jsonFilename,
+    const string &jsonKey)
+{
+  // Open the JSON file
+  ifstream ifs(jsonFilename);
+  if (!ifs.is_open())
+  {
+    cerr << "Error: Unable to open file " << jsonFilename << endl;
+    return 0; // Return default size_t value (0)
+  }
+
+  // Parse the JSON
+  json all_parameters;
+  ifs >> all_parameters;
+
+  // Check if the main key exists
+  if (all_parameters.contains(jsonKey))
+  {
+    const json &parameter = all_parameters[jsonKey];
+
+    // Return the value as size_t
+    return parameter.get<string>();
+  }
+  else
+  {
+    cerr << "Error in `ReadBasisType`: Key " << jsonKey << " not found in the JSON file" << endl;
     exit(3);
   }
 }

@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2022-2025. All rights reserved.                                
+ * @Author: Zhucong Xi                                                          
+ * @Date: 6/14/22 12:36 PM                                                      
+ * @Last Modified by: pravendra12                                               
+ * @Last Modified: 2025-06-01                                       
+ ******************************************************************************/
+
+/*! @file  PotentialEnergyEstimator.h
+    @brief File contains declaration of Potential Energy Estimator Class
+ */
+
 #ifndef LMC_PRED_INCLUDE_POTENTIALENERGYESTIMATOR_H_
 #define LMC_PRED_INCLUDE_POTENTIALENERGYESTIMATOR_H_
 
@@ -7,79 +19,118 @@
 #include <Eigen/Dense>
 #include "ClusterExpansion.h"
 #include "JsonUtility.h"
+
 using namespace std;
 using namespace Eigen;
 
 class PotentialEnergyEstimator
 {
 public:
-  PotentialEnergyEstimator(const string &predictor_filename,
-                           const Config &reference_config,
-                           const Config &supercell_config,
-                           const set<Element> &element_set);
+  /*! @brief Constructor for Potential Energy Estimator
+      @param predictorFilename File name which contains the fitting coefficients
+      @param referenceConfig   Configuration used for defining the object
+      @param supercellConfig   Training supercell size config used for training
+      @param elementSet        Element set which are present the configuration
+  */
+  PotentialEnergyEstimator(
+      const string &predictorFilename,
+      const Config &referenceConfig,
+      const Config &supercellConfig,
+      const set<Element> &elementSet);
+
+  /*! @brief Destructor for Potential Estimator
+   */
   ~PotentialEnergyEstimator();
 
-  /*! \brief Get the encode vector of the configuration, which is the number of
+  /*! @brief Get the encode vector of the configuration, which is the number of
    *         appearance of each cluster types plus void cluster.
-   *  \param config   The configuration the code works on
-   *  \return         The encode vector
+   *  @param config   The configuration the code works on
+   *  @return         The encode vector for the entire configuration
    */
   [[nodiscard]] VectorXd GetEncodeVector(const Config &config) const;
 
-  /*! \brief Get the encoded vector of the configuration, representing the count
+  /*! @brief Get the encoded vector of the configuration, representing the count
    *         of each cluster type, including void clusters.
-   *  \param config           The configuration to analyze.
-   *  \param lattice_cluster  Vector containing lattice site IDs for the cluster.
-   *  \return                 A vector representing the encoded cluster type counts.
+   *  @param config           The configuration to analyze.
+   *  @param lattice_cluster  Vector containing lattice site IDs for the cluster.
+   *  @return                 A vector representing the encoded cluster type counts.
    */
-  [[nodiscard]] VectorXd GetEncodeVectorOfCluster(const Config &config,
-                                                  const std::vector<size_t> &cluster) const;
+  [[nodiscard]] VectorXd GetEncodeVectorOfCluster(
+      const Config &config,
+      const std::vector<size_t> &cluster) const;
 
-  /*! \brief Get the Energy of the configuration
-   *  \param config           The configuration to analyze.
-   *  \return                 Energy of the configuration.
+  /*! @brief Get the Energy of the configuration
+   *  @param config           The configuration to analyze.
+   *  @return                 Energy of the configuration.
    */
   [[nodiscard]] double GetEnergy(const Config &config) const;
 
-  /*! \brief Get the energy of the cluster.
-   *  \param config           The configuration to analyze.
-   *  \param cluster          Vector containing lattice site IDs for the cluster.
-   *  \return                 Energy of the cluster.
+  /*! @brief Get the energy of the cluster.
+   *  @param config           The configuration to analyze.
+   *  @param cluster          Vector containing lattice site IDs for the cluster.
+   *  @return                 Energy of the cluster.
    */
-  [[nodiscard]] double GetEnergyOfCluster(const Config &config,
-                                          const vector<size_t> &cluster) const;
+  [[nodiscard]] double GetEnergyOfCluster(
+      const Config &config,
+      const vector<size_t> &cluster) const;
 
-  /*! \brief Get the energy change due to atom jump.
-   *  \param config           The configuration to analyze.
-   *  \param lattice_id_pair  Lattice Id jump pair.
-   *  \return                 Change in energy due to atom jump.
+  // Take allowed sites lattice Id vectors
+  // Need to change the name of function 
+  Eigen::VectorXd GetEncodeVectorWithinAllowedSites(const Config &config, const vector<size_t> &allowedSites) const;
+  
+  // Returns the energy of the cluster formed but allowed sites 
+  // Need to think of better name but GetEnergyOfCluster already there
+  // allowedSites contains the lattice Ids 
+  double GetEnergyOfClusterWithinAllowedSites(const Config &config, const vector<size_t> &allowedSites) const;
+
+  /*! @brief Get the energy change due to atom swap.
+   *  @param config           The configuration to analyze.
+   *  @param latticeIdPair    Lattice Id swap pair.
+   *  @return                 Change in energy due to atom swap.
    */
-  [[nodiscard]] double GetDe(Config &config, const pair<size_t, size_t> &lattice_id_pair) const;
+  [[nodiscard]] double GetDeSwap(
+      Config &config,
+      const pair<size_t, size_t> &latticeIdPair) const;
 
-  double GetDeThreadSafe(const Config &config, const std::pair<size_t, size_t> &lattice_id_pair) const;
-
-  // [[nodiscard]] map<Element, double> GetChemicalPotential(Element solvent_element) const;
+  /*! @brief Get the energy change due to atom migration.
+   *  @param config               The configuration to analyze.
+   *  @param latticeIdJumpPair    Lattice Id jump pair.
+   *  @return                     Change in energy due to atom migration.
+   */
+  [[nodiscard]] double GetDeMigration(
+      const Config &config,
+      const std::pair<size_t, size_t> &latticeIdJumpPair) const;
 
 private:
-  /// Maximum Cluster Size
-  const size_t max_cluster_size_{};
+  /*! @brief Maximum Cluster Size
+  */
+  const size_t maxClusterSize_{};
 
-  /// Maximum Bond Order
-  const size_t max_bond_order_{};
+  /*! @brief Maximum Bond Order
+  */
+  const size_t maxBondOrder_{};
 
-  /// beta barrier fitted with using standard scaler
-  const VectorXd beta_ce_{};
+  /*! @brief Effective cluster interactions
+  */
+  const VectorXd betaCE_{};
 
-  /// Element set
-  const set<Element> element_set_{};
+  /*! @brief Element set
+  */
+  const set<Element> elementSet_{};
 
-  /// Set that contains all available cluster types
-  const set<ClusterType> initialized_cluster_type_set_{};
+  /*! @brief Set that contains all available cluster types
+  */
+  const set<ClusterType> initializedClusterTypeSet_{};
+  
+  /*! @brief Map that contains all available cluster types
+  */
+  const unordered_map<ClusterType, size_t, boost::hash<ClusterType>> clusterTypeCountHashMap_;
 
-  /// Maps each lattice cluster type to its count.
-  /// Used mainly for configuration used for training Cluster Expansion Model.
-  const unordered_map<LatticeClusterType, size_t,
-                      boost::hash<LatticeClusterType>> lattice_cluster_type_count_{};
+  /*! @brief Maps each lattice cluster type to its count. From config of the 
+   *         same size which was used for training Cluster Expansion Model.
+   */
+   const unordered_map<LatticeClusterType, size_t,
+                      boost::hash<LatticeClusterType>> latticeClusterTypeCount_{};
 };
 
 #endif // LMC_PRED_INCLUDE_POTENTIALENERGYESTIMATOR_H_

@@ -2,8 +2,9 @@
 
 ClusterExpansionParameters::ClusterExpansionParameters(
     const string &coefficientFilename,
-    const bool debug):predictorFilename_(coefficientFilename)
+    const bool debug) : predictorFilename_(coefficientFilename)
 {
+
   // Open the JSON file
   ifstream ifs(coefficientFilename);
   if (!ifs.is_open())
@@ -14,6 +15,11 @@ ClusterExpansionParameters::ClusterExpansionParameters(
   }
 
   ifs >> allParameters_;
+
+  for (auto &[key, value] : allParameters_.items())
+  {
+    std::cout << key << std::endl;
+  }
 
   if (debug)
   {
@@ -150,7 +156,6 @@ unordered_map<Element, VectorXd, boost::hash<Element>> ClusterExpansionParameter
   return keciMap;
 }
   */
-
 
 VectorXd ClusterExpansionParameters::GetKECIs() const
 {

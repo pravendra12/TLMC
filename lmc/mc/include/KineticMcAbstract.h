@@ -143,12 +143,12 @@ namespace mc
 
     // Helpful properties
 
+    const ClusterExpansionParameters ceParams_;
     /**
      * @brief Vacancy Migration Energy Predictor
      */
     VacancyMigrationPredictor vacancyMigrationPredictor_;
 
-    const ClusterExpansionParameters ceParams_;
 
     /**
      * @brief Potential Energy Predictor

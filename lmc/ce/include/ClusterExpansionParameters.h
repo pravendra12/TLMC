@@ -73,6 +73,8 @@ public:
    */
   ClusterExpansionParameters(const string &coefficientFilename, const bool debug = false);
 
+  string GetCoefficientFile() const;
+
   /**
    * @brief Returns the basis type used for the cluster expansion.
    * @return Basis type string (e.g., "Occupation").
@@ -136,7 +138,8 @@ public:
    *
    * @return An unordered_map mapping each Element to its corresponding VectorXd of KECI values.
    */
-  unordered_map<Element, VectorXd, boost::hash<Element>> GetKECIs() const;
+  // unordered_map<Element, VectorXd, boost::hash<Element>> GetKECIs() const;
+  VectorXd GetKECIs() const;
 
 private:
   /**
@@ -145,8 +148,10 @@ private:
    * Can be used to verify that all parameters were correctly loaded.
    */
   void DebugAllFunctions();
-  
+
   json allParameters_; /**< JSON object storing all parameters */
+
+  const string predictorFilename_;
 };
 
 #endif // LMC_CE_INCLUDE_CLUSTEREXPANSIONPARAMETERS_H_

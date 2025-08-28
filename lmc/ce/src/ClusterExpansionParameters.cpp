@@ -2,7 +2,7 @@
 
 ClusterExpansionParameters::ClusterExpansionParameters(
     const string &coefficientFilename,
-    const bool debug)
+    const bool debug):predictorFilename_(coefficientFilename)
 {
   // Open the JSON file
   ifstream ifs(coefficientFilename);
@@ -19,6 +19,11 @@ ClusterExpansionParameters::ClusterExpansionParameters(
   {
     DebugAllFunctions();
   }
+}
+
+string ClusterExpansionParameters::GetCoefficientFile() const
+{
+  return predictorFilename_;
 }
 
 string ClusterExpansionParameters::GetBasisType() const
@@ -128,6 +133,7 @@ set<Element> ClusterExpansionParameters::GetElementSetKRA() const
   return elementSet;
 }
 
+/*
 unordered_map<Element, VectorXd, boost::hash<Element>> ClusterExpansionParameters::GetKECIs() const
 {
   unordered_map<Element, VectorXd, boost::hash<Element>> keciMap;
@@ -142,6 +148,23 @@ unordered_map<Element, VectorXd, boost::hash<Element>> ClusterExpansionParameter
   }
 
   return keciMap;
+}
+  */
+
+
+VectorXd ClusterExpansionParameters::GetKECIs() const
+{
+  string jsonKey = "kra";
+  string jsonSubKey = "keci";
+
+  vector<double> eciVector = ReadParametersFromJson<double>(
+      allParameters_,
+      jsonKey,
+      jsonSubKey);
+
+  VectorXd eciVectorXd = Map<VectorXd>(eciVector.data(), eciVector.size());
+
+  return eciVectorXd;
 }
 
 void ClusterExpansionParameters::DebugAllFunctions()
@@ -176,13 +199,10 @@ void ClusterExpansionParameters::DebugAllFunctions()
   cout << "\n";
 
   cout << "  KECIs:\n";
-  for (const auto &[el, vec] : GetKECIs())
-  {
-    cout << "    " << el << ": ";
-    for (int i = 0; i < vec.size(); ++i)
-      cout << setw(10) << vec[i] << " ";
-    cout << "\n";
-  }
+  VectorXd kecis = GetECIs();
+  for (int i = 0; i < kecis.size(); ++i)
+    cout << setw(10) << kecis[i] << " ";
+  cout << "\n\n";
 
   cout << "------------------------------------------------------------" << endl;
 }

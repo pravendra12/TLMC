@@ -8,13 +8,77 @@
 #include "BasisSet.h"
 #include "AtomClusterType.hpp"
 #include "CorrelationVector.h"
-
+#include "ConfigEncoding.h"
 #include <filesystem>
 #include <nlohmann/json.hpp>
 
 namespace fs = std::filesystem;
 using json = nlohmann::json;
 
+
+int main()
+{
+  const vector<double> cutoffs = {3, 4, 5};
+
+  auto cfg = Config::ReadPoscar("/home/pravendra3/Documents/nebOutput/nebOutput/13_path2/structures/unrelaxed/POSCAR_unrelaxed_initial");
+  cfg.UpdateNeighborList(cutoffs);
+
+  auto atomVector = cfg.GetAtomVector();
+
+  set<Element> elementSet(atomVector.begin(), atomVector.end());
+
+  PotentialEnergyEstimator peEstimator(
+    "/home/pravendra3/Documents/LatticeMonteCarlo-eigen/script/coefficientFileV3_MoTa.json", 
+    cfg, 
+    cfg, 
+    elementSet
+  );
+
+  cout << "Total Energy Initial : " << peEstimator.GetEnergy(cfg) << endl;
+
+  auto cfg1 = Config::ReadPoscar("/home/pravendra3/Documents/nebOutput/nebOutput/13_path2/structures/unrelaxed/POSCAR_unrelaxed_final");
+  cfg1.UpdateNeighborList(cutoffs);
+
+  cout << "Total Energy final : " << peEstimator.GetEnergy(cfg1) << endl;
+
+  pair<size_t, size_t> latticeIdPair = {cfg.GetVacancyLatticeId(), cfg1.GetVacancyLatticeId()};
+
+  cout << "dE: " << peEstimator.GetDeSwap(cfg, latticeIdPair) << endl;
+  cout << "dE: " << peEstimator.GetDeSwap(cfg1, latticeIdPair) << endl;
+
+  cout << "dE: " << peEstimator.GetDeMigration(cfg, latticeIdPair) << endl;
+  cout << "dE: " << peEstimator.GetDeMigration(cfg1, latticeIdPair) << endl;
+
+
+  ClusterExpansionParameters ceParams("/home/pravendra3/Documents/LatticeMonteCarlo-eigen/script/coefficientFileV3_MoTa.json");
+
+  KRAPredictor kraPredictor(ceParams, cfg);
+
+  cout << "KRA Value: " << kraPredictor.GetKRA(cfg, latticeIdPair) << endl;
+
+
+  cout << "barrier: " << kraPredictor.GetKRA(cfg, latticeIdPair) + 0.5*peEstimator.GetDeSwap(cfg, latticeIdPair) << endl;
+
+  VacancyMigrationPredictor migrationPredictor(ceParams, cfg);
+
+  cfg.LatticeJump(latticeIdPair);
+
+  cout << "barrier: " << migrationPredictor.GetBarrierAndDeltaE(cfg, latticeIdPair).first << endl;
+  cout << "dE: " << migrationPredictor.GetBarrierAndDeltaE(cfg, latticeIdPair).second << endl;
+
+
+
+
+
+
+
+
+
+
+
+}
+  
+/*
 int main()
 {
   const vector<double> cutoffs = {3, 4, 5};
@@ -57,7 +121,7 @@ int main()
 
   cout << cfgFinal.GetVacancyLatticeId() << endl;
 }
-
+*/
 /*
 int main()
 {
@@ -110,7 +174,6 @@ int main()
 
 /*
 VectorXd GetKRAEncoding(
-
     const Config &config,
     const pair<size_t, size_t> &latticeIdJumpPair,
     const size_t maxBondOrder,
@@ -145,7 +208,7 @@ VectorXd GetKRAEncoding(
 
   return correlationVector;
 }
-
+/*
 VectorXd GetConfigEncoding(const Config &config,
                            size_t maxBondOrder,
                            BasisSet &atomicBasis,
@@ -196,25 +259,29 @@ int main()
 
   auto vacancy = Element("X");
 
-  const string basisType = "Chebyshev";
-
   const size_t maxBondOrderCE = 3;
   const size_t maxClusterSizeCE = 3;
 
-  const size_t maxBondOrderKRA = 2;
+  // For KRA Predictor
+  const string basisType = "Chebyshev";
+
+  const size_t maxBondOrderKRA2 = 2; // Max Bond Order 2
+  const size_t maxBondOrderKRA3 = 3; // Max Bond Order 3
   const size_t maxClusterSizeKRA = 3;
   const size_t maxBondOrderOfClusterKRA = 3;
 
   set<Element> elementSetCE = {Element("Mo"), Element("Ta"), vacancy};
   set<Element> elementSetKRA = {Element("Mo"), Element("Ta")};
 
-  BasisSet atomicBasisCE(
-      elementSetCE,
-      basisType,
-      true);
+  size_t refSupercellSize = 4; // reference supercell size
 
-  auto config = Config::GenerateSupercell(4, 3.2, "Mo", "BCC");
+  auto config = Config::GenerateSupercell(refSupercellSize, 3.2, "Mo", "BCC");
   config.UpdateNeighborList(cutoffs);
+
+  ConfigEncoding configEncoder(config,
+                               elementSetCE,
+                               maxBondOrderCE,
+                               maxClusterSizeCE);
 
   bool isValidConfig = (config.GetNeighborLatticeIdVectorOfLattice(0, 1).size() == 8 &&
                         config.GetNeighborLatticeIdVectorOfLattice(0, 2).size() == 6 &&
@@ -222,25 +289,34 @@ int main()
 
   cout << "isValidConfig: " << isValidConfig << endl;
 
-  const auto eqClustersEncodingCE = GetEquivalentClustersEncoding(
-      config,
-      maxBondOrderCE,
-      maxClusterSizeCE,
-      true);
-
   const Vector3d jumpDirection(1, 1, 1);
 
-  const unordered_map<size_t, RowVector3d> canonicalReferenceMap = GetCenteredNeighborsAlongJumpDirection(
+  // Max Bond Order = 2
+  const unordered_map<size_t, RowVector3d> canonicalReferenceMap2 = GetCenteredNeighborsAlongJumpDirection(
       config,
-      maxBondOrderKRA,
+      maxBondOrderKRA2,
       jumpDirection);
 
-  const auto eqClustersEncodingKRA = GetEquivalentClustersEncoding(
+  const auto eqClustersEncodingKRA2 = GetEquivalentClustersEncoding(
       config,
-      maxBondOrderKRA,
+      maxBondOrderKRA2,
       maxBondOrderOfClusterKRA,
       maxClusterSizeKRA,
-      canonicalReferenceMap,
+      canonicalReferenceMap2,
+      true);
+
+  // Max Bond Order 3
+  const unordered_map<size_t, RowVector3d> canonicalReferenceMap3 = GetCenteredNeighborsAlongJumpDirection(
+      config,
+      maxBondOrderKRA3,
+      jumpDirection);
+
+  const auto eqClustersEncodingKRA3 = GetEquivalentClustersEncoding(
+      config,
+      maxBondOrderKRA3,
+      maxBondOrderOfClusterKRA,
+      maxClusterSizeKRA,
+      canonicalReferenceMap3,
       true);
 
   BasisSet atomicBasisKRA(
@@ -250,19 +326,16 @@ int main()
 
   vector<std::pair<Eigen::Matrix3d, Eigen::Vector3d>> symmetryOperations = GetSymmetryOperations(config);
 
-  // string pathNebOutput = "/home/pravendra3/Documents/nebOutput/nebOutput";
-
   fs::path pathNebOutput("/home/pravendra3/Documents/nebOutput/nebOutput/");
 
   json nebOutput;
 
   nebOutput["structureId"] = {};
-
   nebOutput["migratingElement"] = {};
   nebOutput["ceEncodingInitial"] = {};
   nebOutput["ceEncodingFinal"] = {};
-  nebOutput["kraEncoding"] = {};
-
+  nebOutput["kraEncoding_2"] = {}; // Max Bond Order 2
+  nebOutput["kraEncoding_3"] = {}; // Max Bond Order 3
 
   for (const auto &entry : fs::directory_iterator(pathNebOutput))
   {
@@ -304,30 +377,65 @@ int main()
 
           cout << "\t" << "Migrating Element: " << migratingElement << endl;
 
-          VectorXd ceInitialEncoding = GetConfigEncoding(cfgInitial, maxBondOrderCE, atomicBasisCE, eqClustersEncodingCE);
-          VectorXd ceFinalEncoding = GetConfigEncoding(cfgFinal, maxBondOrderCE, atomicBasisCE, eqClustersEncodingCE);
+          VectorXd ceInitialEncoding = configEncoder.GetEncodeVector(cfgInitial);
+          VectorXd ceFinalEncoding = configEncoder.GetEncodeVector(cfgFinal);
 
-          VectorXd lceEncodingInitial = GetKRAEncoding(
+          // Max Bond Order 2
+          VectorXd lceEncodingInitial2 = GetKRAEncoding(
               cfgInitial,
               jumpPair,
-              maxBondOrderKRA,
-              canonicalReferenceMap,
+              maxBondOrderKRA2,
+              canonicalReferenceMap2,
               symmetryOperations,
               atomicBasisKRA,
-              eqClustersEncodingKRA);
+              eqClustersEncodingKRA2);
 
-          VectorXd lceEncodingFinal = GetKRAEncoding(
+          VectorXd lceEncodingFinal2 = GetKRAEncoding(
               cfgFinal,
               jumpPair,
-              maxBondOrderKRA,
-              canonicalReferenceMap,
+              maxBondOrderKRA2,
+              canonicalReferenceMap2,
               symmetryOperations,
               atomicBasisKRA,
-              eqClustersEncodingKRA);
+              eqClustersEncodingKRA2);
 
-          if (lceEncodingFinal == lceEncodingInitial)
+          // Max Bond Order 3
+          VectorXd lceEncodingInitial3 = GetKRAEncoding(
+              cfgInitial,
+              jumpPair,
+              maxBondOrderKRA3,
+              canonicalReferenceMap3,
+              symmetryOperations,
+              atomicBasisKRA,
+              eqClustersEncodingKRA3);
+
+          VectorXd lceEncodingFinal3 = GetKRAEncoding(
+              cfgFinal,
+              jumpPair,
+              maxBondOrderKRA3,
+              canonicalReferenceMap3,
+              symmetryOperations,
+              atomicBasisKRA,
+              eqClustersEncodingKRA3);
+
+          if (lceEncodingFinal3 == lceEncodingInitial3)
           {
-            std::cout << "\tLCE are exactly equal" << endl;
+            std::cout << "\tLCE are exactly equal for maxBondOrder 3" << endl;
+          }
+
+           else
+          {
+            exit(1);
+          }
+
+          if (lceEncodingFinal2 == lceEncodingInitial2)
+          {
+            std::cout << "\tLCE are exactly equal for maxBondOrder 2" << endl;
+          }
+
+          else
+          {
+            exit(1);
           }
 
           string strId = entry.path().filename();
@@ -336,17 +444,43 @@ int main()
           nebOutput["migratingElement"].emplace_back(migratingElement);
           nebOutput["ceEncodingInitial"].emplace_back(ceInitialEncoding);
           nebOutput["ceEncodingFinal"].emplace_back(ceFinalEncoding);
-          nebOutput["kraEncoding"].emplace_back(lceEncodingFinal);
+          nebOutput["kraEncoding_2"].emplace_back(lceEncodingFinal2);
+          nebOutput["kraEncoding_3"].emplace_back(lceEncodingFinal3);
+
         }
       }
     }
   }
 
-  std::ofstream out("/home/pravendra3/Documents/nebOutput/nebOutputV3.json");
+
+  nebOutput["maxBondOrderCE"] = maxBondOrderCE;
+  nebOutput["maxClusterSizeCE"] = maxClusterSizeCE;
+  nebOutput["maxClusterSizeKRA"] = maxClusterSizeKRA;
+  nebOutput["maxBondOrderOfClusterKRA"] = maxBondOrderOfClusterKRA;
+
+  nebOutput["maxBondOrderKRA_2"] = maxBondOrderKRA2;
+  nebOutput["maxBondOrderKRA_3"] = maxBondOrderKRA3;
+
+  nebOutput["jumpDirection"] = jumpDirection;
+
+  nebOutput["elementSetCE"] = {};
+  for (const auto ele : elementSetCE)
+  {
+    nebOutput["elementSetCE"].emplace_back(ele.GetElementString());
+  }
+  nebOutput["elementSetKRA"] = {};
+  for (const auto ele : elementSetKRA)
+  {
+    nebOutput["elementSetKRA"].emplace_back(ele.GetElementString());
+  }
+
+  nebOutput["basisType"] = basisType;
+
+
+  std::ofstream out("/home/pravendra3/Documents/nebOutput/clusterExpansionFeatureVector.json");
   out << nebOutput.dump(4); // pretty print with indent = 4
   out.close();
 }
-*/
 
 /*
 int main()

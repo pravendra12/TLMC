@@ -20,7 +20,7 @@ KRAPredictor::KRAPredictor(
                             atomicBasis_(
                                 ceParams.GetElementSetKRA(),
                                 ceParams.GetBasisType()),
-                            kecisMap_(ceParams.GetKECIs()),
+                            kecis_(ceParams.GetKECIs()),
                             canonicalReferenceMap_(
                                 GetCenteredNeighborsAlongJumpDirection(
                                     config,
@@ -78,8 +78,12 @@ double KRAPredictor::GetKRA(
 
   // E = J.Φ_α
 
-  VectorXd kecis = kecisMap_.at(migratingElement);
-  double eKraValue = kecis.dot(correlationVector);
+  VectorXd elementEncoding = atomicBasis_.GetCachedAtomBasis(migratingElement);
+
+  VectorXd combinedEncoding(correlationVector.size() + elementEncoding.size());
+  combinedEncoding << correlationVector, elementEncoding; // concatenates the two vectors
+
+  double eKraValue = kecis_.dot(combinedEncoding);
 
   return eKraValue;
 }

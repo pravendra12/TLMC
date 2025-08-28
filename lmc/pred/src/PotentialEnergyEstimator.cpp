@@ -42,7 +42,6 @@ PotentialEnergyEstimator::PotentialEnergyEstimator(
                                                predictorFilename,
                                                "ce", "beta_ce")),
                                        elementSet_(element_set),
-
                                        initializedClusterTypeSet_(
                                            InitializeClusterTypeSet(
                                                referenceConfig,
@@ -133,7 +132,8 @@ double PotentialEnergyEstimator::GetEnergy(const Config &config) const
 {
   auto encodeVector = GetEncodeVector(config);
 
-  double energy = betaCE_.dot(encodeVector);
+  // Assuming a vacancy is present
+  double energy = betaCE_.dot(encodeVector)*(config.GetNumAtoms()-1);
 
   return energy;
 }
@@ -213,7 +213,7 @@ double PotentialEnergyEstimator::GetDeSwap(Config &config,
   // Going back to Original Config
   config.LatticeJump(latticeIdPair);
 
-  auto dE = energyAfterSwap - energyBeforeSwap;
+  auto dE = (energyAfterSwap - energyBeforeSwap)*(config.GetNumAtoms()-1);
 
   return dE;
 }
@@ -293,7 +293,8 @@ double PotentialEnergyEstimator::GetDeMigration(
   // Compute energy difference
 
   VectorXd encode_diff = encodeAfter - encodeBefore;
-  double dE = betaCE_.dot(encode_diff);
+  // For total energy change
+  double dE = betaCE_.dot(encode_diff)*(config.GetNumAtoms()-1);
 
   return dE;
 }

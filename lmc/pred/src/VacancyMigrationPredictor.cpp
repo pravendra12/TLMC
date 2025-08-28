@@ -17,8 +17,11 @@ VacancyMigrationPredictor::VacancyMigrationPredictor(
     const Config &config) : eKRAPredictor_(ceParams,
                                            config),
                             energyPredictor_(
-                                ceParams,
-                                config)
+                                ceParams.GetCoefficientFile(), 
+                                config, 
+                                config, 
+                                ceParams.GetElementSetCE()
+                            )
 {
 }
 

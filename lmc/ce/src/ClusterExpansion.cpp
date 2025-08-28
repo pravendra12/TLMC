@@ -157,7 +157,7 @@ static std::vector<std::vector<size_t>> AddOneSiteToExistingClusterHelper(
 */
 
 LatticeClusterType IdentifyLatticeClusterType(const Config &reference_config,
-                                               const std::vector<size_t> &cluster)
+                                              const std::vector<size_t> &cluster)
 {
   std::vector<size_t> bond_order_vector{};
   for (auto it1 = cluster.begin(); it1 != cluster.end(); it1++)
@@ -171,7 +171,7 @@ LatticeClusterType IdentifyLatticeClusterType(const Config &reference_config,
 }
 
 AtomClusterType IdentifyAtomClusterType(const Config &reference_config,
-                                         const std::vector<size_t> &cluster)
+                                        const std::vector<size_t> &cluster)
 {
   std::vector<Element> element_vector{};
   for (const auto lattice_id : cluster)
@@ -182,7 +182,7 @@ AtomClusterType IdentifyAtomClusterType(const Config &reference_config,
 }
 
 ClusterType IdentifyClusterType(const Config &reference_config,
-                                 const std::vector<size_t> &cluster)
+                                const std::vector<size_t> &cluster)
 {
   return ClusterType{IdentifyAtomClusterType(reference_config, cluster),
                      IdentifyLatticeClusterType(reference_config, cluster)};
@@ -551,13 +551,14 @@ static std::vector<std::vector<size_t>> AddOneSiteToExistingClusterHelper(
  *         which is used in estimation of Kinetically Resolved Barrier.
  */
 
-
-
 // Hash function for a vector<size_t> for use in unordered_set
-struct VectorHash {
-  size_t operator()(const std::vector<size_t> &vec) const {
+struct VectorHash
+{
+  size_t operator()(const std::vector<size_t> &vec) const
+  {
     size_t seed = vec.size();
-    for (auto &i : vec) {
+    for (auto &i : vec)
+    {
       seed ^= std::hash<size_t>{}(i) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     }
     return seed;
@@ -579,7 +580,8 @@ static std::vector<std::vector<size_t>> AddOneSiteToExistingClusterHelperCG(
   {
     for (auto candidate : allowedSites)
     {
-      if (site == candidate) continue;
+      if (site == candidate)
+        continue;
       size_t order = config.GetDistanceOrder(site, candidate);
       if (order > 0 && order <= maxBondOrder)
       {
@@ -590,7 +592,8 @@ static std::vector<std::vector<size_t>> AddOneSiteToExistingClusterHelperCG(
 
   // Cache distance orders
   std::unordered_map<std::pair<size_t, size_t>, size_t, boost::hash<std::pair<size_t, size_t>>> distanceCache;
-  auto getCachedDistanceOrder = [&](size_t a, size_t b) -> size_t {
+  auto getCachedDistanceOrder = [&](size_t a, size_t b) -> size_t
+  {
     auto key = std::minmax(a, b);
     auto it = distanceCache.find(key);
     if (it != distanceCache.end())
@@ -632,7 +635,7 @@ static std::vector<std::vector<size_t>> AddOneSiteToExistingClusterHelperCG(
       {
         std::vector<size_t> newCluster = oldCluster;
         newCluster.push_back(newSite);
-        std::sort(newCluster.begin(), newCluster.end());  // Ensure uniqueness
+        std::sort(newCluster.begin(), newCluster.end()); // Ensure uniqueness
         if (newClustersSet.insert(newCluster).second)
         {
           newClusters.push_back(newCluster);
@@ -643,7 +646,6 @@ static std::vector<std::vector<size_t>> AddOneSiteToExistingClusterHelperCG(
 
   return newClusters;
 }
-
 
 std::unordered_set<LatticeCluster, boost::hash<LatticeCluster>> FindClustersWithinAllowedSites(
     const Config &config,
@@ -674,9 +676,9 @@ std::unordered_set<LatticeCluster, boost::hash<LatticeCluster>> FindClustersWith
     if (i > 0)
     {
       clusterVector = AddOneSiteToExistingClusterHelperCG(config,
-                                                        maxBondOrder,
-                                                        clusterVector,
-                                                        allowedLatticeSites);
+                                                          maxBondOrder,
+                                                          clusterVector,
+                                                          allowedLatticeSites);
     }
     for (auto &cluster : clusterVector)
     {
@@ -687,4 +689,3 @@ std::unordered_set<LatticeCluster, boost::hash<LatticeCluster>> FindClustersWith
 
   return latticeClusterHashset;
 }
-

@@ -55,7 +55,7 @@ private:
 
     BasisSet atomicBasis_;
 
-    const unordered_map<Element, VectorXd, boost::hash<Element>> kecisMap_;
+    const VectorXd kecis_;
 
     const Vector3d referenceJumpDirection_{1, 1, 1};
 

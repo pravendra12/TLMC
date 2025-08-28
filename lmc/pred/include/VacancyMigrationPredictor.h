@@ -14,7 +14,7 @@
 #define LMC_PRED_INCLUDE_VACANCYMIGRATIONPREDICTOR_H_
 
 #include "KRAPredictor.h"
-#include "EnergyPredictor.h"
+#include "PotentialEnergyEstimator.h"
 #include "ClusterExpansionParameters.h"
 
 using namespace std;
@@ -42,7 +42,7 @@ private:
 
   /*! @brief Energy change predictor object
    */
-  EnergyPredictor energyPredictor_;
+  PotentialEnergyEstimator energyPredictor_;
 };
 
 #endif // LMC_PRED_INCLUDE_VACANCYMIGRATIONPREDICTOR_H_

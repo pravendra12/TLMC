@@ -15,69 +15,139 @@
 namespace fs = std::filesystem;
 using json = nlohmann::json;
 
-
 int main()
 {
-  const vector<double> cutoffs = {3, 4, 5};
+  const vector<double> cutoffs = {3.3, 4.7, 5.6};
 
-  auto cfg = Config::ReadPoscar("/home/pravendra3/Documents/nebOutput/nebOutput/13_path2/structures/unrelaxed/POSCAR_unrelaxed_initial");
+  auto cfg = Config::GenerateSupercell(20, 3.4, "Mo", "BCC");
+
+  cfg.SetElementOfLattice(0, Element("Ta"));
+  cfg.SetElementOfLattice(100, Element("Ta"));
+  cfg.SetElementOfLattice(30, Element("Ta"));
+
   cfg.UpdateNeighborList(cutoffs);
 
-  auto atomVector = cfg.GetAtomVector();
+  /*
 
-  set<Element> elementSet(atomVector.begin(), atomVector.end());
+  //
 
-  PotentialEnergyEstimator peEstimator(
-    "/home/pravendra3/Documents/LatticeMonteCarlo-eigen/script/coefficientFileV3_MoTa.json", 
-    cfg, 
-    cfg, 
-    elementSet
-  );
+  cout << "\n\n\n------------ Training Set -----------" << endl;
 
-  cout << "Total Energy Initial : " << peEstimator.GetEnergy(cfg) << endl;
+  auto cfg2 = Config::ReadPoscar("/home/pravendra3/Documents/nebOutput/nebOutput/13_path2/structures/unrelaxed/POSCAR_unrelaxed_final");
 
-  auto cfg1 = Config::ReadPoscar("/home/pravendra3/Documents/nebOutput/nebOutput/13_path2/structures/unrelaxed/POSCAR_unrelaxed_final");
-  cfg1.UpdateNeighborList(cutoffs);
+  cfg2.UpdateNeighborList({3, 4, 5});
 
-  cout << "Total Energy final : " << peEstimator.GetEnergy(cfg1) << endl;
+  cout << cfg2.GetNeighborLatticeIdVectorOfLattice(0, 1).size() << endl;
+  cout << cfg2.GetNeighborLatticeIdVectorOfLattice(0, 2).size() << endl;
+  cout << cfg2.GetNeighborLatticeIdVectorOfLattice(0, 3).size() << endl;
 
-  pair<size_t, size_t> latticeIdPair = {cfg.GetVacancyLatticeId(), cfg1.GetVacancyLatticeId()};
+  KRAPredictor kraPredictor2(ceParams, cfg2);
 
-  cout << "dE: " << peEstimator.GetDeSwap(cfg, latticeIdPair) << endl;
-  cout << "dE: " << peEstimator.GetDeSwap(cfg1, latticeIdPair) << endl;
+  size_t vacId = cfg2.GetVacancyLatticeId();
 
-  cout << "dE: " << peEstimator.GetDeMigration(cfg, latticeIdPair) << endl;
-  cout << "dE: " << peEstimator.GetDeMigration(cfg1, latticeIdPair) << endl;
+  pair<size_t, size_t> latticeIdPair2 = {vacId, cfg2.GetNeighborLatticeIdVectorOfLattice(vacId, 1)[0]};
 
+  cout << kraPredictor2.GetKRA(cfg2, latticeIdPair2) << endl;
 
-  ClusterExpansionParameters ceParams("/home/pravendra3/Documents/LatticeMonteCarlo-eigen/script/coefficientFileV3_MoTa.json");
+  Vector3d referenceJumpDirection(1, 1, 1);
+  auto canRefMap = GetCenteredNeighborsAlongJumpDirection(
+      cfg2,
+      2,
+      referenceJumpDirection);
+
+  GetEquivalentClustersEncoding(
+      cfg2,
+      2,
+      3,
+      2,
+      canRefMap,
+      true);
+
+  cout << "\n\n\n------------ Current -----------" << endl;
+
+  auto canRefMap1 = GetCenteredNeighborsAlongJumpDirection(
+      cfg,
+      2,
+      referenceJumpDirection);
+
+  GetEquivalentClustersEncoding(
+      cfg,
+      2,
+      3,
+      2,
+      canRefMap1,
+      true);
 
   KRAPredictor kraPredictor(ceParams, cfg);
 
+  cfg.SetElementOfLattice(13, Element("X"));
+
+  pair<size_t, size_t> latticeIdPair = {13, cfg.GetNeighborLatticeIdVectorOfLattice(13, 1)[0]};
+
   cout << "KRA Value: " << kraPredictor.GetKRA(cfg, latticeIdPair) << endl;
+  */
 
+  auto cfg4 = Config::ReadPoscar("//media/sf_Phd/structure.cfg");
 
-  cout << "barrier: " << kraPredictor.GetKRA(cfg, latticeIdPair) + 0.5*peEstimator.GetDeSwap(cfg, latticeIdPair) << endl;
+  cout << cfg4.GetNumAtoms() << endl;
 
-  VacancyMigrationPredictor migrationPredictor(ceParams, cfg);
+  cout << cfg4.GetBasis() << endl;
 
-  cfg.LatticeJump(latticeIdPair);
+  cfg4.UpdateNeighborList({3, 4, 5});
 
-  cout << "barrier: " << migrationPredictor.GetBarrierAndDeltaE(cfg, latticeIdPair).first << endl;
-  cout << "dE: " << migrationPredictor.GetBarrierAndDeltaE(cfg, latticeIdPair).second << endl;
+  cout << cfg4.GetNeighborLatticeIdVectorOfLattice(0, 1).size() << endl;
+  cout << cfg4.GetNeighborLatticeIdVectorOfLattice(0, 2).size() << endl;
+  cout << cfg4.GetNeighborLatticeIdVectorOfLattice(0, 3).size() << endl;
 
+  cout << cfg4.GetNeighborLatticeIdVectorOfLattice(1, 1).size() << endl;
+  cout << cfg4.GetNeighborLatticeIdVectorOfLattice(1, 2).size() << endl;
+  cout << cfg4.GetNeighborLatticeIdVectorOfLattice(1, 3).size() << endl;
 
+  set<Element> elementSet = {Element("Mo"), Element("Ta")};
 
+  auto allLatticeCluster = FindAllLatticeClusters(cfg4, 3, 3, {});
+  // Create a set of unique ClusterTypes
+  unordered_set<ClusterType, boost::hash<ClusterType>> clusterTypeSet;
 
+  for (const auto &cluster : allLatticeCluster)
+  {
+    auto atomCluster = IdentifyAtomClusterType(cfg4, cluster.GetLatticeIdVector());
+    clusterTypeSet.insert(ClusterType(atomCluster, cluster.GetClusterType()));
+  }
 
+  // Initialize counts to 0
+  unordered_map<ClusterType, size_t, boost::hash<ClusterType>> clusterTypeCount;
+  for (const auto &ctype : clusterTypeSet)
+  {
+    clusterTypeCount[ctype] = 0;
+  }
 
+  for (const auto &cluster : allLatticeCluster)
+  {
+    auto atomCluster = IdentifyAtomClusterType(cfg4, cluster.GetLatticeIdVector());
+    clusterTypeCount[ClusterType(atomCluster, cluster.GetClusterType())]++;
+  }
 
+  // Print counts
+  for (const auto &pair : clusterTypeCount)
+  {
+    cout << pair.first << " : " << pair.second << endl;
+  }
 
+  ClusterExpansionParameters ceParams("/home/pravendra3/Documents/LatticeMonteCarlo-eigen/script/coefficientFileV3_MoTa.json");
 
+  cfg.SetElementOfLattice(13, Element("X"));
 
+  size_t vacId = cfg.GetVacancyLatticeId();
 
+  pair<size_t, size_t> latticeIdPair = {vacId, cfg.GetNeighborLatticeIdVectorOfLattice(vacId, 1)[0]};
+
+  cout << "HERE" << endl;
+  KRAPredictor kraPredictor(ceParams, cfg);
+
+  cout << kraPredictor.GetKRA(cfg, latticeIdPair) << endl;
 }
-  
+
 /*
 int main()
 {

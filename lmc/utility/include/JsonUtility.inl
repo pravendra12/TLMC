@@ -5,10 +5,6 @@ T ReadParameterFromJson(
     const json &parameters,
     const string &jsonKey)
 {
-  for (auto &[key, value] : parameters.items())
-  {
-    std::cout << "Keys: " <<  key << std::endl;
-  }
   // Check if the main key exists
   if (parameters.contains(jsonKey))
   {

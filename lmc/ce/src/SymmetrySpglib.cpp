@@ -192,7 +192,7 @@ static vector<set<vector<size_t>>> GetEquivalentGroups(
 
   return groups;
 }
-
+/*
 vector<set<vector<size_t>>> GetEquivalentClusters(
     const Config &config, const unordered_set<size_t> &latticeIdSet,
     const unordered_set<LatticeCluster, boost::hash<LatticeCluster>>
@@ -202,7 +202,6 @@ vector<set<vector<size_t>>> GetEquivalentClusters(
 
   auto symmetryOperations =
       GetSymmetryOperations(config, latticeIdSet, debug, {}, symprec);
-
   // Map latticeId to Position
   unordered_map<size_t, Vector3d> latticeIdToPositionMap;
 
@@ -293,6 +292,166 @@ vector<set<vector<size_t>>> GetEquivalentClusters(
   if (debug)
   {
 
+    cout << "Found " << equivalentGroups.size() << " equivalence classes.\n\n";
+
+    for (size_t cid = 0; cid < equivalentGroups.size(); ++cid)
+    {
+      cout << "Equivalence Class " << cid << ":\n";
+      for (const auto &t : equivalentGroups[cid])
+      {
+        cout << " Cluster: ";
+        for (auto id : t)
+          cout << id << " ";
+
+        auto clusterType = IdentifyLatticeClusterType(config, t);
+        cout << clusterType << "\n";
+      }
+      cout << "\n";
+    }
+  }
+
+  return equivalentGroups;
+}
+  */
+
+vector<set<vector<size_t>>> GetEquivalentClusters(
+    const Config &config, const unordered_set<size_t> &latticeIdSet,
+    const unordered_set<LatticeCluster, boost::hash<LatticeCluster>>
+        &latticeClusterSet,
+    const double symprec, const bool debug)
+{
+
+  auto symmetryOperations =
+      GetSymmetryOperations(config, latticeIdSet);
+
+  // Map latticeId to Position (fractional)
+  unordered_map<size_t, Vector3d> latticeIdToPositionMap;
+
+  // No need for positionToLatticeIdMap anymore, since we'll search id_to_pos
+
+  for (auto latticeId : latticeIdSet)
+  {
+    Vector3d position = config.GetRelativePositionOfLattice(latticeId);
+    latticeIdToPositionMap[latticeId] = position;
+  }
+
+  // Helper lambda to find the closest lattice ID to a given fractional coordinate (targetFractionalCoordinate)
+  // within a specified symmetry tolerance (symprec), accounting for periodic boundary conditions.
+  //
+  // Steps:
+  // 1. Iterate over all lattice sites in latticeIdToPositionMap (fractional coordinates).
+  // 2. Compute fractional difference between targetFractionalCoordinate and the candidate lattice site.
+  // 3. Apply periodic wrapping by subtracting the nearest integer (round) so the difference
+  //    lies within [-0.5, 0.5] for each dimension (handles supercell periodicity).
+  // 4. Convert the wrapped fractional difference into Cartesian coordinates using the basis matrix.
+  // 5. Compute squared Cartesian distance to avoid unnecessary sqrt until the end.
+  // 6. Keep track of the lattice ID with the smallest distance.
+  // 7. Return true if the minimum distance is less than the symmetry tolerance (symprec),
+  //    and update matchedLatticeId with the closest lattice ID.
+
+  auto FindClosestLatticeId = [&](const Vector3d &targetFractionalCoordinate, size_t &matchedLatticeId) -> bool
+  {
+    const Matrix3d basis = config.GetBasis();
+    double minDistance = numeric_limits<double>::max();
+    matchedLatticeId = static_cast<size_t>(-1);
+
+    for (const auto &pair : latticeIdToPositionMap)
+    {
+      Vector3d diffFractional = pair.second - targetFractionalCoordinate;
+      for (int k = 0; k < 3; ++k)
+      {
+        diffFractional[k] -= round(diffFractional[k]);
+      }
+      Vector3d diffCartesian = basis * diffFractional;
+      double dist_sq = diffCartesian.squaredNorm();
+
+      if (dist_sq < minDistance)
+      {
+        minDistance = dist_sq;
+        matchedLatticeId = pair.first;
+      }
+    }
+
+    return (sqrt(minDistance) < symprec);
+  };
+
+  map<vector<size_t>, set<vector<size_t>>> equivalentMap;
+  for (const auto &cluster : latticeClusterSet)
+  {
+    set<vector<size_t>> equivalentSet;
+    set<LatticeCluster> equivalentLatticeClusters;
+
+    auto originalCluster = cluster.GetLatticeIdVector();
+
+    // if (originalCluster.size() <= 1)
+    // {
+    //   // Skip the singlets and empty cluster for now;
+    //   continue;
+    // }
+
+    // Iterate over the symmetry operations to get the equivalent clusters
+
+    for (const auto &operation : symmetryOperations)
+    {
+      vector<size_t> transformedCluster;
+      transformedCluster.reserve(originalCluster.size());
+      bool allFound = true;
+
+      // Transform the cluster
+      for (auto latticeId : originalCluster)
+      {
+        Vector3d position = latticeIdToPositionMap[latticeId];
+
+        // operation = [rotation, translation]
+        Vector3d transformedPosition =
+            operation.first * position + operation.second;
+
+        // wrap to [0, 1)
+        for (int k = 0; k < 3; ++k)
+        {
+          transformedPosition[k] =
+              transformedPosition[k] - floor(transformedPosition[k]);
+          if (transformedPosition[k] < 0)
+            transformedPosition[k] += 1.0;
+          // Additional boundary snap for stability (optional, tune epsilon if needed)
+          const double eps = 1e-10;
+          if (transformedPosition[k] > 1.0 - eps)
+            transformedPosition[k] = 0.0;
+        }
+
+        size_t matchedId;
+        if (FindClosestLatticeId(transformedPosition, matchedId))
+        {
+          transformedCluster.push_back(matchedId);
+        }
+        else
+        {
+          allFound = false;
+          break; // Early exit if any site fails
+        }
+      }
+
+      if (!allFound)
+        continue;
+
+      auto latticeClusterType =
+          IdentifyLatticeClusterType(config, transformedCluster);
+      LatticeCluster tranformedLatticeCluster(latticeClusterType,
+                                              transformedCluster);
+
+      equivalentSet.insert(tranformedLatticeCluster.GetLatticeIdVector());
+    }
+
+    equivalentMap[originalCluster] = equivalentSet;
+  }
+
+  map<vector<size_t>, int> clustersToGroupMap;
+
+  auto equivalentGroups =
+      GetEquivalentGroups(equivalentMap, clustersToGroupMap);
+
+  if (debug)
+  {
     cout << "Found " << equivalentGroups.size() << " equivalence classes.\n\n";
 
     for (size_t cid = 0; cid < equivalentGroups.size(); ++cid)
@@ -574,7 +733,8 @@ vector<pair<vector<vector<size_t>>, LatticeClusterType>> GetEquivalentClustersEn
   auto equivalentClusters = GetEquivalentClusters(
       config,
       nnLatticeSites,
-      latticeClusterHashset);
+      latticeClusterHashset,
+      debug);
 
   map<size_t, size_t> latticeIdToIndexMap;
 
@@ -626,18 +786,18 @@ vector<pair<vector<vector<size_t>>, LatticeClusterType>> GetEquivalentClustersEn
       const auto &encodedOrbits = pair.first;
       const auto &clusterType = pair.second;
 
-      std::cout << "Cluster Type: " << clusterType << "\n";
-      std::cout << "Orbits:\n";
+      cout << "Cluster Type: " << clusterType << "\n";
+      cout << "Orbits:\n";
 
       for (const auto &orbit : encodedOrbits)
       {
-        std::cout << "  [ ";
+        cout << "  [ ";
         for (const auto &id : orbit)
-          std::cout << id << " ";
-        std::cout << "]\n";
+          cout << id << " ";
+        cout << "]\n";
       }
 
-      std::cout << "------------------------\n";
+      cout << "------------------------\n";
     }
 
     GetSymmetryOperations(config, nnLatticeSites, debug, latticeIdToIndexMap);
@@ -725,18 +885,18 @@ vector<pair<vector<vector<size_t>>, LatticeClusterType>> GetEquivalentClustersEn
       const auto &encodedOrbits = pair.first;
       const auto &clusterType = pair.second;
 
-      std::cout << "Cluster Type: " << clusterType << "\n";
-      std::cout << "Orbits:\n";
+      cout << "Cluster Type: " << clusterType << "\n";
+      cout << "Orbits:\n";
 
       for (const auto &orbit : encodedOrbits)
       {
-        std::cout << "  [ ";
+        cout << "  [ ";
         for (const auto &id : orbit)
-          std::cout << id << " ";
-        std::cout << "]\n";
+          cout << id << " ";
+        cout << "]\n";
       }
 
-      std::cout << "------------------------\n";
+      cout << "------------------------\n";
     }
 
     GetSymmetryOperations(config, nnLatticeSitesSet, debug, latticeIdToIndexMap);
@@ -767,7 +927,7 @@ GetCenteredNeighboursSite(const Config &config,
     // Wrap into [0,1) box for periodic boundary conditions
     relPos = relPos.unaryExpr([](double x)
                               {
-                                      double wrapped = x - std::floor(x);
+                                      double wrapped = x - floor(x);
                                       if (wrapped >= 1.0) wrapped -= 1.0;
                                       if (wrapped < 0.0)  wrapped += 1.0;
                                       return wrapped; });

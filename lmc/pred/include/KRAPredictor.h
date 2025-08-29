@@ -55,20 +55,20 @@ private:
 
     BasisSet atomicBasis_;
 
-    const VectorXd kecis_;
+    const VectorXd kecis_{};
 
     const Vector3d referenceJumpDirection_{1, 1, 1};
 
-    const unordered_map<size_t, RowVector3d> canonicalReferenceMap_;
+    const unordered_map<size_t, RowVector3d> canonicalReferenceMap_{};
 
     // Contains space group symmetry operation
-    const vector<pair<Matrix3d, Vector3d>> symmetryOperations_;
+    const vector<pair<Matrix3d, Vector3d>> symmetryOperations_{};
 
     /*! @brief Equivalent Clusters Encoding
      */
     const vector<pair<vector<vector<size_t>>,
                       LatticeClusterType>>
-        equivalentClustersEncoding_;
+        equivalentClustersEncoding_{};
 };
 
 #endif // LMC_PRED_INCLUDE_KRAPREDICTOR_H_

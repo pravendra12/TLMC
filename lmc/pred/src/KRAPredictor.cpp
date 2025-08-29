@@ -35,8 +35,7 @@ KRAPredictor::KRAPredictor(
                                     maxClusterSize_,
                                     canonicalReferenceMap_))
 
-{
-}
+{}
 
 double KRAPredictor::GetKRA(
     const Config &config,
@@ -60,8 +59,8 @@ double KRAPredictor::GetKRA(
   size_t id2 = latticeIdJumpPair.second;
 
   pair<size_t, size_t> canonicalJumpPair = (id1 < id2)
-                                               ? std::make_pair(id1, id2)
-                                               : std::make_pair(id2, id1);
+                                               ? make_pair(id1, id2)
+                                               : make_pair(id2, id1);
 
   auto canonicalSortedLatticeIds = GetCanonicalSortedSitesForPair(
       config,
@@ -82,6 +81,14 @@ double KRAPredictor::GetKRA(
 
   VectorXd combinedEncoding(correlationVector.size() + elementEncoding.size());
   combinedEncoding << correlationVector, elementEncoding; // concatenates the two vectors
+
+  if (kecis_.size() != combinedEncoding.size())
+  {
+    throw runtime_error(
+        "Error in `KRAPredictor::GetKRA`: kecis_ (" + to_string(kecis_.size()) +
+        ") and combinedEncoding (" + to_string(combinedEncoding.size()) +
+        ") must have the same size.");
+  }
 
   double eKraValue = kecis_.dot(combinedEncoding);
 

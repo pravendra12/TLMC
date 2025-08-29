@@ -94,6 +94,7 @@ vector<set<vector<size_t>>> GetEquivalentClusters(
     const double symprec = 1e-5,
     const bool debug = false);
 
+
 unordered_map<size_t, Eigen::RowVector3d> GetCenteredNeighborsAlongJumpDirection(
     const Config &config,
     const size_t maxBondOrder,

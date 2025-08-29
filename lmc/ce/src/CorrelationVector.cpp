@@ -32,8 +32,7 @@ VectorXd GetCorrelationVector(
         canonicalSortedLatticeIds,
         encodedOrbitPair.first);
 
-    // cout << encodedOrbitPair.second << " : " << orbitCorrelationFunction.transpose() << endl;
-
+    
     if (orbitCorrelationFunction.size() > 0)
       correlationFunctions.emplace_back(orbitCorrelationFunction);
   }

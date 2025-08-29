@@ -16,11 +16,6 @@ ClusterExpansionParameters::ClusterExpansionParameters(
 
   ifs >> allParameters_;
 
-  for (auto &[key, value] : allParameters_.items())
-  {
-    std::cout << key << std::endl;
-  }
-
   if (debug)
   {
     DebugAllFunctions();

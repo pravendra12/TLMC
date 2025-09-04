@@ -87,6 +87,11 @@ vector<pair<Matrix3d, Vector3d>> GetSymmetryOperations(
     const map<size_t, size_t> &latticeIdToIndexMap = map<size_t, size_t>{},
     const double symprec = 1e-5);
 
+vector<set<vector<size_t>>> GetEquivalentGroups(
+    const map<vector<size_t>, 
+    set<vector<size_t>>> &equivalentMap, 
+    map<vector<size_t>, int> &clustersToGroupMap);
+
 vector<set<vector<size_t>>> GetEquivalentClusters(
     const Config &config,
     const unordered_set<size_t> &latticeIdSet,

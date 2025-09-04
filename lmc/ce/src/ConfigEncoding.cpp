@@ -42,7 +42,7 @@ ConfigEncoding::ConfigEncoding(
   for (const auto &clusterType : initializedClusterHashSet_)
   {
     std::cout << clusterType << " : "
-              << latticeClusterCountHashMap_.at(clusterType.lattice_cluster_type_)
+              << latticeClusterCountHashMap_.at(clusterType.lattice_cluster_type_)/config.GetNumLattices()
               << "\n";
   }
 }

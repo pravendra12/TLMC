@@ -129,7 +129,7 @@ vector<pair<Matrix3d, Vector3d>> GetSymmetryOperations(
 }
 
 // Helper function to get the equivalent clusters
-static vector<set<vector<size_t>>> GetEquivalentGroups(
+vector<set<vector<size_t>>> GetEquivalentGroups(
     const map<vector<size_t>, set<vector<size_t>>> &equivalentMap,
     map<vector<size_t>, int> &clustersToGroupMap)
 {
@@ -348,7 +348,7 @@ vector<set<vector<size_t>>> GetEquivalentClusters(
   // 6. Keep track of the lattice ID with the smallest distance.
   // 7. Return true if the minimum distance is less than the symmetry tolerance (symprec),
   //    and update matchedLatticeId with the closest lattice ID.
-
+  /*
   auto FindClosestLatticeId = [&](const Vector3d &targetFractionalCoordinate, size_t &matchedLatticeId) -> bool
   {
     const Matrix3d basis = config.GetBasis();
@@ -373,6 +373,40 @@ vector<set<vector<size_t>>> GetEquivalentClusters(
     }
 
     return (sqrt(minDistance) < symprec);
+  };
+  */
+
+  auto FindClosestLatticeId = [&](const Vector3d &targetFractionalCoordinate, size_t &matchedLatticeId) -> bool
+  {
+    const Matrix3d basis = config.GetBasis();
+    double minDistance = numeric_limits<double>::max();
+    matchedLatticeId = static_cast<size_t>(-1);
+    const double eps = 1e-10; // small tolerance for floating-point errors
+
+    for (const auto &pair : latticeIdToPositionMap)
+    {
+      // Fractional difference
+      Vector3d diffFractional = pair.second - targetFractionalCoordinate;
+
+      // Apply periodic wrapping [-0.5, 0.5)
+      for (int k = 0; k < 3; ++k)
+      {
+        diffFractional[k] -= round(diffFractional[k]);
+      }
+
+      // Cartesian distance squared
+      Vector3d diffCartesian = basis * diffFractional;
+      double dist_sq = diffCartesian.squaredNorm();
+
+      if (dist_sq < minDistance)
+      {
+        minDistance = dist_sq;
+        matchedLatticeId = pair.first;
+      }
+    }
+
+    // Use a slightly larger tolerance to account for numerical noise
+    return (sqrt(minDistance) < eps);
   };
 
   map<vector<size_t>, set<vector<size_t>>> equivalentMap;
@@ -439,7 +473,8 @@ vector<set<vector<size_t>>> GetEquivalentClusters(
       LatticeCluster tranformedLatticeCluster(latticeClusterType,
                                               transformedCluster);
 
-      equivalentSet.insert(tranformedLatticeCluster.GetLatticeIdVector());
+      std::sort(transformedCluster.begin(), transformedCluster.end());
+      equivalentSet.insert(transformedCluster);
     }
 
     equivalentMap[originalCluster] = equivalentSet;
@@ -733,8 +768,7 @@ vector<pair<vector<vector<size_t>>, LatticeClusterType>> GetEquivalentClustersEn
   auto equivalentClusters = GetEquivalentClusters(
       config,
       nnLatticeSites,
-      latticeClusterHashset,
-      debug);
+      latticeClusterHashset);
 
   map<size_t, size_t> latticeIdToIndexMap;
 

@@ -75,9 +75,16 @@ double KRAPredictor::GetKRA(
       canonicalSortedLatticeIds,
       equivalentClustersEncoding_);
 
+  cout << equivalentClustersEncoding_.size() << endl;
+
   // E = J.Φ_α
 
+  cout << correlationVector.size() << endl;
+
   VectorXd elementEncoding = atomicBasis_.GetCachedAtomBasis(migratingElement);
+
+  cout << elementEncoding.size() << endl;
+
 
   VectorXd combinedEncoding(correlationVector.size() + elementEncoding.size());
   combinedEncoding << correlationVector, elementEncoding; // concatenates the two vectors

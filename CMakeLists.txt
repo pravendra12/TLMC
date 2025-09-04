@@ -61,14 +61,14 @@ message(STATUS "Current build type is ${CMAKE_BUILD_TYPE}")
 ###################################################### BUILD SRCS ######################################################
 #file(GLOB PROJECT_SRC ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/*/src/*.cpp)
 file(GLOB PROJECT_SRC
-     ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/api/src/*.cpp
-     ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/ansys/src/*.cpp
+     # ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/api/src/*.cpp
+     # ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/ansys/src/*.cpp
      ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/cfg/src/*.cpp
      ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/ce/src/*.cpp
-     ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/mc/src/*.cpp
-     ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/pred/src/*.cpp
+     # ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/mc/src/*.cpp
+     # ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/pred/src/*.cpp
      ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/utility/src/*.cpp
-
+     ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/icet_src/src/*.cpp
 )
 
 file(GLOB PROJECT_SOURCE ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/*/src)
@@ -80,9 +80,13 @@ foreach (dir ${PROJECT_INCLUDE})
     message(STATUS "Found include directory: ${dir}")
 endforeach ()
 
+
+
+
 add_executable(${PROJECT_NAME} ${PROJECT_NAME}/main.cpp ${PROJECT_SRC})
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_INCLUDE})
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${PROJECT_NAME}.exe")
+
 ###################################################### BUILD LIBS ######################################################
 include(FetchContent)
 function(target_link_libraries_system target scope)
@@ -165,6 +169,25 @@ if (NOT EIGEN3_FOUND)
 endif ()
 target_link_libraries_system(${PROJECT_NAME} PRIVATE Eigen3::Eigen)
 
+####################### pybind11 ####################################
+find_package(pybind11 QUIET)
+
+if (NOT pybind11_FOUND)
+    message(WARNING "Pybind11 not found.")
+    message(STATUS "Downloading Pybind11 from GitHub")
+    include(FetchContent)
+    FetchContent_Declare(
+        pybind11
+        GIT_REPOSITORY https://github.com/pybind/pybind11.git
+        GIT_TAG v2.11.1  # choose the version you want
+        GIT_PROGRESS TRUE
+        GIT_SHALLOW TRUE
+    )
+    FetchContent_MakeAvailable(pybind11)
+endif()
+target_link_libraries_system(${PROJECT_NAME} PRIVATE pybind11::embed)
+
+# target_link_libraries(${PROJECT_NAME} PRIVATE pybind11::embed)   # use ::module if building a Python module
 
 ###################################################### ARMADILLO #######################################################
 #find_package(ARMADILLO REQUIRED)

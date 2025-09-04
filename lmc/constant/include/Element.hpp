@@ -19,7 +19,6 @@
 #include <unordered_map>
 #include <boost/functional/hash.hpp>
 
-
 /*! \enum ElementName
  *  \brief Define the names of the elements that can be used. X is used for the vacancy.
  */
@@ -177,6 +176,26 @@ public:
     element_name_ = it->second;
   }
 
+  /// Constructor to create Element from atomic number
+  explicit Element(size_t atomic_number)
+  {
+    // Iterate over element_properties_map_ to find the matching atomic index
+    bool found = false;
+    for (const auto &[ename, props] : element_properties_map_)
+    {
+      if (props.index == atomic_number)
+      {
+        element_name_ = ename;
+        found = true;
+        break;
+      }
+    }
+    if (!found)
+    {
+      throw std::invalid_argument("Invalid atomic number: " + std::to_string(atomic_number));
+    }
+  }
+
   /*! \brief Comparison and other operator overloads.
    */
   constexpr explicit operator ElementName() const { return element_name_; }
@@ -206,7 +225,6 @@ public:
     return GetElementString() < Element(rhs).GetElementString();
   }
 
-  
   /*! \brief Hash function.
    */
   friend size_t hash_value(Element element)

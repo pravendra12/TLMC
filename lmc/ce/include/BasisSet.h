@@ -38,6 +38,10 @@ public:
   VectorXd GetTensorProduct(
       const AtomClusterType &atomClusterType);
 
+  double GetBasisProduct(const AtomClusterType &atomClusterType);
+
+  double GetCachedBasisProduct(const AtomClusterType &atomClusterType);
+
 private:
   void TestBasisSet();
 
@@ -56,6 +60,8 @@ private:
   // Hash key will be used as key for LRU
   LruCache<size_t, VectorXd> atomBasisHashMap_;
   LruCache<size_t, VectorXd> tensorProductHashMap_;
+  LruCache<size_t, double> basisProductHashMap_;
+
 };
 
 #endif // LMC_CE_INCLUDE_BASISSET_H_

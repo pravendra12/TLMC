@@ -114,6 +114,11 @@ public:
   [[nodiscard]] std::map<Element, std::vector<size_t>>
   GetElementOfAtomIdVectorMap() const;
 
+  /*! \brief Occupancy vector contains the atomic number of element present at each lattice Id
+      \return Returns the occupancy vector sorted by the lattice Id
+  */
+  vector<size_t> GetOccupationVector() const;
+
   /*! \brief Query for the set of neighbor atom id of an atom.
    *  \param atom_id         The atom id of the atom.
    *  \param distance_order  The order of distance between the two lattice.
@@ -378,6 +383,10 @@ private:
 
   /// The vector of atoms in the configuration.
   std::vector<Element> atom_vector_{};
+
+  /// Occupation vector: stores the atomic number of the element present at 
+  /// each lattice site, in order of the lattice sites.
+  std::vector<size_t> occupation_vector_{};
 
   /// Mapping from lattice points to atom ids.
   std::unordered_map<size_t, size_t> lattice_to_atom_hashmap_{};

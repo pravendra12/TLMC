@@ -7,7 +7,8 @@ BasisSet::BasisSet(
     const size_t cacheCapacity) : elementSet_(elementSet),
                                   basisType_(basisType),
                                   atomBasisHashMap_(cacheCapacity),
-                                  tensorProductHashMap_(cacheCapacity)
+                                  tensorProductHashMap_(cacheCapacity), 
+                                  basisProductHashMap_(cacheCapacity)
 {
   if (!(basisType_ == "Occupation" || basisType_ == "Chebyshev"))
   {
@@ -71,7 +72,7 @@ VectorXd BasisSet::ComputeOccupationBasis(
   [0, 0, 1] // C
 
   Ref: Constructing multicomponent cluster expansions with machine-learning and chemical embedding
-  
+
   */
   VectorXd basis = VectorXd::Zero(setSize);
 
@@ -156,6 +157,42 @@ VectorXd BasisSet::GetTensorProduct(const AtomClusterType &atomClusterType)
   return result;
 }
 
+double BasisSet::GetBasisProduct(const AtomClusterType &atomClusterType)
+{
+  auto elementVector = atomClusterType.GetElementVector();
+
+  if (elementVector.empty())
+    return 1.0;
+
+  double basisProduct = 1.0;
+
+  for (size_t i = 0; i < elementVector.size(); ++i)
+  {
+    const VectorXd &vec = GetCachedAtomBasis(elementVector[i]);
+
+    // Use last element of the vector (non-constant Chebyshev term)
+    basisProduct *= vec(vec.size() - 1);
+  }
+
+  return basisProduct;
+}
+
+double BasisSet::GetCachedBasisProduct(const AtomClusterType &atomClusterType)
+{
+  double basisProduct;
+
+  auto atomClusterHashKey = boost::hash<AtomClusterType>()(atomClusterType);
+
+  if (basisProductHashMap_.Get(atomClusterHashKey, basisProduct))
+  {
+    return basisProduct;
+  }
+
+  basisProduct = GetBasisProduct(atomClusterType);
+
+  basisProductHashMap_.Add(atomClusterHashKey, basisProduct);
+  return basisProduct;
+}
 void BasisSet::TestBasisSet()
 {
   // Set fixed-point notation with 3 decimal places for vectors
@@ -190,8 +227,8 @@ void BasisSet::TestBasisSet()
   }
   cout << "\n";
 
-  // Print tensor products for atom pairs
-  cout << "--- Tensor Product (Pairs) ---\n";
+  // Print tensor products and basis products for atom pairs
+  cout << "--- Tensor Product and Basis Product (Pairs) ---\n";
   for (auto it1 = elementSet_.begin(); it1 != elementSet_.end(); ++it1)
   {
     for (auto it2 = it1; it2 != elementSet_.end(); ++it2)
@@ -199,16 +236,20 @@ void BasisSet::TestBasisSet()
       const AtomClusterType pair(*it1, *it2);
       const Eigen::VectorXd tensor = GetTensorProduct(pair);
       const Eigen::VectorXd cached = GetCachedTensorProduct(pair);
+      double basisProduct = GetCachedBasisProduct(pair);
+
       cout << left << setw(8)
            << it1->GetElementString() + "-" + it2->GetElementString()
-           << ": " << tensor.transpose()
-           << " | Cached: " << cached.transpose() << "\n";
+           << ": Tensor: " << tensor.transpose()
+           << " | Cached Tensor: " << cached.transpose()
+           << " | Cached Basis Product: " << basisProduct
+           << "\n";
     }
   }
   cout << "\n";
 
-  // Print tensor products for atom triplets
-  cout << "--- Tensor Product (Triplets) ---\n";
+  // Print tensor products and basis products for atom triplets
+  cout << "--- Tensor Product and Basis Product (Triplets) ---\n";
   for (auto it1 = elementSet_.begin(); it1 != elementSet_.end(); ++it1)
   {
     for (auto it2 = it1; it2 != elementSet_.end(); ++it2)
@@ -218,10 +259,14 @@ void BasisSet::TestBasisSet()
         const AtomClusterType triplet(*it1, *it2, *it3);
         const Eigen::VectorXd tensor = GetTensorProduct(triplet);
         const Eigen::VectorXd cached = GetCachedTensorProduct(triplet);
+        double basisProduct = GetCachedBasisProduct(triplet);
+
         cout << left << setw(10)
              << it1->GetElementString() + "-" + it2->GetElementString() + "-" + it3->GetElementString()
-             << ": " << tensor.transpose()
-             << " | Cached: " << cached.transpose() << "\n";
+             << ": Tensor: " << tensor.transpose()
+             << " | Cached Tensor: " << cached.transpose()
+             << " | Cached Basis Product: " << basisProduct
+             << "\n";
       }
     }
   }
@@ -231,6 +276,7 @@ void BasisSet::TestBasisSet()
   cout << "Cache Sizes:\n";
   cout << "- Atom Basis Cache: " << atomBasisHashMap_.GetSizeOfCacheList() << "\n";
   cout << "- Tensor Product Cache: " << tensorProductHashMap_.GetSizeOfCacheList() << "\n";
+  cout << "- Basis Product Cache: " << basisProductHashMap_.GetSizeOfCacheList() << "\n";
 
   // Footer
   cout << "\n====================================\n";

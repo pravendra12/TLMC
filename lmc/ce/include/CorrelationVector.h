@@ -19,5 +19,15 @@ VectorXd GetCorrelationVector(
   const vector<size_t> &canonicalSortedLatticeIds, 
   const vector<pair<vector<vector<size_t>>, LatticeClusterType>> &equivalentEncodedClusters);
 
+VectorXd GetCorrelationVector(
+  const Config &config, 
+  BasisSet &atomicBasis, 
+  const vector<pair<vector<vector<size_t>>, LatticeClusterType>> &equivalentOrbitVector);
+
+double GetOrbitCorrelationFunction(
+  const Config &config, 
+  BasisSet &atomicBasis, 
+  const vector<vector<size_t>> &orbitVector);
+
 #endif // LMC_CE_INCLUDE_CORRELATIONVECTOR_H_
 

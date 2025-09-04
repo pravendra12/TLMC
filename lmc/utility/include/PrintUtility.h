@@ -19,8 +19,22 @@ void print1DVector(const std::vector<T>& vec) {
     std::cout << "}" << std::endl;  // Removed the extra comma before the closing brace
 }
 
+template <typename T>
+void print2DVector(const std::vector<std::vector<T>> &vec)
+{
+    std::cout << "[\n";
+    for (const auto &row : vec)
+    {
+        std::cout << " [";
+        for (T i = 0; i < row.size(); ++i)
+        {
+            std::cout << row[i] << ", ";
+        }
+        std::cout << "],\n";
+    }
+    std::cout << "]\n";
+};
 
-void print2DVector(const std::vector<std::vector<size_t>> &vec);
 
 void print2DStringVector(const std::vector<std::vector<std::string>> &vec);
 

@@ -1,19 +1,5 @@
 #include "PrintUtility.h"
 
-void print2DVector(const std::vector<std::vector<size_t>> &vec)
-{
-    std::cout << "[\n";
-    for (const auto &row : vec)
-    {
-        std::cout << " [";
-        for (size_t i = 0; i < row.size(); ++i)
-        {
-            std::cout << row[i] << ", ";
-        }
-        std::cout << "],\n";
-    }
-    std::cout << "]\n";
-};
 
 void print2DStringVector(const std::vector<std::vector<std::string>> &vec)
 {

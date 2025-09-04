@@ -675,7 +675,7 @@ void process_orbit_list_inputs(
   auto orbitListPtr = std::make_shared<OrbitList>(orbitList);
   ClusterSpace cs(orbitListPtr, position_tolerance.cast<double>(), fractional_position_tolerance.cast<double>());
 
-  auto cfg = Config::GenerateSupercell(20, 3.2, "Mo", "BCC");
+  auto cfg = Config::GenerateSupercell(5, 3.2, "Mo", "BCC");
   cfg.SetElementOfLattice(0, Element("Ta"));
 
   auto structureFromCfg = ConvertConfigToStructure(cfg);
@@ -781,7 +781,7 @@ void process_orbit_list_inputs(
 
   cout << "Central Lattice Id: " << centralSiteIndex << endl;
 
-  ceCalculator.print(centralSiteIndex);
+  // ceCalculator.print(centralSiteIndex);
 
   vector<vector<size_t>> largest2DCluster = {
       {

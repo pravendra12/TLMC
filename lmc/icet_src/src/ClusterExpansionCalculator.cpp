@@ -10,7 +10,7 @@ ClusterExpansionCalculator::ClusterExpansionCalculator(const ClusterSpace &clust
     LocalOrbitListGenerator LOLG = LocalOrbitListGenerator(clusterSpace.getPrimitiveOrbitList(), _supercell, fractionalPositionTolerance);
 
     // Create a full orbit list, used to calculate full cluster vectors.
-    _fullOrbitList = LOLG.getFullOrbitList();
+    // _fullOrbitList = LOLG.getFullOrbitList();
 
     // Map indices in the supercell to offsets in the primitive cell,
     // and for each unique offset, precompute all possible

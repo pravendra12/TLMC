@@ -384,10 +384,6 @@ private:
   /// The vector of atoms in the configuration.
   std::vector<Element> atom_vector_{};
 
-  /// Occupation vector: stores the atomic number of the element present at 
-  /// each lattice site, in order of the lattice sites.
-  std::vector<size_t> occupation_vector_{};
-
   /// Mapping from lattice points to atom ids.
   std::unordered_map<size_t, size_t> lattice_to_atom_hashmap_{};
 

@@ -8,6 +8,12 @@
 #include "Structure.hpp"
 #include "VectorOperations.hpp"
 
+
+// remove these later may be
+
+#include "Config.h"
+using namespace std;
+
 /**
 @brief This class handles the cluster space.
 @details It provides functionality for setting up a cluster space, calculating
@@ -39,7 +45,14 @@ public:
   const std::vector<double> getClusterVectorFromOrbitList(
     const OrbitList &, const std::shared_ptr<Structure>, const int flipIndex = -1, const int newOccupation = -1) const;
 
-  const std::vector<double> getClusterVectorFromOrbitListCheck(
+  const vector<double> getLocalClusterVectorCheck(std::vector<std::vector<std::vector<int>>> allOrbits, const Config &config) const;
+
+  const std::vector<std::vector<std::vector<int>>> getLocalOrbitClusterVector(
+    const OrbitList &orbitList, 
+    const std::shared_ptr<Structure> supercell, 
+    const int flipIndex = -1) const; // May be the flipIndex is also not required we will see it later
+
+  const std::vector<std::vector<std::vector<int>>> getClusterVectorFromOrbitListCheck(
     const OrbitList &orbitList, const std::shared_ptr<Structure> supercell, const int flipIndex = -1, const int newOccupation = -1) const;
 
   /// Returns the cluster product.

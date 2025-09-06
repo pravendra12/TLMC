@@ -75,6 +75,12 @@ public:
     std::map<std::vector<int>, double> getClusterCountsCheck(
         const std::shared_ptr<Structure> structure, int siteIndexForDoubleCountingCorrection = -1) const;
 
+    std::vector<std::vector<int>> getEquivalentClustersCheck(const std::shared_ptr<Structure> structure, int siteIndexForDoubleCountingCorrection) const;
+
+    std::vector<std::vector<int>> getEquivalentClusters(
+        const std::shared_ptr<Structure> structure, 
+        int siteIndexForDoubleCountingCorrection  = -1) const;
+
     /// Counts changes in the occupation of clusters in this orbit.
     std::map<std::vector<int>, double> getClusterCountChanges(std::shared_ptr<Structure>, const int, const int) const;
 

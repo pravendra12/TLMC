@@ -202,10 +202,10 @@ namespace api
 
     auto supercell_config = Config::GenerateSupercell(parameter.supercell_size_,
                                                       parameter.lattice_param_,
-                                                      "X",
+                                                      "Mo",
                                                       parameter.structure_type_);
 
-    supercell_config.UpdateNeighborList(parameter.cutoffs_);
+    // supercell_config.UpdateNeighborList(parameter.cutoffs_);
 
     // Getting element set from the configuration
     auto atom_vector = config.GetAtomVector();

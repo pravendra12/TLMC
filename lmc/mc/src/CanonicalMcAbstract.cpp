@@ -39,11 +39,13 @@ namespace mc
                    predictorFilename,
                    "cmc_log.txt"),
         energyChangePredictor_(
-          predictorFilename, 
-          config, 
-          supercellConfig, 
-          elementSet
-        ),
+            predictorFilename,
+            config,
+            supercellConfig, // which is basically should be small enough
+                             // for now lets keep it simple later we can work on this
+
+            allowedElements_,
+            clusterCutoffs_),
         atomIndexSelector_(0, config_.GetNumAtoms() - 1)
   {
   }

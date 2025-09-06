@@ -74,6 +74,7 @@ OrbitList LocalOrbitListGenerator::getLocalOrbitList(const Vector3i &offset, boo
             std::vector<Cluster> clusters = supercellOrbit.clusters();
             for (auto cluster : clusters)
             {
+
                 // Extract all versions of the clusters for which the
                 // original cluster has been translated such that one
                 // of the sites sits in the {0, 0, 0} cell offset.

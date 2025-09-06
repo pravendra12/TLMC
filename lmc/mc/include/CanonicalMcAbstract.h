@@ -92,12 +92,17 @@ namespace mc
     // const ClusterExpansionParameters ceParams_;
 
 
+    vector<string> allowedElements_ = {"Mo", "Ta"};
+  vector<double> clusterCutoffs_ = {13, 8, 6};
+
 
 
     /** @brief Energy change estimator
      */
     // EnergyPredictor energyChangePredictor_;
-    PotentialEnergyEstimator energyChangePredictor_;
+    // PotentialEnergyEstimator energyChangePredictor_;
+
+    EnergyPredictor energyChangePredictor_;
 
 
     /** @brief Random Lattice Id Generator

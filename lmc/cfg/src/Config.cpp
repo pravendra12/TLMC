@@ -28,7 +28,6 @@ Config::Config(Eigen::Matrix3d basis,
                              std::to_string(relative_position_matrix_.cols()) + ", atom_vector_.size() = " +
                              std::to_string(atom_vector_.size()));
   }
-  occupation_vector_.reserve(atom_vector_.size());
 
   cartesian_position_matrix_ = basis_ * relative_position_matrix_;
   for (size_t id = 0; id < atom_vector_.size(); ++id)
@@ -36,9 +35,6 @@ Config::Config(Eigen::Matrix3d basis,
     // id here is also lattice_id
     lattice_to_atom_hashmap_.emplace(id, id);
     atom_to_lattice_hashmap_.emplace(id, id);
-
-    // Initially the each atom index is same as the lattice index 
-    occupation_vector_.emplace_back(atom_vector_[id].GetAtomicIndex());
   }
 }
 
@@ -156,10 +152,6 @@ Config::GetElementOfAtomIdVectorMap() const
   return element_list_map;
 }
 
-vector<size_t> Config::GetOccupationVector() const
-{
-  return occupation_vector_;
-}
 
 std::vector<size_t> Config::GetNeighborAtomIdVectorOfAtom(size_t atom_id, size_t distance_order) const
 {
@@ -556,18 +548,12 @@ void Config::SetElementOfAtom(size_t atom_id, Element element_type)
 
   // Get the lattice Id corresponding to a given atom id
   auto latticeId = atom_to_lattice_hashmap_.at(atom_id);
-
-  // Now change the element in the occupation vector
-  occupation_vector_[latticeId] = element_type.GetAtomicIndex();
 }
 
 void Config::SetElementOfLattice(size_t lattice_id, Element element_type)
 {
   auto atom_id = lattice_to_atom_hashmap_.at(lattice_id);
   atom_vector_.at(atom_id) = Element(element_type);
-
-  // Directly use lattice Id as occupation_vector_ is sorted by the lattice Id order
-  occupation_vector_[lattice_id] = element_type.GetAtomicIndex();
 }
 
 void Config::LatticeJump(const std::pair<size_t, size_t> &lattice_id_jump_pair)
@@ -589,13 +575,6 @@ void Config::LatticeJump(const std::pair<size_t, size_t> &lattice_id_jump_pair)
   lattice_to_atom_hashmap_.at(lattice_id_lhs) = atom_id_rhs;
   lattice_to_atom_hashmap_.at(lattice_id_rhs) = atom_id_lhs;
 
-
-  // Swap in the occupation vector
-  auto occ_lattice_id_lhs = occupation_vector_[lattice_id_lhs];
-  auto occ_lattice_id_rhs = occupation_vector_[lattice_id_rhs];
-
-  occupation_vector_[lattice_id_lhs] = occ_lattice_id_rhs;
-  occupation_vector_[lattice_id_rhs] = occ_lattice_id_lhs;
 
 
 

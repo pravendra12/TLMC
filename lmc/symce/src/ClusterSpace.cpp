@@ -3,6 +3,12 @@
 
 #include "ClusterSpace.hpp"
 
+// Will be removed later to keep the code clearn
+#include "PrintUtility.h"
+#include "Config.h"
+
+using namespace std;
+
 /**
 @details This constructor initializes a ClusterSpace object.
 @param orbitList
@@ -292,13 +298,13 @@ const std::vector<double> ClusterSpace::getClusterVectorFromOrbitList(const Orbi
     return clusterVector;
 }
 
-
-
-const std::vector<double> ClusterSpace::getClusterVectorFromOrbitListCheck(const OrbitList &orbitList,
-                                                                      const std::shared_ptr<Structure> supercell,
-                                                                      const int flipIndex,
-                                                                      const int newOccupation) const
+const std::vector<std::vector<std::vector<int>>> ClusterSpace::getClusterVectorFromOrbitListCheck(const OrbitList &orbitList,
+                                                                                                  const std::shared_ptr<Structure> supercell,
+                                                                                                  const int flipIndex,
+                                                                                                  const int newOccupation) const
 {
+    std::vector<std::vector<std::vector<int>>> allOrbits;
+
     // Check that combination of input variables is sensible
     if (newOccupation >= 0 && flipIndex == -1)
     {
@@ -352,6 +358,8 @@ const std::vector<double> ClusterSpace::getClusterVectorFromOrbitListCheck(const
     {
         std::cout << "Orbit Index : " << orbitIndex << std::endl;
 
+        std::vector<std::vector<int>> equivalentClustersVector;
+
         const Orbit &primitiveOrbit = _primitiveOrbitList->getOrbit(orbitIndex);
         const Orbit &supercellOrbit = orbitList.getOrbit(orbitIndex);
 
@@ -368,6 +376,13 @@ const std::vector<double> ClusterSpace::getClusterVectorFromOrbitListCheck(const
         else
         {
             clusterCounts = supercellOrbit.getClusterCountsCheck(supercell, flipIndex);
+        }
+
+        cout << "Cluster Counts: " << endl;
+        for (auto entry : clusterCounts)
+        {
+            print1DVector(entry.first);
+            cout << " : " << entry.second << endl;
         }
 
         // Extract allowed occupations (needed to calculate point functions)
@@ -400,6 +415,7 @@ const std::vector<double> ClusterSpace::getClusterVectorFromOrbitListCheck(const
             /// Loop over all the counts for this orbit
             for (const auto &clusterCount : clusterCounts)
             {
+
                 /// Loop over all permutations belonging to this multi-component vector
                 for (const auto &permutation : cvElement.sitePermutations)
                 {
@@ -410,6 +426,8 @@ const std::vector<double> ClusterSpace::getClusterVectorFromOrbitListCheck(const
                                                                    indicesOfRepresentativeSites,
                                                                    permutation);
                 }
+
+                equivalentClustersVector = supercellOrbit.getEquivalentClustersCheck(supercell, flipIndex);
             }
 
             // Usually we could have counted multiplicity by simply adding the number of
@@ -420,8 +438,205 @@ const std::vector<double> ClusterSpace::getClusterVectorFromOrbitListCheck(const
                                     (double)_primitiveOrbitList->structure().size() /
                                     (double)supercell->size());
         }
+
+        allOrbits.emplace_back(equivalentClustersVector);
     }
+
+    return allOrbits;
+}
+
+const vector<double> ClusterSpace::getLocalClusterVectorCheck(
+    std::vector<std::vector<std::vector<int>>> allOrbits, // This can be encoded
+    // Along with this a canonically sorted vector can be passed
+    // which would be consistent for all sites
+    const Config &config) const
+{
+
+    // primitiveOrbitList is already stored not much effect
+    // Next is i dont what to these things to be active during the code
+    //
+
+    // Check that orbit lists match
+    if (_primitiveOrbitList->size() != allOrbits.size())
+    {
+        std::ostringstream msg;
+        msg << "Orbit lists do not match (ClusterSpace::getClusterVectorFromOrbitList)."
+            << std::endl
+            << allOrbits.size() << " >= " << _primitiveOrbitList->size() << std::endl;
+        throw std::runtime_error(msg.str());
+    }
+
+    std::vector<double> clusterVector;
+    // Then we will calculate a local cluster vector.
+    // The zerolet (which is 1 in the full cluster vector)
+    // can be considered as made up of equal contributions from
+    // all sites.
+    clusterVector.push_back(1.0);
+
+    // This can be stored as unordered_map<AtomClusterType , double>
+
+    // Define some variables before loop for performance reasons
+    std::map<std::vector<int>, double> clusterCounts;
+    std::vector<int> allowedOccupations;
+    std::vector<int> indicesOfRepresentativeSites;
+
+    // Start to occupy the cluster vector orbit by orbit
+    for (size_t orbitIndex = 0; orbitIndex < _primitiveOrbitList->size(); orbitIndex++)
+    {
+        std::cout << "Orbit Index : " << orbitIndex << std::endl;
+
+        const Orbit &primitiveOrbit = _primitiveOrbitList->getOrbit(orbitIndex);
+        // const Orbit &supercellOrbit = orbitList.getOrbit(orbitIndex);
+
+        auto supercellOrbit = allOrbits[orbitIndex];
+
+        // Count clusters
+        // for a given orbit containing the equivalent cluster count the number of atom clusters
+        // but seems like they are not counting the clusters canonically
+
+        print2DVector(supercellOrbit);
+
+        // This is basically atom cluster count
+        clusterCounts.clear();
+
+        // Here instead of storing atomCluster as vector<int>
+        // One can store it as AtomClusterType ?
+        // But not sure about the order though where A-A-B-A is
+        // taken to be equivalent as A-A-A-B or may be not sure about this
+
+        for (auto latticeCluster : supercellOrbit)
+        {
+            vector<int> atomCluster;
+            atomCluster.reserve(latticeCluster.size());
+
+            for (auto latticeId : latticeCluster)
+            {
+                atomCluster.emplace_back(static_cast<int>(config.GetElementOfLattice(latticeId).GetAtomicIndex()));
+            }
+            double unit = 1;
+            clusterCounts[atomCluster] += unit;
+        }
+
+        // Extract allowed occupations (needed to calculate point functions)
+        allowedOccupations = primitiveOrbit.representativeCluster().getNumberOfAllowedSpeciesPerSite();
+
+        cout << "Allowed Occupations : ";
+        print1DVector(allowedOccupations);
+
+        // Extract indices of representative sites
+        // (needed to extract internal integer representation of each element)
+        indicesOfRepresentativeSites.clear();
+        for (const LatticeSite &site : primitiveOrbit.representativeCluster().latticeSites())
+        {
+            indicesOfRepresentativeSites.push_back(site.index());
+        }
+
+        cout << "Cluster Counts: " << endl;
+        for (auto entry : clusterCounts)
+        {
+            print1DVector(entry.first);
+            cout << " : " << entry.second << endl;
+        }
+
+        cout << "Indices of representative sites : ";
+        print1DVector(indicesOfRepresentativeSites);
+
+        // Loop over all multi-component vectors for this orbit.
+        // These are vectors of integers, where the integer represents
+        // a cluster function index.
+        //
+        // Example 1: For a binary alloy we obtain [0, 0] and [0, 0, 0]
+        // for pair and triplet terms, respectively.
+        //
+        // Example 2: For a ternary alloy we obtain [0, 0], [0, 1], [1, 0], and [1, 1]
+        // for pairs (and similarly for triplets). However, if the two sites of the pair are
+        // equivalent (which, for example, is always the case in systems with one atom
+        // in the primitive cell, such as FCC) [0, 1] and [1, 0] are considered equivalent
+        // and we will only get one of them.
+
+        for (auto &cvElement : primitiveOrbit.clusterVectorElements())
+        {
+            cout << "MulitComponentVector : ";
+            print1DVector(cvElement.multiComponentVector);
+
+            cout << endl;
+
+            double clusterVectorElement = 0;
+
+            /// Loop over all the counts for this orbit
+            for (const auto &clusterCount : clusterCounts)
+            {
+                /// Loop over all permutations belonging to this multi-component vector
+                for (const auto &permutation : cvElement.sitePermutations)
+                {
+                    clusterVectorElement += clusterCount.second *
+                                            evaluateClusterProduct(cvElement.multiComponentVector,
+                                                                   allowedOccupations,
+                                                                   clusterCount.first,
+                                                                   indicesOfRepresentativeSites,
+                                                                   permutation);
+                    cout << "Permutation : ";
+                    print1DVector(permutation);
+                    cout << endl;
+                }
+
+                // equivalentClustersVector = supercellOrbit.getEquivalentClustersCheck(supercell, flipIndex);
+            }
+
+            // Usually we could have counted multiplicity by simply adding the number of
+            // clusters in the orbit (clusterCount.second), but in the case of
+            // local cluster vectors or changes in cluster vectors, we have only counted
+            // a subset of the clusters. We therefore use the pre-computed multiplicity.
+            clusterVector.push_back(clusterVectorElement / (double)cvElement.multiplicity *
+                                    (double)_primitiveOrbitList->structure().size() /
+                                    (double)config.GetNumLattices());
+
+            cout << "---------------------------------------\n\n\n"
+                 << endl;
+        }
+        cout << "----------------------------\n\n"
+             << endl;
+        // allOrbits.emplace_back(equivalentClustersVector);
+    }
+
     return clusterVector;
 }
 
+const std::vector<std::vector<std::vector<int>>> ClusterSpace::getLocalOrbitClusterVector(
+    const OrbitList &orbitList,
+    const std::shared_ptr<Structure> supercell,
+    const int flipIndex) const
+{   
+    // Contains the cluster as lattice ID Vector
+    std::vector<std::vector<std::vector<int>>> localOrbitsClusterVector;
 
+    // Check that orbit lists match
+    if (_primitiveOrbitList->size() != orbitList.size())
+    {
+        std::ostringstream msg;
+        msg << "Orbit lists do not match (ClusterSpace::getClusterVectorFromOrbitList)."
+            << std::endl
+            << orbitList.size() << " >= " << _primitiveOrbitList->size() << std::endl;
+        throw std::runtime_error(msg.str());
+    }
+
+    // Start to occupy the cluster vector orbit by orbit
+    for (size_t orbitIndex = 0; orbitIndex < _primitiveOrbitList->size(); orbitIndex++)
+    {
+        const Orbit &primitiveOrbit = _primitiveOrbitList->getOrbit(orbitIndex);
+        const Orbit &supercellOrbit = orbitList.getOrbit(orbitIndex);
+
+        if (!primitiveOrbit.active())
+        {
+            continue;
+        }
+
+        std::vector<std::vector<int>> equivalentClustersVector = supercellOrbit.getEquivalentClusters(
+            supercell, 
+            flipIndex);
+
+        localOrbitsClusterVector.emplace_back(equivalentClustersVector);
+    }
+
+    return localOrbitsClusterVector;
+}

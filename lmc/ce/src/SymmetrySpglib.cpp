@@ -939,12 +939,15 @@ vector<pair<vector<vector<size_t>>, LatticeClusterType>> GetEquivalentClustersEn
   return encodedEquivalentClusters;
 }
 
+/*
 unordered_map<size_t, Eigen::RowVector3d>
 GetCenteredNeighboursSite(const Config &config,
                           size_t latticeId,
                           size_t maxBondOrder)
 {
   auto neighbourIds = config.GetNeighborLatticeIdsUpToOrder(latticeId, maxBondOrder);
+  cout << neighbourIds.size() << endl;
+
   unordered_map<size_t, Eigen::RowVector3d> centeredPositions;
   centeredPositions.reserve(neighbourIds.size());
 
@@ -958,6 +961,7 @@ GetCenteredNeighboursSite(const Config &config,
     // Translate so central site is at origin
     relPos -= centerPos;
 
+    
     // Wrap into [0,1) box for periodic boundary conditions
     relPos = relPos.unaryExpr([](double x)
                               {
@@ -965,9 +969,52 @@ GetCenteredNeighboursSite(const Config &config,
                                       if (wrapped >= 1.0) wrapped -= 1.0;
                                       if (wrapped < 0.0)  wrapped += 1.0;
                                       return wrapped; });
+    
+ 
 
     centeredPositions.emplace(id, relPos);
   }
+
+  return centeredPositions;
+}
+*/
+
+unordered_map<size_t, Eigen::RowVector3d>
+GetCenteredNeighboursSite(const Config &config,
+                          size_t latticeId,
+                          size_t maxBondOrder)
+{
+  auto neighbourIds = config.GetNeighborLatticeIdsUpToOrder(latticeId, maxBondOrder);
+  // cout << neighbourIds.size() << endl;
+  
+  unordered_map<size_t, Eigen::RowVector3d> centeredPositions;
+  centeredPositions.reserve(neighbourIds.size());
+
+  // Reference position of the central site
+  Eigen::RowVector3d centerPos = config.GetRelativePositionOfLattice(latticeId).transpose();
+
+  for (size_t id : neighbourIds)
+  {
+    Eigen::RowVector3d relPos = config.GetRelativePositionOfLattice(id).transpose();
+
+    // Translate so central site is at origin
+    relPos -= centerPos;
+
+    // Wrap into [-0.5, 0.5) for minimal image (symmetric around 0)
+    relPos = relPos.unaryExpr([](double x)
+                              {
+                                      double wrapped = x - std::floor(x + 0.5);  // Directly computes [-0.5, 0.5)
+                                      return wrapped;
+                              });
+
+    // Shift to place central site at (0.5, 0.5, 0.5) and neighbors in [0,1)
+    relPos += Eigen::RowVector3d(0.5, 0.5, 0.5);
+
+    centeredPositions.emplace(id, relPos);
+  }
+
+  // Optionally add the central site itself at (0.5, 0.5, 0.5) if needed
+  // centeredPositions.emplace(latticeId, Eigen::RowVector3d(0.5, 0.5, 0.5));
 
   return centeredPositions;
 }

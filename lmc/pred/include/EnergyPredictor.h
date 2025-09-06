@@ -9,6 +9,7 @@
 #include "ClusterExpansionParameters.h"
 #include "CorrelationVector.h"
 #include "BasisSet.h"
+#include "SymmetricCE.h"
 
 using namespace std;
 
@@ -16,11 +17,13 @@ class EnergyPredictor
 {
 public:
   EnergyPredictor(
-    const ClusterExpansionParameters &ceParams,
-      const Config &config);
+      const string &predictorFilename,
+      const Config &supercellConfig,
+      const Config &primitiveConfig,
+      const vector<string> &allowedElements,
+      const vector<double> &clusterCutoffs);
 
-  // Returns the energy of a site
-  double ComputeEnergyOfSite(
+  double ComputeLocalFormationEnergyOfSite(
       const Config &config,
       const size_t &latticeId);
 
@@ -30,13 +33,13 @@ public:
 
   // Returns the dE due to vacancy migration
   double GetDeMigration(
-    const Config &config, 
-    const pair<size_t, size_t> &latticeIdJumpPair);
+      const Config &config,
+      const pair<size_t, size_t> &latticeIdJumpPair);
 
-  // Returns the dE due to atom swap 
+  // Returns the dE due to atom swap
   double GetDeSwap(
-    Config &config, 
-    const pair<size_t, size_t> &latticeIdJumpPair);
+      Config &config,
+      const pair<size_t, size_t> &latticeIdJumpPair);
 
   // Returns the energy change due to atom swap
   double ComputeDeltaEnergy(
@@ -44,32 +47,30 @@ public:
       const pair<size_t, size_t> &latticeIdPair);
 
 private:
-  /*! @brief Maximum Cluster Size
-   */
-  const size_t maxClusterSize_{};
+  // Returns total formation energy
+  double GetTotalFormationEnergy(
+      const vector<double> &clusterVector);
 
-  /*! @brief Maximum Bond Order
-   */
-  const size_t maxBondOrder_{};
+  // Returns total energy
+  double GetTotalEnergy(
+      const vector<double> &clusterVector);
 
   /*! @brief Effective cluster interactions
    */
-  const VectorXd ecis_{};
+  const vector<double> ecis_{};
 
-  /*! @brief Basis Set
-  */
-  BasisSet atomicBasis_;
+  SymmetricCE symCE_;
 
-  /*! @brief Element set
-   */
-  const set<Element> elementSet_{};
+  const vector<vector<vector<int>>> localOrbitsEncoding_;
+  const size_t nAtoms_;
 
-  /*! @brief Equivalent Clusters Encoding
-   */
-  const vector<pair<vector<vector<size_t>>,
-                    LatticeClusterType>>
-      equivalentClustersEncoding_;
+  unordered_map<string, int> elementCountMap_;
+
+  // Chemical potentials (example: Mo, Ta)
+  const unordered_map<string, double> chemicalPotentials_{
+      {"Mo", -10.93308598}, // Mo (Z=42)
+      {"Ta", -11.81233671}  // Ta (Z=73)
+  };
 };
 
 #endif // LMC_PRED_INCLUDE_ENERGYPREDICTOR_H_
-

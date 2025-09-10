@@ -54,8 +54,6 @@ VectorXd GetCorrelationVector(
   }
 
   return correlationVector;
-<<<<<<< Updated upstream
-=======
 }
 */
 VectorXd GetCorrelationVector(
@@ -255,5 +253,4 @@ double GetOrbitCorrelationFunction(const Config &config,
   orbitClusterFunction = orbitClusterFunction / static_cast<double>(orbitVector.size());
 
   return orbitClusterFunction;
->>>>>>> Stashed changes
 }

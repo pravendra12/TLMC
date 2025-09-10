@@ -88,17 +88,6 @@ namespace mc
     void SelectEvent(const pair<size_t, size_t> &lattice_id_jump_pair,
                      double dE);
 
-<<<<<<< Updated upstream
-    // const ClusterExpansionParameters ceParams_;
-
-
-    vector<string> allowedElements_ = {"Mo", "Ta"};
-  vector<double> clusterCutoffs_ = {13, 8, 6};
-
-
-
-=======
->>>>>>> Stashed changes
     /** @brief Energy change estimator
      */
     // EnergyPredictor energyChangePredictor_;

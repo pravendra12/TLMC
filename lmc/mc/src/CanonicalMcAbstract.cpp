@@ -36,17 +36,9 @@ namespace mc
                    temperature,
                    "cmc_log.txt"),
         energyChangePredictor_(
-<<<<<<< Updated upstream
-          predictorFilename, 
-          config, 
-          supercellConfig, 
-          elementSet
-        ),
-=======
             ceParams,
             config,
             supercellConfig),
->>>>>>> Stashed changes
         atomIndexSelector_(0, config_.GetNumAtoms() - 1)
   {
   }

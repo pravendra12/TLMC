@@ -122,22 +122,11 @@ double KRAPredictor::GetKRA(
       canonicalSortedLatticeIds,
       encodedOrbitsForPair_);
 
-<<<<<<< Updated upstream
-  // E = J.Φ_α
-
-  VectorXd elementEncoding = atomicBasis_.GetCachedAtomBasis(migratingElement);
-
-  VectorXd combinedEncoding(correlationVector.size() + elementEncoding.size());
-  combinedEncoding << correlationVector, elementEncoding; // concatenates the two vectors
-
-  if (kecis_.size() != combinedEncoding.size())
-=======
   // EKRA = J.Φ_α
 
   VectorXd kecis = KECIsMap_.at(migratingElement);
 
   if (kecis.size() != correlationVector.size())
->>>>>>> Stashed changes
   {
     throw runtime_error(
         "Error in `KRAPredictor::GetKRA`: migratingElement `" + migratingElement.GetElementString() +

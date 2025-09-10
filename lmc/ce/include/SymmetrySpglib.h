@@ -48,17 +48,6 @@ vector<pair<Matrix3d, Vector3d>> GetSymmetryOperations(
     const map<size_t, size_t> &latticeIdToIndexMap = map<size_t, size_t>{},
     const double symprec = 1e-5);
 
-<<<<<<< Updated upstream
-vector<set<vector<size_t>>> GetEquivalentClusters(
-    const Config &config,
-    const unordered_set<size_t> &latticeIdSet,
-    const unordered_set<LatticeCluster, boost::hash<LatticeCluster>> &latticeClusterSet,
-    const double symprec = 1e-5,
-    const bool debug = false);
-
-
-=======
->>>>>>> Stashed changes
 unordered_map<size_t, Eigen::RowVector3d> GetCenteredNeighborsAlongJumpDirection(
     const Config &config,
     const size_t maxBondOrder,

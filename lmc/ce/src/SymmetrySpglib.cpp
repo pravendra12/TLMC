@@ -128,73 +128,6 @@ vector<pair<Matrix3d, Vector3d>> GetSymmetryOperations(
   return symmetryOperations;
 }
 
-<<<<<<< Updated upstream
-// Helper function to get the equivalent clusters
-static vector<set<vector<size_t>>> GetEquivalentGroups(
-    const map<vector<size_t>, set<vector<size_t>>> &equivalentMap,
-    map<vector<size_t>, int> &clustersToGroupMap)
-{
-  set<vector<size_t>> visited;
-  vector<set<vector<size_t>>> groups;
-
-  for (const auto &kv : equivalentMap)
-  {
-    const vector<size_t> &start = kv.first;
-    if (visited.find(start) != visited.end())
-      continue;
-
-    set<vector<size_t>> cls;
-    queue<vector<size_t>> q;
-    q.push(start);
-
-    while (!q.empty())
-    {
-      vector<size_t> cur = q.front();
-      q.pop();
-      if (visited.find(cur) != visited.end())
-        continue;
-
-      visited.insert(cur);
-      cls.insert(cur);
-
-      // forward neighbors
-      auto it = equivalentMap.find(cur);
-      if (it != equivalentMap.end())
-      {
-        for (const auto &nbr : it->second)
-          if (visited.find(nbr) == visited.end())
-            q.push(nbr);
-      }
-
-      // reverse neighbors: other keys that list cur as equivalent
-      for (const auto &other_kv : equivalentMap)
-      {
-        const vector<size_t> &other_key = other_kv.first;
-        if (visited.find(other_key) != visited.end())
-          continue;
-        const auto &other_set = other_kv.second;
-        if (other_set.find(cur) != other_set.end())
-          q.push(other_key);
-      }
-    }
-
-    groups.push_back(cls);
-  }
-
-  // produce mapping triplet -> classId
-  clustersToGroupMap.clear();
-  for (size_t cid = 0; cid < groups.size(); ++cid)
-  {
-    for (const auto &t : groups[cid])
-    {
-      clustersToGroupMap[t] = static_cast<int>(cid);
-    }
-  }
-
-  return groups;
-}
-=======
->>>>>>> Stashed changes
 /*
 vector<set<vector<size_t>>> GetEquivalentClusters(
     const Config &config, const unordered_set<size_t> &latticeIdSet,
@@ -352,12 +285,8 @@ vector<set<vector<size_t>>> GetEquivalentClusters(
   // 7. Return true if the minimum distance is less than the symmetry tolerance (symprec),
   //    and update matchedLatticeId with the closest lattice ID.
 
-<<<<<<< Updated upstream
-  auto FindClosestLatticeId = [&](const Vector3d &targetFractionalCoordinate, size_t &matchedLatticeId) -> bool
-=======
 
   auto FindClosestLatticeId = [&](const Vector3d &targetFractionalCoordinate, size_t &matchedLatticeId, double tol = 1e-5) -> bool
->>>>>>> Stashed changes
   {
     const Matrix3d basis = config.GetBasis();
     double minDistance = numeric_limits<double>::max();
@@ -365,13 +294,6 @@ vector<set<vector<size_t>>> GetEquivalentClusters(
 
     for (const auto &pair : latticeIdToPositionMap)
     {
-<<<<<<< Updated upstream
-      Vector3d diffFractional = pair.second - targetFractionalCoordinate;
-      for (int k = 0; k < 3; ++k)
-      {
-        diffFractional[k] -= round(diffFractional[k]);
-      }
-=======
       // Fractional difference
       Vector3d diffFractional = pair.second - targetFractionalCoordinate;
 
@@ -380,7 +302,6 @@ vector<set<vector<size_t>>> GetEquivalentClusters(
         diffFractional[k] -= round(diffFractional[k]);
 
       // Cartesian distance squared
->>>>>>> Stashed changes
       Vector3d diffCartesian = basis * diffFractional;
       double dist_sq = diffCartesian.squaredNorm();
 
@@ -391,12 +312,8 @@ vector<set<vector<size_t>>> GetEquivalentClusters(
       }
     }
 
-<<<<<<< Updated upstream
-    return (sqrt(minDistance) < symprec);
-=======
     // If minDistance is below tolerance (in Å^2), consider it a match
     return (sqrt(minDistance) < tol);
->>>>>>> Stashed changes
   };
 
   map<vector<size_t>, set<vector<size_t>>> equivalentMap;
@@ -1107,11 +1024,8 @@ vector<pair<vector<vector<size_t>>, LatticeClusterType>> GetEquivalentClustersEn
   return encodedEquivalentClusters;
 }
 
-<<<<<<< Updated upstream
-=======
 */
 /*
->>>>>>> Stashed changes
 unordered_map<size_t, Eigen::RowVector3d>
 GetCenteredNeighboursSite(const Config &config,
                           size_t latticeId,
@@ -1131,10 +1045,6 @@ GetCenteredNeighboursSite(const Config &config,
     // Translate so central site is at origin
     relPos -= centerPos;
 
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
     // Wrap into [0,1) box for periodic boundary conditions
     relPos = relPos.unaryExpr([](double x)
                               {
@@ -1142,47 +1052,12 @@ GetCenteredNeighboursSite(const Config &config,
                                       if (wrapped >= 1.0) wrapped -= 1.0;
                                       if (wrapped < 0.0)  wrapped += 1.0;
                                       return wrapped; });
-<<<<<<< Updated upstream
-=======
 
 
->>>>>>> Stashed changes
 
     centeredPositions.emplace(id, relPos);
   }
 
   return centeredPositions;
 }
-<<<<<<< Updated upstream
-
-vector<size_t> GetCanonicalSortedSitesForSite(
-    const Config &config,
-    const size_t latticeId,
-    const size_t &maxBondOrder)
-{
-  auto centeredLatticeIdHashmap = GetCenteredNeighboursSite(config,
-                                                            latticeId,
-                                                            maxBondOrder);
-
-  // Sort the transformed positions
-  // Convert unordered_map to vector for sorting
-  vector<pair<size_t, Eigen::RowVector3d>> latticeIdVector(
-      centeredLatticeIdHashmap.begin(),
-      centeredLatticeIdHashmap.end());
-
-  // Sort the lattice vector based on PositionCompare
-  sort(latticeIdVector.begin(), latticeIdVector.end(), PositionCompareState);
-
-  // Extract and return only the lattice IDs
-  vector<size_t> sortedLatticeIdVector;
-  sortedLatticeIdVector.reserve(latticeIdVector.size());
-  for (const auto &pair : latticeIdVector)
-  {
-    sortedLatticeIdVector.push_back(pair.first);
-  }
-
-  return sortedLatticeIdVector;
-}
-=======
 */
->>>>>>> Stashed changes

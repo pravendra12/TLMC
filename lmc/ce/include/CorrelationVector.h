@@ -26,12 +26,6 @@ VectorXd GetCorrelationVector(
     const vector<pair<vector<vector<size_t>>, LatticeClusterType>> &equivalentEncodedClusters);
 
 VectorXd GetCorrelationVector(
-<<<<<<< Updated upstream
-  const Config &config, 
-  BasisSet &atomicBasis, 
-  const vector<size_t> &canonicalSortedLatticeIds, 
-  const vector<pair<vector<vector<size_t>>, LatticeClusterType>> &equivalentEncodedClusters);
-=======
     const Config &config,
     BasisSet &atomicBasis,
     const vector<pair<vector<vector<size_t>>, LatticeClusterType>> &equivalentOrbitVector);
@@ -47,7 +41,6 @@ double GetOrbitCorrelationFunction(
     const size_t &targetLatticeId,
     const Element &elementToAssign,
     const vector<vector<size_t>> &orbitVector);
->>>>>>> Stashed changes
 
 VectorXd GetCorrelationVector(
   const Config &config, 

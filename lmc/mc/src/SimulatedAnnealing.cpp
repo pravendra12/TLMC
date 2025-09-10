@@ -9,8 +9,7 @@ namespace mc
                                          const unsigned long long int restartSteps,
                                          const double restartEnergy,
                                          const double initialTemperature,
-                                         const set<Element> &elementSet,
-                                         const string &predictorFilename)
+                                         const ClusterExpansionParameters &ceParams)
       : McAbstract(move(config),
                    supercellConfig,
                    logDumpSteps,
@@ -21,13 +20,10 @@ namespace mc
                    restartEnergy,
                    0,                  // restart time
                    initialTemperature, // temperature
-                   elementSet,
-                   predictorFilename,
                    "sa_log.txt"),
-        energy_change_predictor_(predictorFilename,
+        energy_change_predictor_(ceParams,
                                  config,
-                                 supercellConfig,
-                                 elementSet),
+                                 supercellConfig),
         atom_index_selector_(0, config_.GetNumAtoms() - 1),
         initialTemperature_(initialTemperature)
 

@@ -2,6 +2,7 @@
 #define LMC_PRED_INCLUDE_ENERGYPREDICTOR_H_
 
 #include "Config.h"
+<<<<<<< Updated upstream
 #include "ClusterExpansion.h"
 #include "SymmetrySpglib.h"
 #include "JsonUtility.h"
@@ -9,68 +10,109 @@
 #include "ClusterExpansionParameters.h"
 #include "CorrelationVector.h"
 #include "BasisSet.h"
+=======
 #include "SymmetricCE.h"
+#include "PrintUtility.h"
+#include "ClusterExpansionParameters.h"
+>>>>>>> Stashed changes
 
 using namespace std;
 
 class EnergyPredictor
 {
 public:
+<<<<<<< Updated upstream
   EnergyPredictor(
-      const string &predictorFilename,
-      const Config &supercellConfig,
-      const Config &primitiveConfig,
-      const vector<string> &allowedElements,
-      const vector<double> &clusterCutoffs);
+    const ClusterExpansionParameters &ceParams,
+      const Config &config);
 
-  double ComputeLocalFormationEnergyOfSite(
+  // Returns the energy of a site
+  double ComputeEnergyOfSite(
       const Config &config,
       const size_t &latticeId);
+=======
+    EnergyPredictor(
+        const ClusterExpansionParameters &ceParams,
+        const Config &supercellConfig,
+        const Config &primitiveConfig);
 
-  // Returns total energy of config using Symmetric site centered cluster expansion
-  // E = sum_i * Ei
-  double ComputeEnergyOfConfig(const Config &config);
+    double ComputeLocalFormationEnergyOfSite(
+        const Config &config,
+        const size_t &latticeId);
+>>>>>>> Stashed changes
 
+    // Returns total energy of config using Symmetric site centered cluster expansion
+    // E = sum_i * Ei
+    double ComputeEnergyOfConfig(const Config &config);
+
+<<<<<<< Updated upstream
   // Returns the dE due to vacancy migration
   double GetDeMigration(
-      const Config &config,
-      const pair<size_t, size_t> &latticeIdJumpPair);
+    const Config &config, 
+    const pair<size_t, size_t> &latticeIdJumpPair);
 
-  // Returns the dE due to atom swap
+  // Returns the dE due to atom swap 
   double GetDeSwap(
-      Config &config,
-      const pair<size_t, size_t> &latticeIdJumpPair);
+    Config &config, 
+    const pair<size_t, size_t> &latticeIdJumpPair);
+=======
+    // Returns the dE due to atom swap
+    double GetDeSwap(
+        Config &config,
+        const pair<size_t, size_t> &latticeIdJumpPair);
 
-  // Returns the energy change due to atom swap
-  double ComputeDeltaEnergy(
-      const Config &config,
-      const pair<size_t, size_t> &latticeIdPair);
+>>>>>>> Stashed changes
 
+  private:
+    // Returns total formation energy
+    double GetTotalFormationEnergy(
+        const vector<double> &clusterVector);
+
+<<<<<<< Updated upstream
 private:
-  // Returns total formation energy
-  double GetTotalFormationEnergy(
-      const vector<double> &clusterVector);
+  /*! @brief Maximum Cluster Size
+   */
+  const size_t maxClusterSize_{};
 
-  // Returns total energy
-  double GetTotalEnergy(
-      const vector<double> &clusterVector);
+  /*! @brief Maximum Bond Order
+   */
+  const size_t maxBondOrder_{};
 
   /*! @brief Effective cluster interactions
    */
-  const vector<double> ecis_{};
+  const VectorXd ecis_{};
 
-  SymmetricCE symCE_;
+  /*! @brief Basis Set
+  */
+  BasisSet atomicBasis_;
 
-  const vector<vector<vector<int>>> localOrbitsEncoding_;
-  const size_t nAtoms_;
+  /*! @brief Element set
+   */
+  const set<Element> elementSet_{};
 
-  unordered_map<string, int> elementCountMap_;
+  /*! @brief Equivalent Clusters Encoding
+   */
+  const vector<pair<vector<vector<size_t>>,
+                    LatticeClusterType>>
+      equivalentClustersEncoding_;
+=======
+    // Returns total energy
+    double GetTotalEnergy(
+        const vector<double> &clusterVector);
 
-  // Chemical potentials (example: Mo, Ta)
-  const unordered_map<string, double> chemicalPotentials_{
-      {"Mo", -10.93308598}, // Mo (Z=42)
-      {"Ta", -11.81233671}  // Ta (Z=73)
-  };
+    static unordered_map<string, int> GetElementCountMap(
+        const Config &supercellConfig);
+    
+    const size_t nAtoms_{};
+    const vector<string> allowedElements_{};
+    const vector<double> clusterCutoffs_{};
+    SymmetricCE symCE_;
+    const vector<vector<vector<int>>> localOrbitsEncoding_;
+    const unordered_map<string, double> chemicalPotentialsMap_;
+    const unordered_map<string, int> elementCountMap_{};
+    const vector<double> ecis_{};
+>>>>>>> Stashed changes
 };
 
 #endif // LMC_PRED_INCLUDE_ENERGYPREDICTOR_H_
+

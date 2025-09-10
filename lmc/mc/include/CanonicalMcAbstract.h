@@ -56,8 +56,7 @@ namespace mc
                         unsigned long long int restartSteps,
                         double restartEnergy,
                         double temperature,
-                        const set<Element> &elementSet,
-                        const string &predictorFilename);
+                        const ClusterExpansionParameters &ceParams);
 
     /*!
      * @brief Starts the simulation process.
@@ -89,6 +88,7 @@ namespace mc
     void SelectEvent(const pair<size_t, size_t> &lattice_id_jump_pair,
                      double dE);
 
+<<<<<<< Updated upstream
     // const ClusterExpansionParameters ceParams_;
 
 
@@ -97,13 +97,14 @@ namespace mc
 
 
 
+=======
+>>>>>>> Stashed changes
     /** @brief Energy change estimator
      */
     // EnergyPredictor energyChangePredictor_;
     // PotentialEnergyEstimator energyChangePredictor_;
 
     EnergyPredictor energyChangePredictor_;
-
 
     /** @brief Random Lattice Id Generator
      */

@@ -128,8 +128,9 @@ vector<pair<Matrix3d, Vector3d>> GetSymmetryOperations(
   return symmetryOperations;
 }
 
+<<<<<<< Updated upstream
 // Helper function to get the equivalent clusters
-vector<set<vector<size_t>>> GetEquivalentGroups(
+static vector<set<vector<size_t>>> GetEquivalentGroups(
     const map<vector<size_t>, set<vector<size_t>>> &equivalentMap,
     map<vector<size_t>, int> &clustersToGroupMap)
 {
@@ -192,6 +193,8 @@ vector<set<vector<size_t>>> GetEquivalentGroups(
 
   return groups;
 }
+=======
+>>>>>>> Stashed changes
 /*
 vector<set<vector<size_t>>> GetEquivalentClusters(
     const Config &config, const unordered_set<size_t> &latticeIdSet,
@@ -313,7 +316,7 @@ vector<set<vector<size_t>>> GetEquivalentClusters(
   return equivalentGroups;
 }
   */
-
+/*
 vector<set<vector<size_t>>> GetEquivalentClusters(
     const Config &config, const unordered_set<size_t> &latticeIdSet,
     const unordered_set<LatticeCluster, boost::hash<LatticeCluster>>
@@ -348,8 +351,13 @@ vector<set<vector<size_t>>> GetEquivalentClusters(
   // 6. Keep track of the lattice ID with the smallest distance.
   // 7. Return true if the minimum distance is less than the symmetry tolerance (symprec),
   //    and update matchedLatticeId with the closest lattice ID.
-  /*
+
+<<<<<<< Updated upstream
   auto FindClosestLatticeId = [&](const Vector3d &targetFractionalCoordinate, size_t &matchedLatticeId) -> bool
+=======
+
+  auto FindClosestLatticeId = [&](const Vector3d &targetFractionalCoordinate, size_t &matchedLatticeId, double tol = 1e-5) -> bool
+>>>>>>> Stashed changes
   {
     const Matrix3d basis = config.GetBasis();
     double minDistance = numeric_limits<double>::max();
@@ -357,44 +365,22 @@ vector<set<vector<size_t>>> GetEquivalentClusters(
 
     for (const auto &pair : latticeIdToPositionMap)
     {
+<<<<<<< Updated upstream
       Vector3d diffFractional = pair.second - targetFractionalCoordinate;
       for (int k = 0; k < 3; ++k)
       {
         diffFractional[k] -= round(diffFractional[k]);
       }
-      Vector3d diffCartesian = basis * diffFractional;
-      double dist_sq = diffCartesian.squaredNorm();
-
-      if (dist_sq < minDistance)
-      {
-        minDistance = dist_sq;
-        matchedLatticeId = pair.first;
-      }
-    }
-
-    return (sqrt(minDistance) < symprec);
-  };
-  */
-
-  auto FindClosestLatticeId = [&](const Vector3d &targetFractionalCoordinate, size_t &matchedLatticeId) -> bool
-  {
-    const Matrix3d basis = config.GetBasis();
-    double minDistance = numeric_limits<double>::max();
-    matchedLatticeId = static_cast<size_t>(-1);
-    const double eps = 1e-10; // small tolerance for floating-point errors
-
-    for (const auto &pair : latticeIdToPositionMap)
-    {
+=======
       // Fractional difference
       Vector3d diffFractional = pair.second - targetFractionalCoordinate;
 
       // Apply periodic wrapping [-0.5, 0.5)
       for (int k = 0; k < 3; ++k)
-      {
         diffFractional[k] -= round(diffFractional[k]);
-      }
 
       // Cartesian distance squared
+>>>>>>> Stashed changes
       Vector3d diffCartesian = basis * diffFractional;
       double dist_sq = diffCartesian.squaredNorm();
 
@@ -405,8 +391,12 @@ vector<set<vector<size_t>>> GetEquivalentClusters(
       }
     }
 
-    // Use a slightly larger tolerance to account for numerical noise
-    return (sqrt(minDistance) < eps);
+<<<<<<< Updated upstream
+    return (sqrt(minDistance) < symprec);
+=======
+    // If minDistance is below tolerance (in Å^2), consider it a match
+    return (sqrt(minDistance) < tol);
+>>>>>>> Stashed changes
   };
 
   map<vector<size_t>, set<vector<size_t>>> equivalentMap;
@@ -473,8 +463,7 @@ vector<set<vector<size_t>>> GetEquivalentClusters(
       LatticeCluster tranformedLatticeCluster(latticeClusterType,
                                               transformedCluster);
 
-      std::sort(transformedCluster.begin(), transformedCluster.end());
-      equivalentSet.insert(transformedCluster);
+      equivalentSet.insert(tranformedLatticeCluster.GetLatticeIdVector());
     }
 
     equivalentMap[originalCluster] = equivalentSet;
@@ -507,6 +496,7 @@ vector<set<vector<size_t>>> GetEquivalentClusters(
 
   return equivalentGroups;
 }
+*/
 
 // Canonical LCE
 // Choose one axis as representative
@@ -737,7 +727,76 @@ vector<size_t> GetCanonicalSortedSitesForPair(
   return sortedLatticeIdVector;
 }
 
-// For a LCE
+unordered_map<size_t, Eigen::RowVector3d>
+GetCenteredNeighboursSite(const Config &config,
+                          size_t latticeId,
+                          size_t maxBondOrder)
+{
+  auto neighbourIds = config.GetNeighborLatticeIdsUpToOrder(latticeId, maxBondOrder);
+  // cout << neighbourIds.size() << endl;
+
+  unordered_map<size_t, Eigen::RowVector3d> centeredPositions;
+  centeredPositions.reserve(neighbourIds.size());
+
+  // Reference position of the central site
+  Eigen::RowVector3d centerPos = config.GetRelativePositionOfLattice(latticeId).transpose();
+
+  for (size_t id : neighbourIds)
+  {
+    Eigen::RowVector3d relPos = config.GetRelativePositionOfLattice(id).transpose();
+
+    // Translate so central site is at origin
+    relPos -= centerPos;
+
+    // Wrap into [-0.5, 0.5) for minimal image (symmetric around 0)
+    relPos = relPos.unaryExpr([](double x)
+                              {
+                                      double wrapped = x - std::floor(x + 0.5);  // Directly computes [-0.5, 0.5)
+                                      return wrapped; });
+
+    // Shift to place central site at (0.5, 0.5, 0.5) and neighbors in [0,1)
+    relPos += Eigen::RowVector3d(0.5, 0.5, 0.5);
+
+    centeredPositions.emplace(id, relPos);
+  }
+
+  // Optionally add the central site itself at (0.5, 0.5, 0.5) if needed
+  // centeredPositions.emplace(latticeId, Eigen::RowVector3d(0.5, 0.5, 0.5));
+
+  return centeredPositions;
+}
+
+vector<size_t> GetCanonicalSortedSitesForSite(
+    const Config &config,
+    const size_t latticeId,
+    const size_t &maxBondOrder)
+{
+  auto centeredLatticeIdHashmap = GetCenteredNeighboursSite(config,
+                                                            latticeId,
+                                                            maxBondOrder);
+
+  // Sort the transformed positions
+  // Convert unordered_map to vector for sorting
+  vector<pair<size_t, Eigen::RowVector3d>> latticeIdVector(
+      centeredLatticeIdHashmap.begin(),
+      centeredLatticeIdHashmap.end());
+
+  // Sort the lattice vector based on PositionCompare
+  sort(latticeIdVector.begin(), latticeIdVector.end(), PositionCompareState);
+
+  // Extract and return only the lattice IDs
+  vector<size_t> sortedLatticeIdVector;
+  sortedLatticeIdVector.reserve(latticeIdVector.size());
+  for (const auto &pair : latticeIdVector)
+  {
+    sortedLatticeIdVector.push_back(pair.first);
+  }
+
+  return sortedLatticeIdVector;
+}
+
+/*
+// For KRA
 vector<pair<vector<vector<size_t>>, LatticeClusterType>> GetEquivalentClustersEncoding(
     const Config &config,
     const size_t &maxBondOrder,
@@ -768,7 +827,8 @@ vector<pair<vector<vector<size_t>>, LatticeClusterType>> GetEquivalentClustersEn
   auto equivalentClusters = GetEquivalentClusters(
       config,
       nnLatticeSites,
-      latticeClusterHashset);
+      latticeClusterHashset,
+      debug);
 
   map<size_t, size_t> latticeIdToIndexMap;
 
@@ -815,13 +875,14 @@ vector<pair<vector<vector<size_t>>, LatticeClusterType>> GetEquivalentClustersEn
   if (debug)
   {
     cout << "Encoded Equivalent Clusters : " << endl;
+    int orbitIndex = 0;
     for (const auto &pair : encodedEquivalentClusters)
     {
       const auto &encodedOrbits = pair.first;
       const auto &clusterType = pair.second;
 
       cout << "Cluster Type: " << clusterType << "\n";
-      cout << "Orbits:\n";
+      cout << "Orbits:" << orbitIndex << endl;
 
       for (const auto &orbit : encodedOrbits)
       {
@@ -832,6 +893,8 @@ vector<pair<vector<vector<size_t>>, LatticeClusterType>> GetEquivalentClustersEn
       }
 
       cout << "------------------------\n";
+
+      orbitIndex++;
     }
 
     GetSymmetryOperations(config, nnLatticeSites, debug, latticeIdToIndexMap);
@@ -839,7 +902,112 @@ vector<pair<vector<vector<size_t>>, LatticeClusterType>> GetEquivalentClustersEn
 
   return encodedEquivalentClusters;
 }
+*/
+/*
+// For LCE
+vector<pair<vector<vector<size_t>>, LatticeClusterType>> GetEquivalentClustersEncoding(
+    const Config &config,
+    const size_t &maxBondOrder,
+    const size_t &maxClusterSize,
+    const size_t &maxBondOrderOfCluster,
+    const bool debug,
+    const double symprec)
+{
+  size_t latticeId = 0;
 
+  // Canonical Sorting
+  auto nnLatticeSites = GetCanonicalSortedSitesForSite(config, latticeId, maxBondOrder);
+  // nnLatticeSites.emplace_back(latticeId);
+
+  unordered_set<size_t> nnLatticeSitesSet(nnLatticeSites.begin(), nnLatticeSites.end());
+
+  auto symmetryOperation = GetSymmetryOperations(config, nnLatticeSitesSet, debug, {}, symprec);
+
+  auto latticeClusterHashset = FindClustersWithinAllowedSites(
+      config,
+      maxClusterSize,
+      maxBondOrderOfCluster,
+      nnLatticeSites);
+
+  auto equivalentClusters = GetEquivalentClusters(
+      config,
+      nnLatticeSitesSet,
+      latticeClusterHashset, symprec, debug);
+
+  map<size_t, size_t> latticeIdToIndexMap;
+
+  for (size_t i = 0; i < nnLatticeSites.size(); i++)
+  {
+    latticeIdToIndexMap[nnLatticeSites[i]] = i;
+  }
+
+  // Encode the clusters
+  vector<pair<vector<vector<size_t>>, LatticeClusterType>> encodedEquivalentClusters;
+  encodedEquivalentClusters.reserve(equivalentClusters.size());
+
+  for (const auto &orbits : equivalentClusters)
+  {
+    vector<vector<size_t>> encodedOrbits;
+    LatticeClusterType clusterType;
+    for (const auto &latticeCluster : orbits)
+    {
+      clusterType = IdentifyLatticeClusterType(config, latticeCluster);
+      if (latticeCluster.size() == 0)
+      {
+        encodedOrbits.emplace_back(latticeCluster);
+      }
+      else
+      {
+        vector<size_t> encodedCluster;
+        encodedCluster.reserve(latticeCluster.size());
+        for (const auto latticeId : latticeCluster)
+        {
+          encodedCluster.emplace_back(latticeIdToIndexMap.at(latticeId));
+        }
+        encodedOrbits.emplace_back(encodedCluster);
+      }
+    }
+    encodedEquivalentClusters.emplace_back(make_pair(encodedOrbits, clusterType));
+  }
+
+  sort(encodedEquivalentClusters.begin(), encodedEquivalentClusters.end(),
+       [](const auto &a, const auto &b)
+       {
+         return a.second < b.second;
+       });
+
+  if (debug)
+  {
+    cout << "Encoded Equivalent Clusters : " << endl;
+    int orbitIndex = 0;
+    for (const auto &pair : encodedEquivalentClusters)
+    {
+      const auto &encodedOrbits = pair.first;
+      const auto &clusterType = pair.second;
+
+      cout << "Cluster Type: " << clusterType << "\n";
+      cout << "Orbits: " << orbitIndex << endl;
+
+      for (const auto &orbit : encodedOrbits)
+      {
+        cout << "  [ ";
+        for (const auto &id : orbit)
+          cout << id << " ";
+        cout << "]\n";
+      }
+
+      cout << "------------------------\n";
+      orbitIndex++;
+    }
+
+    GetSymmetryOperations(config, nnLatticeSitesSet, debug, latticeIdToIndexMap);
+  }
+
+  return encodedEquivalentClusters;
+}
+*/
+/*
+// Not Required because this is taken care by the ICET Source code using LOLG
 // For energy per site clusters
 vector<pair<vector<vector<size_t>>, LatticeClusterType>> GetEquivalentClustersEncoding(
     const Config &config,
@@ -939,15 +1107,17 @@ vector<pair<vector<vector<size_t>>, LatticeClusterType>> GetEquivalentClustersEn
   return encodedEquivalentClusters;
 }
 
+<<<<<<< Updated upstream
+=======
+*/
 /*
+>>>>>>> Stashed changes
 unordered_map<size_t, Eigen::RowVector3d>
 GetCenteredNeighboursSite(const Config &config,
                           size_t latticeId,
                           size_t maxBondOrder)
 {
   auto neighbourIds = config.GetNeighborLatticeIdsUpToOrder(latticeId, maxBondOrder);
-  cout << neighbourIds.size() << endl;
-
   unordered_map<size_t, Eigen::RowVector3d> centeredPositions;
   centeredPositions.reserve(neighbourIds.size());
 
@@ -961,7 +1131,10 @@ GetCenteredNeighboursSite(const Config &config,
     // Translate so central site is at origin
     relPos -= centerPos;
 
-    
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
     // Wrap into [0,1) box for periodic boundary conditions
     relPos = relPos.unaryExpr([](double x)
                               {
@@ -969,55 +1142,18 @@ GetCenteredNeighboursSite(const Config &config,
                                       if (wrapped >= 1.0) wrapped -= 1.0;
                                       if (wrapped < 0.0)  wrapped += 1.0;
                                       return wrapped; });
-    
- 
+<<<<<<< Updated upstream
+=======
+
+
+>>>>>>> Stashed changes
 
     centeredPositions.emplace(id, relPos);
   }
 
   return centeredPositions;
 }
-*/
-
-unordered_map<size_t, Eigen::RowVector3d>
-GetCenteredNeighboursSite(const Config &config,
-                          size_t latticeId,
-                          size_t maxBondOrder)
-{
-  auto neighbourIds = config.GetNeighborLatticeIdsUpToOrder(latticeId, maxBondOrder);
-  // cout << neighbourIds.size() << endl;
-  
-  unordered_map<size_t, Eigen::RowVector3d> centeredPositions;
-  centeredPositions.reserve(neighbourIds.size());
-
-  // Reference position of the central site
-  Eigen::RowVector3d centerPos = config.GetRelativePositionOfLattice(latticeId).transpose();
-
-  for (size_t id : neighbourIds)
-  {
-    Eigen::RowVector3d relPos = config.GetRelativePositionOfLattice(id).transpose();
-
-    // Translate so central site is at origin
-    relPos -= centerPos;
-
-    // Wrap into [-0.5, 0.5) for minimal image (symmetric around 0)
-    relPos = relPos.unaryExpr([](double x)
-                              {
-                                      double wrapped = x - std::floor(x + 0.5);  // Directly computes [-0.5, 0.5)
-                                      return wrapped;
-                              });
-
-    // Shift to place central site at (0.5, 0.5, 0.5) and neighbors in [0,1)
-    relPos += Eigen::RowVector3d(0.5, 0.5, 0.5);
-
-    centeredPositions.emplace(id, relPos);
-  }
-
-  // Optionally add the central site itself at (0.5, 0.5, 0.5) if needed
-  // centeredPositions.emplace(latticeId, Eigen::RowVector3d(0.5, 0.5, 0.5));
-
-  return centeredPositions;
-}
+<<<<<<< Updated upstream
 
 vector<size_t> GetCanonicalSortedSitesForSite(
     const Config &config,
@@ -1047,3 +1183,6 @@ vector<size_t> GetCanonicalSortedSitesForSite(
 
   return sortedLatticeIdVector;
 }
+=======
+*/
+>>>>>>> Stashed changes

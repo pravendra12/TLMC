@@ -49,6 +49,12 @@ T ReadParameterFromJson(
     const string &jsonKey);
 
 template <typename T>
+T ReadSingleParameterFromJson(
+    const json &allParameters, 
+    const string &jsonKey, 
+    const string &jsonSubKey);
+
+template <typename T>
 vector<T> ReadParametersFromJson(
     const json &allParameters,
     const string &jsonKey,

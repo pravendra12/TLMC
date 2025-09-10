@@ -39,15 +39,30 @@ public:
   vector<double> GetLocalClusterVector(
       const Config &config,
       const vector<size_t> &canonicalSortedLatticeIdVector,
-      const vector<vector<vector<int>>> localOrbitEncoding) const;
+      const vector<vector<vector<int>>> &localOrbitEncoding) const;
+
+
+  vector<double> GetLocalClusterVector(
+    const Config &config, 
+    const size_t &targetLatticeId, // element will be assigned to this lattice Id
+    const Element &elementToAssign, 
+    const vector<size_t> &canonicalSortedLatticeIdVector, 
+    const vector<vector<vector<int>>> &localOrbitEncoding) const;
 
   vector<double> GetClusterVectorForConfig(
     const Config &config);
 
+  vector<vector<double>> GetMultiElementLocalClusterVector(
+    const Config &config, 
+    const size_t &centralLatticeId, 
+    const vector<Element> &elementVector, 
+    const vector<size_t> &canonicalSortedLatticeIdVector, 
+    const vector<vector<vector<int>>> &localOrbitEncoding) const;
+
   void TestSymmetricCE(
-    Config &config, 
-    const vector<double> &eciVector, 
-    const pair<size_t, size_t> &latticeIdPair);
+      Config &config,
+      const vector<double> &eciVector,
+      const pair<size_t, size_t> &latticeIdPair);
 
 private:
   Config supercellConfig_;

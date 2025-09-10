@@ -22,8 +22,7 @@ namespace mc
                                  unsigned long long int restartSteps,
                                  double restartEnergy,
                                  double temperature,
-                                 const set<Element> &elementSet,
-                                 const string &predictorFilename)
+                                 const ClusterExpansionParameters &ceParams)
       : CanonicalMcAbstract(move(config),
                             supercellConfig,
                             logDumpSteps,
@@ -33,8 +32,7 @@ namespace mc
                             restartSteps,
                             restartEnergy,
                             temperature,
-                            elementSet,
-                            predictorFilename)
+                            ceParams)
   {
     if (world_size_ != 1)
     {
@@ -99,7 +97,7 @@ namespace mc
 #pragma omp parallel for default(none)
     for (auto &event : event_vector_)
     {
-      event.second = energyChangePredictor_.GetDeMigration(config_, event.first);
+      event.second = energyChangePredictor_.GetDeSwap(config_, event.first);
     }
   }
   void CanonicalMcOmp::Simulate()

@@ -185,6 +185,7 @@ namespace api
 
   mc::CanonicalMcSerial BuildCanonicalMcSerialFromParameter(const Parameter &parameter)
   {
+    ClusterExpansionParameters ceParams(parameter.json_coefficients_filename_);
     Config config;
     if (parameter.map_filename_.empty())
     {
@@ -221,6 +222,7 @@ namespace api
 
     cout << "Finish config reading. Start CMC." << endl;
 
+
     return mc::CanonicalMcSerial{config,
                                  supercell_config,
                                  parameter.log_dump_steps_,
@@ -230,14 +232,13 @@ namespace api
                                  parameter.restart_steps_,
                                  parameter.restart_energy_,
                                  parameter.temperature_,
-                                 element_set,
-                                 parameter.json_coefficients_filename_};
+                                 ceParams};
   }
 
   mc::KineticMcChainOmpi BuildKineticMcChainOmpiFromParameter(const Parameter
                                                                   &parameter)
   {
-
+    ClusterExpansionParameters ceParams(parameter.json_coefficients_filename_);
     Config config;
     if (parameter.map_filename_.empty())
     {
@@ -272,6 +273,7 @@ namespace api
     }
     cout << endl;
 
+
     cout << "Finish config reading. Start KMC." << endl;
 
     return mc::KineticMcChainOmpi{config,
@@ -284,8 +286,7 @@ namespace api
                                   parameter.restart_energy_,
                                   parameter.restart_time_,
                                   parameter.temperature_,
-                                  element_set,
-                                  parameter.json_coefficients_filename_,
+                                  ceParams,
                                   parameter.time_temperature_filename_,
                                   parameter.rate_corrector_,
                                   parameter.vacancy_trajectory_};
@@ -294,7 +295,7 @@ namespace api
   mc::KineticMcFirstMpi BuildKineticMcFirstMpiFromParameter(const Parameter
                                                                 &parameter)
   {
-
+    ClusterExpansionParameters ceParams(parameter.json_coefficients_filename_);
     Config config;
     if (parameter.map_filename_.empty())
     {
@@ -341,8 +342,7 @@ namespace api
                                  parameter.restart_energy_,
                                  parameter.restart_time_,
                                  parameter.temperature_,
-                                 element_set,
-                                 parameter.json_coefficients_filename_,
+                                 ceParams,
                                  parameter.time_temperature_filename_,
                                  parameter.rate_corrector_,
                                  parameter.vacancy_trajectory_};
@@ -364,6 +364,8 @@ namespace api
   mc::SimulatedAnnealing BuildSimulatedAnnealingFromParameter(const Parameter
                                                               &parameter)
   {
+    ClusterExpansionParameters ceParams(parameter.json_coefficients_filename_);
+
     Config config;
     try
     {
@@ -409,8 +411,7 @@ namespace api
                               parameter.restart_steps_,
                               parameter.restart_energy_,
                               parameter.initial_temperature_,
-                              element_set,
-                              parameter.json_coefficients_filename_};
+                              ceParams};
   }
 
 }

@@ -50,8 +50,7 @@ namespace mc
                    unsigned long long int restartSteps,
                    double restartEnergy,
                    double temperature,
-                   const set<Element> &elementSet,
-                   const string &predictorFilename);
+                   const ClusterExpansionParameters &ceParams);
 
     /** @brief Simulate canonical monte carlo simulation
      */

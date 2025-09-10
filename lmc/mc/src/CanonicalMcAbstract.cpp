@@ -23,8 +23,7 @@ namespace mc
                                            const unsigned long long int restartSteps,
                                            const double restartEnergy,
                                            const double temperature,
-                                           const set<Element> &elementSet,
-                                           const string &predictorFilename)
+                                           const ClusterExpansionParameters &ceParams)
       : McAbstract(move(config),
                    supercellConfig,
                    logDumpSteps,
@@ -35,17 +34,19 @@ namespace mc
                    restartEnergy,
                    0,
                    temperature,
-                   elementSet,
-                   predictorFilename,
                    "cmc_log.txt"),
         energyChangePredictor_(
-            predictorFilename,
+<<<<<<< Updated upstream
+          predictorFilename, 
+          config, 
+          supercellConfig, 
+          elementSet
+        ),
+=======
+            ceParams,
             config,
-            supercellConfig, // which is basically should be small enough
-                             // for now lets keep it simple later we can work on this
-
-            allowedElements_,
-            clusterCutoffs_),
+            supercellConfig),
+>>>>>>> Stashed changes
         atomIndexSelector_(0, config_.GetNumAtoms() - 1)
   {
   }

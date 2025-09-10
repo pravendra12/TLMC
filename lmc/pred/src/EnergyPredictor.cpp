@@ -1,46 +1,112 @@
 #include "EnergyPredictor.h"
 
+<<<<<<< Updated upstream
 #include "PrintUtility.h"
-#include "JsonUtility.h"
 
 // This should just take the config and predictorFilename and
 // Rest should be read from the param file
 
-static vector<double> ReadECIs(
-    const string &predictorFilename)
+EnergyPredictor::EnergyPredictor(
+    const ClusterExpansionParameters &ceParams,
+    const Config &config) : maxClusterSize_(ceParams.GetMaxClusterSizeCE()),
+                            maxBondOrder_(ceParams.GetMaxBondOrderCE()),
+                            ecis_(ceParams.GetECIs()),
+                            atomicBasis_(
+                                ceParams.GetElementSetCE(),
+                                ceParams.GetBasisType()),
+                            equivalentClustersEncoding_(
+                                GetEquivalentClustersEncoding(
+                                    config,
+                                    maxBondOrder_,
+                                    maxClusterSize_))
 {
-  VectorXd eciVector = ReadParametersFromJson(predictorFilename, "ce", "eci");
+  auto atomVector = config.GetAtomVector();
+  set<Element> configElementSet(atomVector.begin(), atomVector.end());
 
-  std::vector<double> eciStdVector;
-  eciStdVector.reserve(eciVector.size());
-  for (int i = 0; i < eciVector.size(); ++i)
+  auto elementSet = ceParams.GetElementSetCE();
+
+  for (auto ele : configElementSet)
   {
-    eciStdVector.push_back(eciVector[i]);
-  }
+    if (elementSet.find(ele) == elementSet.end())
+    {
+      cerr << "Error in `EnergyPredictor`: element " << ele
+           << " is not in the allowed element set!\n";
 
-  return eciStdVector;
+      cerr << "This cluster expansion is defined only for the following elements: ";
+      for (const auto &allowedEle : elementSet)
+        cerr << allowedEle << " ";
+      cerr << endl;
+
+      exit(1);
+    }
+  }
 }
 
+double EnergyPredictor::ComputeEnergyOfSite(
+=======
 EnergyPredictor::EnergyPredictor(
-    const string &predictorFilename,
+    const ClusterExpansionParameters &ceParams,
     const Config &supercellConfig,
-    const Config &primitiveConfig,
-    const vector<string> &allowedElements,
-    const vector<double> &clusterCutoffs) : ecis_(ReadECIs(predictorFilename)),
-                                            symCE_(
-                                                supercellConfig,
-                                                primitiveConfig,
-                                                allowedElements,
-                                                clusterCutoffs),
-                                            localOrbitsEncoding_(
-                                                symCE_.GetLocalOrbitsEncoding()),
-                                            nAtoms_(
-                                                supercellConfig.GetNumAtoms())
+    const Config &primitiveConfig) : nAtoms_(supercellConfig.GetNumAtoms()),
+                                     allowedElements_(
+                                         ceParams.GetAllowedElements()),
+                                     clusterCutoffs_(
+                                         ceParams.GetClusterCutoffs()),
+                                     symCE_(supercellConfig,
+                                            primitiveConfig,
+                                            allowedElements_,
+                                            clusterCutoffs_),
+                                     localOrbitsEncoding_(
+                                         symCE_.GetLocalOrbitsEncoding()),
+                                     chemicalPotentialsMap_(
+                                         ceParams.GetChemicalPotentialsMap()),
+                                     elementCountMap_(
+                                         GetElementCountMap(
+                                             supercellConfig)),
+                                     ecis_(
+                                         ceParams.GetECIs("symCE"))
+
 {
-  for (auto ele : supercellConfig.GetAtomVector())
+  const int width = 80;
+  const int labelWidth = 40;
+  const int valueWidth = width - labelWidth - 2;
+
+  // Header
+  cout << string(width, '-') << "\n";
+  cout << setw((width + 22) / 2) << right << "Energy Predictor Info" << "\n";
+  cout << string(width, '-') << "\n";
+
+  // Table
+  cout << left << setw(labelWidth) << "Number of atoms:"
+            << right << setw(valueWidth) << nAtoms_ << "\n";
+
+  cout << left << setw(labelWidth) << "Allowed elements:"
+            << right << setw(valueWidth);
+  for (const auto &ele : allowedElements_)
+    cout << ele << " ";
+  cout << "\n";
+
+  cout << left << setw(labelWidth) << "Cluster cutoffs:"
+            << right << setw(valueWidth);
+  for (const auto &cut : clusterCutoffs_)
+    cout << cut << " ";
+  cout << "\n";
+
+  cout << left << setw(labelWidth) << "Local orbits encoding size:"
+            << right << setw(valueWidth) << localOrbitsEncoding_.size() << "\n";
+
+  cout << left << setw(labelWidth) << "Chemical potentials:"
+            << "\n";
+  for (const auto &[ele, mu] : chemicalPotentialsMap_)
   {
-    elementCountMap_[ele.GetElementString()]++;
+    cout << "  " << left << setw(labelWidth - 2) << ele
+              << right << setw(valueWidth) << mu << "\n";
   }
+
+  cout << left << setw(labelWidth) << "Sym CE ECIs size:"
+            << right << setw(valueWidth) << ecis_.size() << "\n";
+
+  cout << string(width, '-') << "\n\n";
 
 }
 
@@ -70,7 +136,6 @@ double EnergyPredictor::GetTotalFormationEnergy(
   // cout << ecis_.size() << endl;
   // cout << clusterVector.size() << endl;
 
-
   for (int i = 0; i < clusterVector.size(); i++)
   {
     formationEnergy += clusterVector[i] * ecis_[i];
@@ -91,7 +156,7 @@ double EnergyPredictor::GetTotalEnergy(
   for (const auto &[element, count] : elementCountMap_)
   {
     // Chemical Potential Value
-    auto muVal = chemicalPotentials_.at(element);
+    double muVal = chemicalPotentialsMap_.at(element);
 
     muContribution += count * muVal;
   }
@@ -108,6 +173,7 @@ double EnergyPredictor::GetTotalEnergy(
 // total formation energy change which is same as dE
 
 double EnergyPredictor::ComputeLocalFormationEnergyOfSite(
+>>>>>>> Stashed changes
     const Config &config,
     const size_t &latticeId)
 {
@@ -115,18 +181,19 @@ double EnergyPredictor::ComputeLocalFormationEnergyOfSite(
   auto canonicalSortedLatticeIds = GetCanonicalSortedSitesForSite(
       config,
       latticeId,
-      1);
+      maxBondOrder_);
 
   // Need to include the site as well to be consistent with the encoding
   canonicalSortedLatticeIds.emplace_back(latticeId);
 
-  auto clusterVector = symCE_.GetLocalClusterVector(
+  VectorXd correlationVector = GetCorrelationVector(
       config,
+      atomicBasis_,
       canonicalSortedLatticeIds,
-      localOrbitsEncoding_);
+      equivalentClustersEncoding_);
 
   // E = J.Φ_α
-  double energyValue = GetTotalFormationEnergy(clusterVector);
+  double energyValue = ecis_.dot(correlationVector) / config.GetNumAtoms();
 
   return energyValue;
 }
@@ -134,47 +201,86 @@ double EnergyPredictor::ComputeLocalFormationEnergyOfSite(
 double EnergyPredictor::ComputeEnergyOfConfig(
     const Config &config)
 {
-  auto clusterVector = symCE_.GetClusterVectorForConfig(config);
+  double totalEnergy = 0;
 
-  double totalEnergy = GetTotalEnergy(clusterVector);
+  for (size_t latticeId = 0; latticeId < config.GetNumLattices(); latticeId++)
+  {
+    totalEnergy += ComputeEnergyOfSite(config, latticeId);
+  }
 
   return totalEnergy;
 }
 
+<<<<<<< Updated upstream
 double EnergyPredictor::GetDeMigration(
     const Config &config,
     const pair<size_t, size_t> &latticeIdJumpPair)
 {
+  auto canonicalSortedLatticeIdsSite1 = GetCanonicalSortedSitesForSite(
+      config,
+      latticeIdJumpPair.first,
+      maxBondOrder_);
+
+  auto canonicalSortedLatticeIdsSite2 = GetCanonicalSortedSitesForSite(
+      config,
+      latticeIdJumpPair.second,
+      maxBondOrder_);
+
+  cout << "Site1 : ";
+  cout << latticeIdJumpPair.first << endl;
+  print1DVector(canonicalSortedLatticeIdsSite1);
+  cout << "Site2 : ";
+  cout << latticeIdJumpPair.second << endl;
+
+  print1DVector(canonicalSortedLatticeIdsSite2);
 
   return 0;
 }
 
+=======
+>>>>>>> Stashed changes
 double EnergyPredictor::GetDeSwap(
     Config &config,
     const pair<size_t, size_t> &latticeIdJumpPair)
 {
   // Before Swap
 
-  auto energyBeforeSwap = ComputeLocalFormationEnergyOfSite(
-                              config,
-                              latticeIdJumpPair.first) +
-                          ComputeLocalFormationEnergyOfSite(
-                              config,
-                              latticeIdJumpPair.second);
+  auto nnLatticeIds = config.GetNeighboringLatticeIdSetOfPair(latticeIdJumpPair, maxBondOrder_);
+  nnLatticeIds.insert(latticeIdJumpPair.first);
+  nnLatticeIds.insert(latticeIdJumpPair.second);
+
+  double energyBeforeSwap = 0;
+
+  for (const auto latticeId : nnLatticeIds)
+  {
+    energyBeforeSwap += ComputeEnergyOfSite(config, latticeId);
+  }
 
   config.LatticeJump(latticeIdJumpPair);
 
   // After Swap
-  double energyAfterSwap = ComputeLocalFormationEnergyOfSite(
-                               config,
-                               latticeIdJumpPair.first) +
-                           ComputeLocalFormationEnergyOfSite(
-                               config,
-                               latticeIdJumpPair.second);
+  double energyAfterSwap = 0;
 
+  for (const auto latticeId : nnLatticeIds)
+  {
+    energyAfterSwap += ComputeEnergyOfSite(config, latticeId);
+  }
+  
   auto dE = energyAfterSwap - energyBeforeSwap;
 
   config.LatticeJump(latticeIdJumpPair);
 
   return dE;
+}
+
+unordered_map<string, int> EnergyPredictor::GetElementCountMap(
+    const Config &supercellConfig)
+{
+  unordered_map<string, int> elementCountMap;
+  for (auto ele : supercellConfig.GetAtomVector())
+  {
+    elementCountMap[ele.GetElementString()]++;
+  }
+
+  return elementCountMap;
 }

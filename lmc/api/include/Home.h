@@ -19,6 +19,7 @@
 #include "KineticMcFirstMpi.h"
 #include "Traverse.h"
 #include "SimulatedAnnealing.h"
+#include "ClusterExpansionParameters.h"
 
 using namespace std;
 

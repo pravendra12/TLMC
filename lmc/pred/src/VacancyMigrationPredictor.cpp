@@ -16,22 +16,19 @@ VacancyMigrationPredictor::VacancyMigrationPredictor(
     const ClusterExpansionParameters &ceParams,
     const Config &config) : eKRAPredictor_(ceParams,
                                            config),
-                            energyPredictor_(
-                                ceParams.GetCoefficientFile(), 
-                                config, 
-                                config, 
-                                ceParams.GetElementSetCE()
-                            )
+                            lvfePredictor_(
+                                ceParams,
+                                config)
 {
 }
 
 pair<double, double> VacancyMigrationPredictor::GetBarrierAndDeltaE(
     const Config &config,
-    const pair<size_t, size_t> &latticeIdJumpPair) 
+    const pair<size_t, size_t> &latticeIdJumpPair)
 {
   double eKRA = eKRAPredictor_.GetKRA(config, latticeIdJumpPair);
 
-  double dE = energyPredictor_.GetDeMigration(
+  double dE = lvfePredictor_.GetDeForVacancyMigration(
       config,
       latticeIdJumpPair);
 

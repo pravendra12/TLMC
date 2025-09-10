@@ -25,8 +25,7 @@ namespace mc
                                        unsigned long long int restartSteps,
                                        double restartEnergy,
                                        double temperature,
-                                       const set<Element> &elementSet,
-                                       const string &predictorFilename)
+                                       const ClusterExpansionParameters &ceParams)
       : CanonicalMcAbstract(move(config),
                             supercellConfig,
                             logDumpSteps,
@@ -36,8 +35,7 @@ namespace mc
                             restartSteps,
                             restartEnergy,
                             temperature,
-                            elementSet,
-                            predictorFilename)
+                            ceParams)
   {
     if (world_size_ != 1)
     {

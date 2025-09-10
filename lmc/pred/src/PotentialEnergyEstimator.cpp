@@ -28,34 +28,31 @@ static unordered_map<ClusterType, size_t, boost::hash<ClusterType>> ConvertSetTo
 }
 
 PotentialEnergyEstimator::PotentialEnergyEstimator(
-    const string &predictorFilename,
+    const ClusterExpansionParameters &ceParams,
     const Config &referenceConfig,
-    const Config &supercellConfig,
-    const set<Element> &element_set) : maxClusterSize_(ReadParameterFromJson(predictorFilename,
-                                                                             "maxClusterSizeCE")),
-                                       maxBondOrder_(
-                                           ReadParameterFromJson(
-                                               predictorFilename,
-                                               "maxBondOrderCE")),
-                                       betaCE_(
-                                           ReadParametersFromJson(
-                                               predictorFilename,
-                                               "ce", "beta_ce")),
-                                       elementSet_(element_set),
-                                       initializedClusterTypeSet_(
-                                           InitializeClusterTypeSet(
-                                               referenceConfig,
-                                               elementSet_,
-                                               maxClusterSize_,
-                                               maxBondOrder_)),
-                                       clusterTypeCountHashMap_(
-                                           ConvertSetToHashMap(
-                                               initializedClusterTypeSet_)),
-                                       latticeClusterTypeCount_(
-                                           CountLatticeClusterTypes(
-                                               supercellConfig,
-                                               maxClusterSize_,
-                                               maxBondOrder_))
+    const Config &trainingConfig) : maxClusterSize_(ceParams.GetMaxClusterSize("ce")),
+                                    maxBondOrder_(
+                                        ceParams.GetMaxBondOrder("ce")),
+                                    betaCE_([&]
+                                            {
+                                    const auto &v = ceParams.GetECIs("ce");
+                                    return Map<const VectorXd>(v.data(), v.size()); }()),
+                                    elementSet_(
+                                        ceParams.GetElementSet("ce")),
+                                    initializedClusterTypeSet_(
+                                        InitializeClusterTypeSet(
+                                            referenceConfig,
+                                            elementSet_,
+                                            maxClusterSize_,
+                                            maxBondOrder_)),
+                                    clusterTypeCountHashMap_(
+                                        ConvertSetToHashMap(
+                                            initializedClusterTypeSet_)),
+                                    latticeClusterTypeCount_(
+                                        CountLatticeClusterTypes(
+                                            trainingConfig,
+                                            maxClusterSize_,
+                                            maxBondOrder_))
 
 {
 
@@ -133,7 +130,7 @@ double PotentialEnergyEstimator::GetEnergy(const Config &config) const
   auto encodeVector = GetEncodeVector(config);
 
   // Assuming a vacancy is present
-  double energy = betaCE_.dot(encodeVector)*(config.GetNumAtoms()-1);
+  double energy = betaCE_.dot(encodeVector) * (config.GetNumAtoms() - 1);
 
   return energy;
 }
@@ -213,7 +210,7 @@ double PotentialEnergyEstimator::GetDeSwap(Config &config,
   // Going back to Original Config
   config.LatticeJump(latticeIdPair);
 
-  auto dE = (energyAfterSwap - energyBeforeSwap)*(config.GetNumAtoms()-1);
+  auto dE = (energyAfterSwap - energyBeforeSwap) * (config.GetNumAtoms() - 1);
 
   return dE;
 }
@@ -294,7 +291,7 @@ double PotentialEnergyEstimator::GetDeMigration(
 
   VectorXd encode_diff = encodeAfter - encodeBefore;
   // For total energy change
-  double dE = betaCE_.dot(encode_diff)*(config.GetNumAtoms()-1);
+  double dE = betaCE_.dot(encode_diff) * (config.GetNumAtoms() - 1);
 
   return dE;
 }

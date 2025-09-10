@@ -20,8 +20,9 @@
 #include <Eigen/Dense>
 #include "Config.h"
 #include "SymmetrySpglib.h"
-#include "ClusterExpansionParameters.h"
 #include "CorrelationVector.h"
+#include "GetEquivalentClusters.h"
+#include "ClusterExpansionParameters.h"
 
 using namespace std;
 using namespace Eigen;
@@ -49,15 +50,12 @@ public:
         const pair<size_t, size_t> &latticeIdJumpPair);
 
 private:
-    const size_t maxBondOrder_;
-    const size_t maxBondOrderOfCluster_;
-    const size_t maxClusterSize_;
+    const size_t maxBondOrder_{};
+    const size_t maxClusterSize_{};
 
     BasisSet atomicBasis_;
 
-    const VectorXd kecis_{};
-
-    const Vector3d referenceJumpDirection_{1, 1, 1};
+    const Vector3d referenceJumpDirection_{};
 
     const unordered_map<size_t, RowVector3d> canonicalReferenceMap_{};
 
@@ -68,7 +66,9 @@ private:
      */
     const vector<pair<vector<vector<size_t>>,
                       LatticeClusterType>>
-        equivalentClustersEncoding_{};
+        encodedOrbitsForPair_{};
+
+    const unordered_map<Element, VectorXd, boost::hash<Element>> KECIsMap_{};
 };
 
 #endif // LMC_PRED_INCLUDE_KRAPREDICTOR_H_

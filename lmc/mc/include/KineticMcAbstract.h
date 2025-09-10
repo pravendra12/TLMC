@@ -70,8 +70,7 @@ namespace mc
                            double restartEnergy,
                            double restartTime,
                            double temperature,
-                           const set<Element> &elementSet,
-                           const string &predictorFilename,
+                           const ClusterExpansionParameters &ceParams,
                            const string &timeTemperatureFilename,
                            bool isRateCorrector,
                            const Eigen::RowVector3d &vacancyTrajectory);
@@ -143,18 +142,11 @@ namespace mc
 
     // Helpful properties
 
-    const ClusterExpansionParameters ceParams_;
     /**
      * @brief Vacancy Migration Energy Predictor
      */
     VacancyMigrationPredictor vacancyMigrationPredictor_;
 
-
-    /**
-     * @brief Potential Energy Predictor
-     *
-     */
-    const PotentialEnergyEstimator energyChangePredictor_;
 
     /**
      * @brief Time Temperature Interpolator
@@ -247,8 +239,7 @@ namespace mc
                            double restartEnergy,
                            double restartTime,
                            double temperature,
-                           const set<Element> &elementSet,
-                           const string &predictorFilename,
+                           const ClusterExpansionParameters &ceParams,
                            const string &timeTemperatureFilename,
                            bool isRateCorrector,
                            const Eigen::RowVector3d &vacancyTrajectory);

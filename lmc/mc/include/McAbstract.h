@@ -20,7 +20,7 @@
 #include <mpi.h>
 #include "Config.h"
 #include "ThermodynamicAveraging.h"
-#include "PotentialEnergyEstimator.h"
+#include "ClusterExpansionParameters.h"
 
 using namespace std;
 
@@ -57,8 +57,6 @@ public:
              double restartEnergy,
              double restartTime,
              double temperature,
-             const set<Element> &elementSet,
-             const string &predictorFilename,
              const string &logFilename);
 
   /**
@@ -84,7 +82,7 @@ public:
 protected:
   /**
    * @brief Stores the configuration.
-   * 
+   *
    */
   Config config_;
 
@@ -92,25 +90,25 @@ protected:
 
   /**
    * @brief Number of steps between logging the simulation process.
-   * 
+   *
    */
   const unsigned long long int logDumpSteps_;
 
   /**
    * @brief Number of steps between dumping the configuration.
-   * 
+   *
    */
   const unsigned long long int configDumpSteps_;
 
   /**
    * @brief Maximum number of steps for simulation.
-   * 
+   *
    */
   const unsigned long long int maximumSteps_;
 
   /**
    * @brief simulation statistics
-   * 
+   *
    */
 
   unsigned long long int steps_;
@@ -120,7 +118,6 @@ protected:
   double temperature_;
   double beta_;
   mutable bool is_restarted_;
-
 
   mc::ThermodynamicAveraging thermodynamicAveraging_;
   mutable mt19937_64 generator_;

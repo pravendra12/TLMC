@@ -18,6 +18,24 @@ T ReadParameterFromJson(
   }
 }
 
+
+template <typename T>
+T ReadSingleParameterFromJson(const json &allParameters,
+                              const string &jsonKey,
+                              const string &jsonSubKey)
+{
+    if (!allParameters.contains(jsonKey))
+        throw std::runtime_error("JSON key not found");
+
+    const json &parameters = allParameters[jsonKey];
+
+    if (!parameters.contains(jsonSubKey))
+        throw std::runtime_error("JSON sub-key not found");
+
+    return parameters[jsonSubKey].get<T>();
+}
+
+
 template <typename T>
 vector<T> ReadParametersFromJson(const json &allParameters,
                                  const string &jsonKey,

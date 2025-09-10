@@ -77,67 +77,61 @@ public:
 
   /**
    * @brief Returns the basis type used for the cluster expansion.
-   * @return Basis type string (e.g., "Occupation").
+   * @return Basis type string (e.g., "Occupation" or "Chebyshev").
    */
   string GetBasisType() const;
 
-  // ------------------- Cluster Expansion -------------------
+  size_t GetMaxBondOrder(const string &jsonKey) const;
 
-  /**
-   * @brief Returns the maximum bond order considered in the cluster expansion (CE).
-   * @return Maximum bond order for CE.
-   */
-  size_t GetMaxBondOrderCE() const;
+  size_t GetMaxClusterSize(const string &jsonKey) const;
 
-  /**
-   * @brief Returns the maximum cluster size used in the cluster expansion (CE).
-   * @return Maximum cluster size for CE.
-   */
-  size_t GetMaxClusterSizeCE() const;
-
-  /**
-   * @brief Returns the set of elements included in the cluster expansion (CE) model.
-   * @return Set of elements in CE.
-   */
-  set<Element> GetElementSetCE() const;
+  // can be use with kra / ce / lvfe
+  set<Element> GetElementSet(const string &jsonKey) const;
 
   /**
    * @brief Returns the Effective Cluster Interaction (ECI) coefficients for the CE model.
+   * @param ceType `ce` or `symCE`
    * @return VectorXd containing all ECIs.
    */
-  VectorXd GetECIs() const;
+  vector<double> GetECIs(const string &ceType) const;
+
+  // ------------------- Symmeteric Cluster Expansion -------------------
+  /*
+
+  symCE :
+  {
+    clusterCutoffs : [],
+    allowedElements : [],
+    chemicalPotentials :
+    {
+      A : muA,
+      B : muB
+    }
+    ecis : []
+  }
+
+  */
+
+  // {pair, triplet, quadraplet}
+  vector<double> GetClusterCutoffs() const;
+
+  // Allowed elements
+  vector<string> GetAllowedElements() const;
+
+  unordered_map<string, double> GetChemicalPotentialsMap() const;
+
+  // GetECIs will remain only the jsonKey will be now taken as parameter
 
   // ------------------- Kinetically Resolved Activation Barrier (KRA) -------------------
-
-  /**
-   * @brief Returns the maximum bond order of clusters considered in the KRA model.
-   * @return Maximum bond order of clusters for KRA.
-   */
-  size_t GetMaxBondOrderOfClusterKRA() const;
-
-  /**
-   * @brief Returns the maximum bond order considered for KRA calculations.
-   * @return Maximum bond order for KRA.
-   */
-  size_t GetMaxBondOrderKRA() const;
-
-  /**
-   * @brief Returns the maximum cluster size considered in the KRA model.
-   * @return Maximum cluster size for KRA.
-   */
-  size_t GetMaxClusterSizeKRA() const;
-
-  /**
-   * @brief Returns the set of elements included in the KRA model.
-   * @return Set of elements in KRA.
-   */
-  set<Element> GetElementSetKRA() const;
+  Vector3d GetReferenceJumpDirection() const;
 
   /**
    * @brief Returns the Kinetic Effective Coefficients of Interactions (KECIs) for each element.
    *
    * @return An unordered_map mapping each Element to its corresponding VectorXd of KECI values.
    */
+  unordered_map<Element, VectorXd, boost::hash<Element>> GetKECIsMap() const;
+
   // unordered_map<Element, VectorXd, boost::hash<Element>> GetKECIs() const;
   VectorXd GetKECIs() const;
 

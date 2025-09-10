@@ -30,5 +30,11 @@ constexpr double kBoltzmann = 8.617333262145e-5;
  */
 constexpr double kPrefactor = 1e13; // Hz
 
+// Used for scaling fractional to integer
+constexpr double K_FRACTIONAL_TO_INT_SCALE = 1e8;
+
+// Symmetry Precision for SPGLIB
+constexpr double SYMPREC = 1e-5;
+
 } // constants
 #endif //LMC_CONSTANT_INCLUDE_CONSTANTS_HPP_

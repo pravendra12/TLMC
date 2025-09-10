@@ -23,8 +23,7 @@ namespace mc
                                        const double restartEnergy,
                                        const double restartTime,
                                        const double temperature,
-                                       const set<Element> &elementSet,
-                                       const string &predictorFilename,
+                                       const ClusterExpansionParameters &ceParams,
                                        const string &timeTemperatureFilename,
                                        const bool isRateCorrector,
                                        const Eigen::RowVector3d &vacancyTrajectory)
@@ -38,8 +37,7 @@ namespace mc
                                restartEnergy,
                                restartTime,
                                temperature,
-                               elementSet,
-                               predictorFilename,
+                               ceParams,
                                timeTemperatureFilename,
                                isRateCorrector,
                                vacancyTrajectory)

@@ -6,11 +6,13 @@
 #include "Config.h"
 #include "McAbstract.h"
 #include "PotentialEnergyEstimator.h"
+#include "EnergyPredictor.h"
+#include "ClusterExpansionParameters.h"
 
 using namespace std;
 
 namespace mc
-{ 
+{
   /**
    * @class SimulatedAnnealing
    * @brief This class implements the simulated annealing algorithm for Monte Carlo simulations.
@@ -48,8 +50,7 @@ namespace mc
                        const unsigned long long int restartSteps,
                        const double restartEnergy,
                        const double initialTemperature,
-                       const set<Element> &elementSet,
-                       const string &predictorFilename);
+                       const ClusterExpansionParameters &ceParams);
 
     /**
      * @brief Starts the simulated annealing simulation.
@@ -106,7 +107,7 @@ namespace mc
      * This object is used to calculate the energy change associated with a
      * proposed event during the Monte Carlo simulation, using a cluster expansion model.
      */
-    const PotentialEnergyEstimator energy_change_predictor_;
+    EnergyPredictor energy_change_predictor_;
 
     /**
      * @brief A uniform integer distribution used to select atom indices randomly.

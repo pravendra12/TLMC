@@ -14,28 +14,75 @@
 
 KRAPredictor::KRAPredictor(
     const ClusterExpansionParameters &ceParams,
-    const Config &config) : maxBondOrder_(ceParams.GetMaxBondOrderKRA()),
-                            maxBondOrderOfCluster_(ceParams.GetMaxBondOrderOfClusterKRA()),
-                            maxClusterSize_(ceParams.GetMaxClusterSizeKRA()),
+    const Config &config) : maxBondOrder_(ceParams.GetMaxBondOrder("kra")),
+                            maxClusterSize_(
+                                ceParams.GetMaxClusterSize("ce")),
+                            referenceJumpDirection_(
+                                ceParams.GetReferenceJumpDirection()),
                             atomicBasis_(
-                                ceParams.GetElementSetKRA(),
+                                ceParams.GetElementSet("kra"),
                                 ceParams.GetBasisType()),
-                            kecis_(ceParams.GetKECIs()),
                             canonicalReferenceMap_(
                                 GetCenteredNeighborsAlongJumpDirection(
                                     config,
                                     maxBondOrder_,
                                     referenceJumpDirection_)),
-                            symmetryOperations_(GetSymmetryOperations(config)),
-                            equivalentClustersEncoding_(
-                                GetEquivalentClustersEncoding(
+                            symmetryOperations_(
+                                GetSymmetryOperations(
+                                    config)),
+                            encodedOrbitsForPair_(
+                                GetLocalEncodedOrbitsForPair(
                                     config,
                                     maxBondOrder_,
-                                    maxBondOrderOfCluster_,
                                     maxClusterSize_,
-                                    canonicalReferenceMap_))
+                                    referenceJumpDirection_,
+                                    true)),
+                            KECIsMap_(
+                                ceParams.GetKECIsMap())
+{
+  const int width = 80;
+  const int labelWidth = 40;
+  const int valueWidth = width - labelWidth - 2; // 2 for spacing
 
-{}
+  // Header
+  cout << string(width, '-') << "\n";
+  cout << setw((width + 22) / 2) << right << "KRA Predictor Info" << "\n";
+  cout << string(width, '-') << "\n";
+
+  // Table of values
+  cout << left << setw(labelWidth) << "Max bond order:"
+       << right << setw(valueWidth) << maxBondOrder_ << "\n";
+
+  cout << left << setw(labelWidth) << "Max cluster size:"
+       << right << setw(valueWidth) << maxClusterSize_ << "\n";
+
+  cout << left << setw(labelWidth) << "Reference jump direction:"
+       << right << setw(valueWidth-3)
+       << "(" << referenceJumpDirection_.transpose() << ")" << "\n";
+
+  cout << left << setw(labelWidth) << "Canonical reference map size:"
+       << right << setw(valueWidth) << canonicalReferenceMap_.size() << "\n";
+
+  cout << left << setw(labelWidth) << "Number of symmetry operations:"
+       << right << setw(valueWidth) << symmetryOperations_.size() << "\n";
+
+  cout << left << setw(labelWidth) << "Encoded orbits for pair size:"
+       << right << setw(valueWidth) << encodedOrbitsForPair_.size() << "\n";
+
+  cout << left << setw(labelWidth) << "Kinetic ECIs map size:"
+       << right << setw(valueWidth) << KECIsMap_.size() << "\n";
+
+  cout << left << setw(labelWidth) << "KECIs per element:" << "\n";
+  for (const auto &[element, vec] : KECIsMap_)
+  {
+    cout << "  " << left << setw(labelWidth - 2)
+         << element.GetElementString()
+         << right << setw(valueWidth)
+         << vec.size() << "\n";
+  }
+
+  cout << string(width, '-') << "\n\n";
+}
 
 double KRAPredictor::GetKRA(
     const Config &config,
@@ -73,8 +120,9 @@ double KRAPredictor::GetKRA(
       config,
       atomicBasis_,
       canonicalSortedLatticeIds,
-      equivalentClustersEncoding_);
+      encodedOrbitsForPair_);
 
+<<<<<<< Updated upstream
   // E = J.Φ_α
 
   VectorXd elementEncoding = atomicBasis_.GetCachedAtomBasis(migratingElement);
@@ -83,14 +131,22 @@ double KRAPredictor::GetKRA(
   combinedEncoding << correlationVector, elementEncoding; // concatenates the two vectors
 
   if (kecis_.size() != combinedEncoding.size())
+=======
+  // EKRA = J.Φ_α
+
+  VectorXd kecis = KECIsMap_.at(migratingElement);
+
+  if (kecis.size() != correlationVector.size())
+>>>>>>> Stashed changes
   {
     throw runtime_error(
-        "Error in `KRAPredictor::GetKRA`: kecis_ (" + to_string(kecis_.size()) +
-        ") and combinedEncoding (" + to_string(combinedEncoding.size()) +
-        ") must have the same size.");
+        "Error in `KRAPredictor::GetKRA`: migratingElement `" + migratingElement.GetElementString() +
+        "` has kecis size (" + to_string(kecis.size()) +
+        ") which does not match correlationVector size (" + to_string(correlationVector.size()) +
+        ").");
   }
 
-  double eKraValue = kecis_.dot(combinedEncoding);
+  double eKraValue = kecis.dot(correlationVector);
 
   return eKraValue;
 }

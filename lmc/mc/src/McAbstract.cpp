@@ -23,8 +23,6 @@ McAbstract::McAbstract(Config config,
                        double restartEnergy,
                        double restartTime,
                        double temperature,
-                       const set<Element> &elementSet,
-                       const string &predictorFilename,
                        const string &logFilename)
     : config_(move(config)),
       logDumpSteps_(logDumpSteps),

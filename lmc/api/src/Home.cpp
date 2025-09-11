@@ -185,46 +185,52 @@ namespace api
 
   mc::CanonicalMcSerial BuildCanonicalMcSerialFromParameter(const Parameter &parameter)
   {
-    ClusterExpansionParameters ceParams(parameter.json_coefficients_filename_);
     Config config;
     if (parameter.map_filename_.empty())
     {
       // Generalized function to read configuration
       // Supported formats are: .cfg, .POSCAR, .cfg.gz, .cfg.bz2, .POSCAR.gz, .POSCAR.bz2
       config = Config::ReadConfig(parameter.config_filename_);
-
-      config.UpdateNeighborList(parameter.cutoffs_);
-    }
-    else
-    {
-      // Need to figure this out
-      config = Config::ReadMap("lattice.txt", "element.txt", parameter.map_filename_);
     }
 
-    auto supercell_config = Config::GenerateSupercell(parameter.supercell_size_,
-                                                      parameter.lattice_param_,
-                                                      "Mo",
-                                                      parameter.structure_type_);
+    // Read CE Parameters
+    ClusterExpansionParameters ceParams(parameter.json_coefficients_filename_);
 
-    // supercell_config.UpdateNeighborList(parameter.cutoffs_);
+    // Used to update the symmetric CE
+    double maxClusterCutoff = ceParams.GetMaxClusterCutoff();
+    config.UpdateNeighborList({maxClusterCutoff});
 
-    // Getting element set from the configuration
-    auto atom_vector = config.GetAtomVector();
-    set<Element> element_set(atom_vector.begin(), atom_vector.end());
+    // Generate a small config for declaring symCE
+    const size_t supercellSize = 2;
 
-    // Print the elements in the set
-    cout << "element_set: ";
-    for (const auto &element : element_set)
-    {
-      cout << element.GetElementString() << " ";
-    }
-    cout << endl;
+    auto primConfig = Config::GenerateSupercell(
+        supercellSize,
+        parameter.lattice_param_,
+        "Mo", // Does not matter as the lattice param and structure type is important
+        parameter.structure_type_);
+
+    // Declare Symmetric CE
+    SymmetricCEPredictor symCEEnergyPredictor(
+        ceParams,
+        config,
+        primConfig);
+
+    // Again update the neighbor list
+    config.UpdateNeighborList(parameter.cutoffs_);
+
+    // Declare LVFE Predictor
+    LVFEPredictor lvfePredictor(
+        ceParams,
+        config);
+
+    // Declare Energy Predictor
+    EnergyPredictor energyChangePredictor(
+        symCEEnergyPredictor,
+        lvfePredictor);
 
     cout << "Finish config reading. Start CMC." << endl;
 
-
     return mc::CanonicalMcSerial{config,
-                                 supercell_config,
                                  parameter.log_dump_steps_,
                                  parameter.config_dump_steps_,
                                  parameter.maximum_steps_,
@@ -232,52 +238,68 @@ namespace api
                                  parameter.restart_steps_,
                                  parameter.restart_energy_,
                                  parameter.temperature_,
-                                 ceParams};
+                                 energyChangePredictor};
   }
 
   mc::KineticMcChainOmpi BuildKineticMcChainOmpiFromParameter(const Parameter
                                                                   &parameter)
   {
-    ClusterExpansionParameters ceParams(parameter.json_coefficients_filename_);
     Config config;
     if (parameter.map_filename_.empty())
     {
       // Generalized function to read configuration
       // Supported formats are: .cfg, .POSCAR, .cfg.gz, .cfg.bz2, .POSCAR.gz, .POSCAR.bz2
       config = Config::ReadConfig(parameter.config_filename_);
-
-      config.UpdateNeighborList(parameter.cutoffs_);
-    }
-    else
-    {
-      // Need to figure this out
-      config = Config::ReadMap("lattice.txt", "element.txt", parameter.map_filename_);
     }
 
-    auto supercell_config = Config::GenerateSupercell(parameter.supercell_size_,
-                                                      parameter.lattice_param_,
-                                                      "X",
-                                                      parameter.structure_type_);
+    // Read CE Parameters
+    ClusterExpansionParameters ceParams(parameter.json_coefficients_filename_);
 
-    supercell_config.UpdateNeighborList(parameter.cutoffs_);
+    // Used to update the symmetric CE
+    double maxClusterCutoff = ceParams.GetMaxClusterCutoff();
+    config.UpdateNeighborList({maxClusterCutoff});
 
-    // Getting element set from the configuration
-    auto atom_vector = config.GetAtomVector();
-    set<Element> element_set(atom_vector.begin(), atom_vector.end());
+    // Generate a small config for declaring symCE
+    const size_t supercellSize = 2;
 
-    // Print the elements in the set
-    cout << "element_set: ";
-    for (const auto &element : element_set)
-    {
-      cout << element.GetElementString() << " ";
-    }
-    cout << endl;
+    auto primConfig = Config::GenerateSupercell(
+        supercellSize,
+        parameter.lattice_param_,
+        "Mo", // Does not matter as the lattice param and structure type is important
+        parameter.structure_type_);
 
+    // Declare Symmetric CE
+    SymmetricCEPredictor symCEEnergyPredictor(
+        ceParams,
+        config,
+        primConfig);
+
+    // Again update the neighbor list
+    config.UpdateNeighborList(parameter.cutoffs_);
+
+    // Declare LVFE Predictor
+    LVFEPredictor lvfePredictor(
+        ceParams,
+        config);
+
+    // Declare Energy Predictor
+    EnergyPredictor energyChangePredictor(
+        symCEEnergyPredictor,
+        lvfePredictor);
+
+    // Declare KRA Predictor
+    KRAPredictor eKRAPredictor(
+        ceParams,
+        config);
+
+    // Declare Vacacny migration predictor
+    VacancyMigrationPredictor vacancyMigrationPredictor(
+        eKRAPredictor,
+        energyChangePredictor);
 
     cout << "Finish config reading. Start KMC." << endl;
 
     return mc::KineticMcChainOmpi{config,
-                                  supercell_config,
                                   parameter.log_dump_steps_,
                                   parameter.config_dump_steps_,
                                   parameter.maximum_steps_,
@@ -286,7 +308,7 @@ namespace api
                                   parameter.restart_energy_,
                                   parameter.restart_time_,
                                   parameter.temperature_,
-                                  ceParams,
+                                  vacancyMigrationPredictor,
                                   parameter.time_temperature_filename_,
                                   parameter.rate_corrector_,
                                   parameter.vacancy_trajectory_};
@@ -295,45 +317,62 @@ namespace api
   mc::KineticMcFirstMpi BuildKineticMcFirstMpiFromParameter(const Parameter
                                                                 &parameter)
   {
-    ClusterExpansionParameters ceParams(parameter.json_coefficients_filename_);
     Config config;
     if (parameter.map_filename_.empty())
     {
       // Generalized function to read configuration
       // Supported formats are: .cfg, .POSCAR, .cfg.gz, .cfg.bz2, .POSCAR.gz, .POSCAR.bz2
       config = Config::ReadConfig(parameter.config_filename_);
-
-      config.UpdateNeighborList(parameter.cutoffs_);
-    }
-    else
-    {
-      // Need to figure this out
-      config = Config::ReadMap("lattice.txt", "element.txt", parameter.map_filename_);
     }
 
-    auto supercell_config = Config::GenerateSupercell(parameter.supercell_size_,
-                                                      parameter.lattice_param_,
-                                                      "X",
-                                                      parameter.structure_type_);
+    // Read CE Parameters
+    ClusterExpansionParameters ceParams(parameter.json_coefficients_filename_);
 
-    supercell_config.UpdateNeighborList(parameter.cutoffs_);
+    // Used to update the symmetric CE
+    double maxClusterCutoff = ceParams.GetMaxClusterCutoff();
+    config.UpdateNeighborList({maxClusterCutoff});
 
-    // Getting element set from the configuration
-    auto atom_vector = config.GetAtomVector();
-    set<Element> element_set(atom_vector.begin(), atom_vector.end());
+    // Generate a small config for declaring symCE
+    const size_t supercellSize = 2;
 
-    // Print the elements in the set
-    cout << "element_set: ";
-    for (const auto &element : element_set)
-    {
-      cout << element.GetElementString() << " ";
-    }
-    cout << endl;
+    auto primConfig = Config::GenerateSupercell(
+        supercellSize,
+        parameter.lattice_param_,
+        "Mo", // Does not matter as the lattice param and structure type is important
+        parameter.structure_type_);
+
+    // Declare Symmetric CE
+    SymmetricCEPredictor symCEEnergyPredictor(
+        ceParams,
+        config,
+        primConfig);
+
+    // Again update the neighbor list
+    config.UpdateNeighborList(parameter.cutoffs_);
+
+    // Declare LVFE Predictor
+    LVFEPredictor lvfePredictor(
+        ceParams,
+        config);
+
+    // Declare Energy Predictor
+    EnergyPredictor energyChangePredictor(
+        symCEEnergyPredictor,
+        lvfePredictor);
+
+    // Declare KRA Predictor
+    KRAPredictor eKRAPredictor(
+        ceParams,
+        config);
+
+    // Declare Vacacny migration predictor
+    VacancyMigrationPredictor vacancyMigrationPredictor(
+        eKRAPredictor,
+        energyChangePredictor);
 
     cout << "Finish config reading. Start KMC." << endl;
 
     return mc::KineticMcFirstMpi{config,
-                                 supercell_config,
                                  parameter.log_dump_steps_,
                                  parameter.config_dump_steps_,
                                  parameter.maximum_steps_,
@@ -342,7 +381,7 @@ namespace api
                                  parameter.restart_energy_,
                                  parameter.restart_time_,
                                  parameter.temperature_,
-                                 ceParams,
+                                 vacancyMigrationPredictor,
                                  parameter.time_temperature_filename_,
                                  parameter.rate_corrector_,
                                  parameter.vacancy_trajectory_};
@@ -362,56 +401,61 @@ namespace api
   }
 
   mc::SimulatedAnnealing BuildSimulatedAnnealingFromParameter(const Parameter
-                                                              &parameter)
+                                                                  &parameter)
   {
-    ClusterExpansionParameters ceParams(parameter.json_coefficients_filename_);
-
     Config config;
-    try
+    if (parameter.map_filename_.empty())
     {
       // Generalized function to read configuration
       // Supported formats are: .cfg, .POSCAR, .cfg.gz, .cfg.bz2, .POSCAR.gz, .POSCAR.bz2
       config = Config::ReadConfig(parameter.config_filename_);
-
-      config.UpdateNeighborList(parameter.cutoffs_);
     }
 
-    catch (...)
-    { // Catch all other exceptions
-      cerr << "File cannot be read" << endl;
-      exit(EXIT_FAILURE);
-    }
+    // Read CE Parameters
+    ClusterExpansionParameters ceParams(parameter.json_coefficients_filename_);
 
-    auto supercell_config = Config::GenerateSupercell(parameter.supercell_size_,
-                                                      parameter.lattice_param_,
-                                                      "X", // can be any element
-                                                      parameter.structure_type_);
+    // Used to update the symmetric CE
+    double maxClusterCutoff = ceParams.GetMaxClusterCutoff();
+    config.UpdateNeighborList({maxClusterCutoff});
 
-    supercell_config.UpdateNeighborList(parameter.cutoffs_);
+    // Generate a small config for declaring symCE
+    const size_t supercellSize = 2;
 
-    // Getting element set from the configuration
-    auto atom_vector = config.GetAtomVector();
-    set<Element> element_set(atom_vector.begin(), atom_vector.end());
+    auto primConfig = Config::GenerateSupercell(
+        supercellSize,
+        parameter.lattice_param_,
+        "Mo", // Does not matter as the lattice param and structure type is important
+        parameter.structure_type_);
 
-    // Print the elements in the set
-    cout << "element_set: ";
-    for (const auto &element : element_set)
-    {
-      cout << element.GetElementString() << " ";
-    }
-    cout << endl;
+    // Declare Symmetric CE
+    SymmetricCEPredictor symCEEnergyPredictor(
+        ceParams,
+        config,
+        primConfig);
+
+    // Again update the neighbor list
+    config.UpdateNeighborList(parameter.cutoffs_);
+
+    // Declare LVFE Predictor
+    LVFEPredictor lvfePredictor(
+        ceParams,
+        config);
+
+    // Declare Energy Predictor
+    EnergyPredictor energyChangePredictor(
+        symCEEnergyPredictor,
+        lvfePredictor);
 
     cout << "Finish config reading. Start SA." << endl;
 
     return mc::SimulatedAnnealing{config,
-                              supercell_config,
-                              parameter.log_dump_steps_,
-                              parameter.config_dump_steps_,
-                              parameter.maximum_steps_,
-                              parameter.restart_steps_,
-                              parameter.restart_energy_,
-                              parameter.initial_temperature_,
-                              ceParams};
+                                  parameter.log_dump_steps_,
+                                  parameter.config_dump_steps_,
+                                  parameter.maximum_steps_,
+                                  parameter.restart_steps_,
+                                  parameter.restart_energy_,
+                                  parameter.initial_temperature_,
+                                  energyChangePredictor};
   }
 
 }

@@ -193,6 +193,8 @@ double BasisSet::GetCachedBasisProduct(const AtomClusterType &atomClusterType)
   basisProductHashMap_.Add(atomClusterHashKey, basisProduct);
   return basisProduct;
 }
+
+
 void BasisSet::TestBasisSet()
 {
   // Set fixed-point notation with 3 decimal places for vectors

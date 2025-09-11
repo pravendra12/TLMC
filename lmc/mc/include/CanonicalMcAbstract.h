@@ -48,7 +48,6 @@ namespace mc
      */
 
     CanonicalMcAbstract(Config config,
-                        Config supercellConfig,
                         unsigned long long int logDumpSteps,
                         unsigned long long int configDumpSteps,
                         unsigned long long int maximumSteps,
@@ -56,7 +55,7 @@ namespace mc
                         unsigned long long int restartSteps,
                         double restartEnergy,
                         double temperature,
-                        const ClusterExpansionParameters &ceParams);
+                        EnergyPredictor &energyChangePredictor);
 
     /*!
      * @brief Starts the simulation process.
@@ -76,6 +75,8 @@ namespace mc
      */
     pair<size_t, size_t> GenerateLatticeIdJumpPair();
 
+    pair<size_t, size_t> GenerateVacancyLatticeIdJumpPair();
+
     /*!
      * @brief Selects an event based on the lattice ID pair and energy change.
      *
@@ -88,12 +89,8 @@ namespace mc
     void SelectEvent(const pair<size_t, size_t> &lattice_id_jump_pair,
                      double dE);
 
-    /** @brief Energy change estimator
-     */
-    // EnergyPredictor energyChangePredictor_;
-    // PotentialEnergyEstimator energyChangePredictor_;
 
-    EnergyPredictor energyChangePredictor_;
+    EnergyPredictor &energyChangePredictor_;
 
     /** @brief Random Lattice Id Generator
      */

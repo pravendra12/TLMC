@@ -14,11 +14,16 @@
 #define LMC_API_INCLUDE_HOME_H_
 
 #include "Parameter.h"
-#include "CanonicalMcSerial.h"
-#include "KineticMcChainOmpi.h"
-#include "KineticMcFirstMpi.h"
 #include "Traverse.h"
+#include "KRAPredictor.h"
+#include "LVFEPredictor.h"
+#include "EnergyPredictor.h"
+#include "KineticMcFirstMpi.h"
+#include "CanonicalMcSerial.h"
 #include "SimulatedAnnealing.h"
+#include "KineticMcChainOmpi.h"
+#include "SymmetricCEPredictor.h"
+#include "VacancyMigrationPredictor.h"
 #include "ClusterExpansionParameters.h"
 
 using namespace std;

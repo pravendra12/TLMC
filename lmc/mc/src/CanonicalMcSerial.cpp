@@ -17,7 +17,6 @@
 namespace mc
 {
   CanonicalMcSerial::CanonicalMcSerial(Config config,
-                                       Config supercellConfig,
                                        unsigned long long int logDumpSteps,
                                        unsigned long long int configDumpStep,
                                        unsigned long long int maximumSteps,
@@ -25,9 +24,8 @@ namespace mc
                                        unsigned long long int restartSteps,
                                        double restartEnergy,
                                        double temperature,
-                                       const ClusterExpansionParameters &ceParams)
+                                       EnergyPredictor &energyChangePredictor)
       : CanonicalMcAbstract(move(config),
-                            supercellConfig,
                             logDumpSteps,
                             configDumpStep,
                             maximumSteps,
@@ -35,7 +33,7 @@ namespace mc
                             restartSteps,
                             restartEnergy,
                             temperature,
-                            ceParams)
+                            energyChangePredictor)
   {
     if (world_size_ != 1)
     {
@@ -58,10 +56,11 @@ namespace mc
     while (steps_ <= maximumSteps_)
     {
 
-      auto latticeIdJumpPair = GenerateLatticeIdJumpPair();
+      // auto latticeIdJumpPair = GenerateLatticeIdJumpPair();
+      auto latticeIdJumpPair = GenerateVacancyLatticeIdJumpPair();
 
-      auto dE = energyChangePredictor_.GetDeSwap(config_,
-                                                 latticeIdJumpPair);
+      auto dE = energyChangePredictor_.GetEnergyChange(config_,
+                                                       latticeIdJumpPair);
       Dump();
 
       SelectEvent(latticeIdJumpPair, dE);

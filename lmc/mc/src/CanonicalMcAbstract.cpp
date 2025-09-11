@@ -15,7 +15,6 @@
 namespace mc
 {
   CanonicalMcAbstract::CanonicalMcAbstract(Config config,
-                                           Config supercellConfig,
                                            const unsigned long long int logDumpSteps,
                                            const unsigned long long int configDumpSteps,
                                            const unsigned long long int maximumSteps,
@@ -23,9 +22,8 @@ namespace mc
                                            const unsigned long long int restartSteps,
                                            const double restartEnergy,
                                            const double temperature,
-                                           const ClusterExpansionParameters &ceParams)
+                                           EnergyPredictor &energyChangePredictor)
       : McAbstract(move(config),
-                   supercellConfig,
                    logDumpSteps,
                    configDumpSteps,
                    maximumSteps,
@@ -35,10 +33,7 @@ namespace mc
                    0,
                    temperature,
                    "cmc_log.txt"),
-        energyChangePredictor_(
-            ceParams,
-            config,
-            supercellConfig),
+        energyChangePredictor_(energyChangePredictor),
         atomIndexSelector_(0, config_.GetNumAtoms() - 1)
   {
   }
@@ -49,6 +44,19 @@ namespace mc
     do
     {
       latticeId1 = atomIndexSelector_(generator_);
+      latticeId2 = atomIndexSelector_(generator_);
+    } while (config_.GetElementOfLattice(latticeId1) == config_.GetElementOfLattice(latticeId2));
+    return {latticeId1, latticeId2};
+  }
+
+  pair<size_t, size_t> CanonicalMcAbstract::GenerateVacancyLatticeIdJumpPair()
+  {
+    size_t latticeId1 = config_.GetVacancyLatticeId();
+
+    size_t latticeId2;
+    do
+    {
+      // latticeId1 = atomIndexSelector_(generator_);
       latticeId2 = atomIndexSelector_(generator_);
     } while (config_.GetElementOfLattice(latticeId1) == config_.GetElementOfLattice(latticeId2));
     return {latticeId1, latticeId2};

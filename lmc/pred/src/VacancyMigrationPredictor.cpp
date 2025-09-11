@@ -13,12 +13,9 @@
 #include "VacancyMigrationPredictor.h"
 
 VacancyMigrationPredictor::VacancyMigrationPredictor(
-    const ClusterExpansionParameters &ceParams,
-    const Config &config) : eKRAPredictor_(ceParams,
-                                           config),
-                            lvfePredictor_(
-                                ceParams,
-                                config)
+    KRAPredictor &eKRAPredictor,
+    EnergyPredictor &energyPredictor) : eKRAPredictor_(eKRAPredictor),
+                                        energyPredictor_(energyPredictor)
 {
 }
 
@@ -26,13 +23,13 @@ pair<double, double> VacancyMigrationPredictor::GetBarrierAndDeltaE(
     const Config &config,
     const pair<size_t, size_t> &latticeIdJumpPair)
 {
-  double eKRA = eKRAPredictor_.GetKRA(config, latticeIdJumpPair);
+    double eKRA = eKRAPredictor_.GetKRA(config, latticeIdJumpPair);
 
-  double dE = lvfePredictor_.GetDeForVacancyMigration(
-      config,
-      latticeIdJumpPair);
+    double dE = energyPredictor_.GetEnergyChange(
+        config,
+        latticeIdJumpPair);
 
-  double barrier = eKRA + (dE / 2);
+    double barrier = eKRA + (dE / 2);
 
-  return pair<double, double>(barrier, dE);
+    return pair<double, double>(barrier, dE);
 }

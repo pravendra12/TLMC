@@ -64,6 +64,14 @@ public:
       const vector<double> &eciVector,
       const pair<size_t, size_t> &latticeIdPair);
 
+  pair<vector<double>, vector<double>> GetLocalClusterVectorForPair(
+    const Config &config, 
+    const pair<size_t, size_t> &latticeIdPair, 
+    const pair<Element, Element> &latticeIdPairElements, 
+    const vector<size_t> &canonicalSortedLatticeIdVector1, 
+    const vector<size_t> &canonicalSortedLatticeIdVector2, 
+    const vector<vector<vector<int>>> &localOrbitEncoding) const;
+
 private:
   Config supercellConfig_;
   SymmetricCEInterface symCEInterface_;

@@ -2,16 +2,14 @@
 namespace mc
 {
   SimulatedAnnealing::SimulatedAnnealing(Config config,
-                                         Config supercellConfig,
                                          const unsigned long long int logDumpSteps,
                                          const unsigned long long int configDumpSteps,
                                          const unsigned long long int maximumSteps,
                                          const unsigned long long int restartSteps,
                                          const double restartEnergy,
                                          const double initialTemperature,
-                                         const ClusterExpansionParameters &ceParams)
+                                         EnergyPredictor &energyChangePredictor)
       : McAbstract(move(config),
-                   supercellConfig,
                    logDumpSteps,
                    configDumpSteps,
                    maximumSteps,
@@ -21,9 +19,7 @@ namespace mc
                    0,                  // restart time
                    initialTemperature, // temperature
                    "sa_log.txt"),
-        energy_change_predictor_(ceParams,
-                                 config,
-                                 supercellConfig),
+        energyChangePredictor_(energyChangePredictor),
         atom_index_selector_(0, config_.GetNumAtoms() - 1),
         initialTemperature_(initialTemperature)
 
@@ -126,7 +122,9 @@ namespace mc
     while (steps_ <= maximumSteps_)
     {
       auto lattice_id_jump_pair = GenerateLatticeIdJumpPair();
-      auto dE = energy_change_predictor_.GetDeSwap(config_, lattice_id_jump_pair);
+      auto dE = energyChangePredictor_.GetEnergyChange(
+          config_,
+          lattice_id_jump_pair);
       Dump();
       UpdateTemperature();
       SelectEvent(lattice_id_jump_pair, dE);

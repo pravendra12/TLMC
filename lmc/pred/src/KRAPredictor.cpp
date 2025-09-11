@@ -39,6 +39,7 @@ KRAPredictor::KRAPredictor(
                                     true)),
                             KECIsMap_(
                                 ceParams.GetKECIsMap())
+
 {
   const int width = 80;
   const int labelWidth = 40;
@@ -57,7 +58,7 @@ KRAPredictor::KRAPredictor(
        << right << setw(valueWidth) << maxClusterSize_ << "\n";
 
   cout << left << setw(labelWidth) << "Reference jump direction:"
-       << right << setw(valueWidth-3)
+       << right << setw(valueWidth - 3)
        << "(" << referenceJumpDirection_.transpose() << ")" << "\n";
 
   cout << left << setw(labelWidth) << "Canonical reference map size:"
@@ -115,6 +116,11 @@ double KRAPredictor::GetKRA(
       maxBondOrder_,
       canonicalReferenceMap_,
       symmetryOperations_);
+  
+  /*
+  auto canonicalSortedLatticeIds = symmetricallySortedLatticeIdsPairMap_.at(
+      canonicalJumpPair);
+  */
 
   VectorXd correlationVector = GetCorrelationVector(
       config,
@@ -139,3 +145,4 @@ double KRAPredictor::GetKRA(
 
   return eKraValue;
 }
+

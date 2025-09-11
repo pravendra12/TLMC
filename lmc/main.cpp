@@ -10,7 +10,6 @@ int main(int argc, char *argv[])
     std::cout << "No input parameter filename." << std::endl;
     return 1;
   }
-  
   api::Parameter parameter(argc, argv);
   api::Print(parameter);
   api::Run(parameter);

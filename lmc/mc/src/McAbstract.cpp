@@ -14,7 +14,6 @@
 #include "McAbstract.h"
 
 McAbstract::McAbstract(Config config,
-                       Config supercellConfig,
                        unsigned long long int logDumpSteps,
                        unsigned long long int configDumpSteps,
                        unsigned long long int maximumSteps,

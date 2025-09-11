@@ -14,9 +14,7 @@
 #define LMC_PRED_INCLUDE_VACANCYMIGRATIONPREDICTOR_H_
 
 #include "KRAPredictor.h"
-#include "LVFEPredictor.h"
-#include "PotentialEnergyEstimator.h"
-#include "ClusterExpansionParameters.h"
+#include "EnergyPredictor.h"
 
 using namespace std;
 
@@ -25,8 +23,8 @@ class VacancyMigrationPredictor
 public:
 
   VacancyMigrationPredictor(
-      const ClusterExpansionParameters &ceParams, 
-      const Config &config);
+      KRAPredictor &eKRAPredictor, 
+      EnergyPredictor &energyPredictor);
   
   /*! @brief Returns barrier and energy change due to vacancy migration
       @param config Configuration for which barrier and energy change to computed
@@ -39,11 +37,11 @@ public:
 private:
   /*! @brief KRA predictor object
    */
-  KRAPredictor eKRAPredictor_;
+  KRAPredictor &eKRAPredictor_;
 
   /*! @brief Energy change predictor object
    */
-  LVFEPredictor lvfePredictor_;
+  EnergyPredictor &energyPredictor_;
 };
 
 #endif // LMC_PRED_INCLUDE_VACANCYMIGRATIONPREDICTOR_H_

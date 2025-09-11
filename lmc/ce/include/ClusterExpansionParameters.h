@@ -9,19 +9,20 @@
 #ifndef LMC_CE_INCLUDE_CLUSTEREXPANSIONPARAMETERS_H_
 #define LMC_CE_INCLUDE_CLUSTEREXPANSIONPARAMETERS_H_
 
-#include <vector>
-#include <omp.h>
-#include <fstream>
-#include <string>
-#include <Eigen/Dense>
-#include <iostream>
-#include <nlohmann/json.hpp>
 #include <set>
 #include <map>
+#include <vector>
+#include <omp.h>
+#include <string>
 #include <iomanip>
+#include <fstream>
+#include <iostream>
+#include <algorithm>
+#include <Eigen/Dense>
+#include <nlohmann/json.hpp>
+#include <boost/functional/hash.hpp>
 #include "Element.hpp"
 #include "JsonUtility.h"
-#include <boost/functional/hash.hpp>
 
 using json = nlohmann::json;
 using namespace std;
@@ -114,6 +115,9 @@ public:
 
   // {pair, triplet, quadraplet}
   vector<double> GetClusterCutoffs() const;
+
+  // Max cluster cutoff from cluster cutoff list to use for updating the neighbour list
+  double GetMaxClusterCutoff() const;
 
   // Allowed elements
   vector<string> GetAllowedElements() const;

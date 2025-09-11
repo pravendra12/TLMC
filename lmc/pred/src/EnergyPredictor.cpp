@@ -1,207 +1,180 @@
 #include "EnergyPredictor.h"
 
 EnergyPredictor::EnergyPredictor(
-    const ClusterExpansionParameters &ceParams,
-    const Config &supercellConfig,
-    const Config &primitiveConfig) : nAtoms_(supercellConfig.GetNumAtoms()),
-                                     allowedElements_(
-                                         ceParams.GetAllowedElements()),
-                                     clusterCutoffs_(
-                                         ceParams.GetClusterCutoffs()),
-                                     symCE_(supercellConfig,
-                                            primitiveConfig,
-                                            allowedElements_,
-                                            clusterCutoffs_),
-                                     localOrbitsEncoding_(
-                                         symCE_.GetLocalOrbitsEncoding()),
-                                     chemicalPotentialsMap_(
-                                         ceParams.GetChemicalPotentialsMap()),
-                                     elementCountMap_(
-                                         GetElementCountMap(
-                                             supercellConfig)),
-                                     ecis_(
-                                         ceParams.GetECIs("symCE"))
-
+    SymmetricCEPredictor &symCEEnergyPredictor,
+    LVFEPredictor &lvfePredictor) : symCEEnergyPredictor_(symCEEnergyPredictor),
+                                    lvfePredictor_(lvfePredictor),
+                                    allowedElements_(
+                                        symCEEnergyPredictor_.GetAllowedElements())
 {
-  const int width = 80;
-  const int labelWidth = 40;
-  const int valueWidth = width - labelWidth - 2;
-
-  // Header
-  cout << string(width, '-') << "\n";
-  cout << setw((width + 22) / 2) << right << "Energy Predictor Info" << "\n";
-  cout << string(width, '-') << "\n";
-
-  // Table
-  cout << left << setw(labelWidth) << "Number of atoms:"
-            << right << setw(valueWidth) << nAtoms_ << "\n";
-
-  cout << left << setw(labelWidth) << "Allowed elements:"
-            << right << setw(valueWidth);
-  for (const auto &ele : allowedElements_)
-    cout << ele << " ";
-  cout << "\n";
-
-  cout << left << setw(labelWidth) << "Cluster cutoffs:"
-            << right << setw(valueWidth);
-  for (const auto &cut : clusterCutoffs_)
-    cout << cut << " ";
-  cout << "\n";
-
-  cout << left << setw(labelWidth) << "Local orbits encoding size:"
-            << right << setw(valueWidth) << localOrbitsEncoding_.size() << "\n";
-
-  cout << left << setw(labelWidth) << "Chemical potentials:"
-            << "\n";
-  for (const auto &[ele, mu] : chemicalPotentialsMap_)
-  {
-    cout << "  " << left << setw(labelWidth - 2) << ele
-              << right << setw(valueWidth) << mu << "\n";
-  }
-
-  cout << left << setw(labelWidth) << "Sym CE ECIs size:"
-            << right << setw(valueWidth) << ecis_.size() << "\n";
-
-  cout << string(width, '-') << "\n\n";
-
 }
 
-// Returns total formation energy
-/*
-  Formation energy per atom:
-
-      Ef_per_atom = (E_total - (N_A * μ_A + N_B * μ_B)) / (N_A + N_B)
-
-  - E_total: total energy of the supercell
-  - N_A, N_B: number of atoms of type A and B
-  - μ_A, μ_B: reference chemical potentials of elements A and B
-
-  The cluster expansion model predicts Ef_per_atom,
-  but for most calculations (e.g., energy differences or KMC jumps),
-  we are interested in the total energy E_total.
-*/
-
-double EnergyPredictor::GetTotalFormationEnergy(
-    const vector<double> &clusterVector)
-{
-
-  double formationEnergy = 0; // per atom
-
-  // print1DVector(ecis_);
-
-  // cout << ecis_.size() << endl;
-  // cout << clusterVector.size() << endl;
-
-
-  for (int i = 0; i < clusterVector.size(); i++)
-  {
-    formationEnergy += clusterVector[i] * ecis_[i];
-  }
-
-  double totalFormationEnergy = nAtoms_ * formationEnergy;
-
-  return totalFormationEnergy;
-}
-
-double EnergyPredictor::GetTotalEnergy(
-    const vector<double> &clusterVector)
-{
-  auto totalFormationEnergy = GetTotalFormationEnergy(
-      clusterVector);
-
-  double muContribution = 0;
-  for (const auto &[element, count] : elementCountMap_)
-  {
-    // Chemical Potential Value
-    auto muVal = chemicalPotentialsMap_.at(element);
-
-    muContribution += count * muVal;
-  }
-
-  // Etotal = (N_A + N_B)*Eformation + (N_A * μ_A + N_B * μ_B))
-  double totalEnergy = totalFormationEnergy + muContribution;
-
-  return totalEnergy;
-}
-
-// This will value will be higher than the formation energy for whole
-// supercell due to the constant term contribution to be 1
-// But that does not matter as we only dE which can be calculated using
-// total formation energy change which is same as dE
-
-double EnergyPredictor::ComputeLocalFormationEnergyOfSite(
+double EnergyPredictor::GetEnergyChange(
     const Config &config,
-    const size_t &latticeId)
-{
-  // Can be Stored for each site or may be not
-  auto canonicalSortedLatticeIds = GetCanonicalSortedSitesForSite(
-      config,
-      latticeId,
-      1);
-
-  // Need to include the site as well to be consistent with the encoding
-  canonicalSortedLatticeIds.emplace_back(latticeId);
-
-  auto clusterVector = symCE_.GetLocalClusterVector(
-      config,
-      canonicalSortedLatticeIds,
-      localOrbitsEncoding_);
-
-  // E = J.Φ_α
-  double energyValue = GetTotalFormationEnergy(clusterVector);
-
-  return energyValue;
-}
-
-double EnergyPredictor::ComputeEnergyOfConfig(
-    const Config &config)
-{
-  auto clusterVector = symCE_.GetClusterVectorForConfig(config);
-
-  double totalEnergy = GetTotalEnergy(clusterVector);
-
-  return totalEnergy;
-}
-
-
-double EnergyPredictor::GetDeSwap(
-    Config &config,
     const pair<size_t, size_t> &latticeIdJumpPair)
 {
-  // Before Swap
 
-  auto energyBeforeSwap = ComputeLocalFormationEnergyOfSite(
-                              config,
-                              latticeIdJumpPair.first) +
-                          ComputeLocalFormationEnergyOfSite(
-                              config,
-                              latticeIdJumpPair.second);
+  auto firstElement = config.GetElementOfLattice(latticeIdJumpPair.first);
+  auto secondElement = config.GetElementOfLattice(latticeIdJumpPair.second);
 
-  config.LatticeJump(latticeIdJumpPair);
+  bool firstIsVacancy = (firstElement == Element("X"));
+  bool secondIsVacancy = (secondElement == Element("X"));
 
-  // After Swap
-  double energyAfterSwap = ComputeLocalFormationEnergyOfSite(
-                               config,
-                               latticeIdJumpPair.first) +
-                           ComputeLocalFormationEnergyOfSite(
-                               config,
-                               latticeIdJumpPair.second);
+  double dE = 0;
 
-  auto dE = energyAfterSwap - energyBeforeSwap;
-
-  config.LatticeJump(latticeIdJumpPair);
+  if (firstIsVacancy || secondIsVacancy)
+  {
+    // Any of the two site is vacancy
+    dE = GetEnergyChangeWithVacancy(
+        config,
+        latticeIdJumpPair);
+  }
+  else
+  {
+    // Both are atoms
+    dE = symCEEnergyPredictor_.GetDeSwapConst(
+        config,
+        latticeIdJumpPair);
+  }
 
   return dE;
 }
 
-unordered_map<string, int> EnergyPredictor::GetElementCountMap(
-    const Config &supercellConfig)
+double EnergyPredictor::GetEnergyChangeWithVacancy(
+    const Config &config,
+    const pair<size_t, size_t> &latticeIdJumpPair)
 {
-  unordered_map<string, int> elementCountMap;
-  for (auto ele : supercellConfig.GetAtomVector())
+  /*
+    Local Vacancy Formation Energy + Symmetric CE contribution for a pair of sites:
+
+     Compute total energy change due to a vacancy jump:
+
+     dEv = dELVFE + (1/N) * sum_{s ∈ species} dEs
+
+     where:
+       dEv    : total energy change for the vacancy jump
+       dELVFE : change in local vacancy formation energy
+       dEs    : energy change contribution from species s (from symCE)
+       N      : total number of allowed species (size of allowedElements_)
+
+     Note:
+       - If s is the migrating species, its contribution dEs = 0
+       - This generalizes the binary case where we had 1/2 * (dEMo + dETa)
+       - For three species, this becomes 1/3 * sum(dEs for all species)
+
+
+    For binary system applicable to multicomponent system, averaging need to be done
+    for all the elements except vacancy.
+    Let:
+      Ev^1  = Energy of config with vacancy at site 1
+               Ev^1 = ELVFE^1 + 1/2 *(EMo^1 + ETa^1)
+      Ev^2  = Energy of config with vacancy at site 2
+               Ev^2 = ELVFE^2 + 1/2 *(EMo^2 + ETa^2)
+
+    Here:
+      Ev   : Energy of configuration with vacancy
+      ELVFE: Local Vacancy Formation Energy (from fitting)
+      EMo  : Energy of configuration when Mo is assigned to the vacancy site
+      ETa  : Energy of configuration when Ta is assigned to the vacancy site
+      Superscript 1 or 2 indicates site index.
+
+    Energy difference between configurations:
+      dEv = Ev^2 - Ev^1
+           = (ELVFE^2 - ELVFE^1) + 1/2 * ((EMo^2 - EMo^1) + (ETa^2 - ETa^1))
+
+    Explanation for EMo (same applies to ETa):
+      - Suppose site 1 has a vacancy and site 2 has the migrating atom.
+      - If the migrating atom is Mo:
+          * Before jump:
+              - EMo is computed for site 1 (vacancy site) for whole config
+          * After jump:
+              - Site 1 now has Mo (migrated atom)
+              - EMo for site 2 (previously Mo) is identical to EMo before
+              - Therefore, the change in EMo contribution is zero
+      - This logic ensures that if the migrating element is the same as the atom at the other site,
+        the energy contribution for that species does not artificially change.
+
+    General rule:
+      - Compute dEv as the sum of:
+          1. Change in local vacancy formation energy (dELVFE)
+          2. Half the sum of changes in Mo and Ta energies (dEMo + dETa)
+      - Contributions for a given element are zero if the migrating atom is of the same type,
+        because the occupancy swap does not change the total energy for that element.
+
+    Benefit:
+      - Accurately accounts for local energy changes due to vacancy jumps
+      - Avoids double counting the energy of migrating atoms already present
+  */
+
+  size_t vacancyLatticeId;
+  size_t migratingAtomLatticeId;
+
+  bool firstIsVacancy = (config.GetElementOfLattice(latticeIdJumpPair.first) == Element("X"));
+  bool secondIsVacancy = (config.GetElementOfLattice(latticeIdJumpPair.second) == Element("X"));
+
+  if (firstIsVacancy && !secondIsVacancy)
   {
-    elementCountMap[ele.GetElementString()]++;
+    vacancyLatticeId = latticeIdJumpPair.first;
+    migratingAtomLatticeId = latticeIdJumpPair.second;
+  }
+  else if (!firstIsVacancy && secondIsVacancy)
+  {
+    vacancyLatticeId = latticeIdJumpPair.second;
+    migratingAtomLatticeId = latticeIdJumpPair.first;
+  }
+  else
+  {
+    throw std::runtime_error("Error in `EnergyPredictor::GetEnergyChange`: One of the lattice sites must be a vacancy.");
   }
 
-  return elementCountMap;
+  auto migratingElement = config.GetElementOfLattice(migratingAtomLatticeId);
+
+  // This give the dELVFE term
+  // This applies for both migration and swap because
+  // before jump the config is used to get the elements
+  // After jump the migrating element will be specifically set
+  // for the other site.
+  double dElvfe = lvfePredictor_.GetDeForVacancyMigration(
+      config,
+      latticeIdJumpPair);
+
+  // Iterate over allowedElements_ vector and compute the dE using
+  // symCEEnergyPredictor_ for elements other than migrating elements
+
+  double dESum = 0;
+
+  for (const auto &eleString : allowedElements_)
+  {
+    if (eleString == migratingElement.GetElementString())
+    {
+      // dE_migrating_element will be 0
+      /*
+      - Suppose site 1 has a vacancy and site 2 has the migrating atom.
+      - If the migrating atom is Mo:
+          * Before jump:
+              - EMo is computed for site 1 (vacancy site) for whole config
+          * After jump:
+              - Site 1 now has Mo (migrated atom)
+              - EMo for site 2 (previously Mo) is identical to EMo before
+              - Therefore, the change in EMo contribution is zero
+      - This logic ensures that if the migrating element is the same as the atom at the other site,
+        the energy contribution for that species does not artificially change.
+      */
+      continue;
+    }
+
+    // From other element compute the dE
+    double dEELement = symCEEnergyPredictor_.GetDeSwapConst(
+        config,
+        make_pair(vacancyLatticeId, migratingAtomLatticeId),
+        make_pair(Element(eleString), migratingElement));
+
+    dESum += dEELement;
+  }
+
+  double dEAverage = dESum / static_cast<double>(allowedElements_.size());
+
+  double dE = dElvfe + dEAverage;
+
+  return dE;
 }

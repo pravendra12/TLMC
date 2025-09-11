@@ -56,6 +56,8 @@ vector<vector<vector<int>>> SymmetricCE::GetLocalOrbitsForLatticeSite(
   auto localOrbit = LOLG.getLocalOrbitList(
       offset, true);
 
+  cout << localOrbit.size() << endl;
+
   // vector<vector<vector<int>>> Contains the orbits<equivalentClusters<latticeClusters>>
   auto localOrbitVector = clusterSpace_.getLocalOrbitClusterVector(
       localOrbit,
@@ -92,6 +94,8 @@ vector<vector<vector<int>>> SymmetricCE::GetLocalOrbitsEncoding()
   }
 
   auto localOrbits = GetLocalOrbitsForLatticeSite(centralLatticeId);
+
+  cout << localOrbits.size() << endl;
 
   vector<vector<vector<int>>> localOrbitsEncoding;
   localOrbitsEncoding.reserve(localOrbits.size());
@@ -257,8 +261,8 @@ vector<double> SymmetricCE::GetLocalClusterVector(
   return clusterVector;
 }
 
-// Returns the local cluster vector for a site 
-// 
+// Returns the local cluster vector for a site
+//
 vector<double> SymmetricCE::GetLocalClusterVector(
     const Config &config, // The current configuration
     const size_t &targetLatticeId,
@@ -462,8 +466,8 @@ vector<vector<double>> SymmetricCE::GetMultiElementLocalClusterVector(
     throw runtime_error("Error: elementVector cannot be empty.");
   }
 
-  vector<vector<double>> mulitElementClusterVectors(numElements);
-  for (auto &cv : mulitElementClusterVectors)
+  vector<vector<double>> multiElementClusterVectors(numElements);
+  for (auto &cv : multiElementClusterVectors)
   {
     // The zerolet (which is 1 in the full cluster vector)
     // can be considered as made up of equal contributions from
@@ -577,12 +581,12 @@ vector<vector<double>> SymmetricCE::GetMultiElementLocalClusterVector(
 
       for (size_t elementIndex = 0; elementIndex < numElements; ++elementIndex)
       {
-        mulitElementClusterVectors[elementIndex].push_back(clusterVectorElements[elementIndex] * normalizationFactor);
+        multiElementClusterVectors[elementIndex].push_back(clusterVectorElements[elementIndex] * normalizationFactor);
       }
     }
   }
 
-  return mulitElementClusterVectors;
+  return multiElementClusterVectors;
 }
 
 void SymmetricCE::TestSymmetricCE(
@@ -780,4 +784,211 @@ void SymmetricCE::TestSymmetricCE(
        << formationEnergyRestored - formationEnergyBefore << "\n";
   cout << "Δ Total Energy vs original: "
        << totalEnergyRestored - totalEnergyBefore << "\n";
+}
+
+// This function returns the cluster vector sum for a latticeIdPair after setting
+// element to the desired elements
+
+// Returns local cluster vector for a lattice Id for which canonicalSortedLatticeIdVector are given
+pair<vector<double>, vector<double>> SymmetricCE::GetLocalClusterVectorForPair(
+    const Config &config, // The current configuration
+    const pair<size_t, size_t> &latticeIdPair,
+    const pair<Element, Element> &latticeIdPairElements,   // Elements which will be used for latticeIdPair (Order is important)
+    const vector<size_t> &canonicalSortedLatticeIdVector1, // sorted lattice Ids for Id 1
+    const vector<size_t> &canonicalSortedLatticeIdVector2, // sorted lattice Ids for Id 2
+    const vector<vector<vector<int>>> &localOrbitEncoding) const
+{
+  // Check that orbit lists match
+  if (primitiveOrbitList_->size() != localOrbitEncoding.size())
+  {
+    ostringstream msg;
+    msg << "Error in `SymmetricCE::GetLocalClusterVector`: Orbit lists do not match."
+        << endl
+        << localOrbitEncoding.size() << " >= " << primitiveOrbitList_->size() << endl;
+    throw runtime_error(msg.str());
+  }
+
+  // 1 AT THE END OF VARIABLE CORRESPONDS TO latticeIdPair.first
+  // 2 AT THE END OF VARIABLE CORRESPONDS TO latticeIdPair.second
+
+  vector<double> clusterVector1; // corresponds to latticeIdPair.first
+  vector<double> clusterVector2; // corresponds to latticeIdPair.second
+
+  // Then we will calculate a local cluster vector.
+  // The zerolet (which is 1 in the full cluster vector)
+  // can be considered as made up of equal contributions from
+  // all sites.
+
+  // Constant term
+  clusterVector1.push_back(1.0);
+  clusterVector2.push_back(1.0);
+
+  // Define some variables before loop for performance reasons
+  map<vector<int>, double> clusterCounts1;
+  map<vector<int>, double> clusterCounts2;
+
+  vector<int> allowedOccupations;
+  vector<int> indicesOfRepresentativeSites;
+
+  // Start to occupy the cluster vector orbit by orbit
+  for (size_t orbitIndex = 0; orbitIndex < primitiveOrbitList_->size(); orbitIndex++)
+  {
+
+    // Will be same for both the latticeIds
+    const Orbit &primitiveOrbit = primitiveOrbitList_->getOrbit(orbitIndex);
+    auto encodedSupercellOrbit = localOrbitEncoding[orbitIndex];
+
+    // Count clusters
+    // for a given orbit containing the equivalent cluster count the number of atom clusters
+    // but seems like they are not counting the clusters canonically but the order or
+    // permutation will be determined by the primitive orbit list
+
+    // print2DVector(supercellOrbit);
+
+    // This is basically atom cluster count for each orbit
+    clusterCounts1.clear();
+    clusterCounts2.clear();
+
+    // Here instead of storing atomCluster as vector<int>
+    // One can store it as AtomClusterType ?
+    // But not sure about the order though where A-A-B-A is
+    // taken to be equivalent as A-A-A-B or may be not sure about this
+
+    for (auto encodedCluster : encodedSupercellOrbit)
+    {
+      vector<int> atomCluster1;
+      vector<int> atomCluster2;
+
+      atomCluster1.reserve(encodedCluster.size());
+      atomCluster2.reserve(encodedCluster.size());
+
+      for (auto encodedIdx : encodedCluster)
+      {
+        // Atom cluster for site 1
+        auto latticeId1 = canonicalSortedLatticeIdVector1[encodedIdx];
+
+        // If latticeId is same as first site Id assign first element
+        if (latticeId1 == latticeIdPair.first)
+        {
+          atomCluster1.emplace_back(static_cast<int>(latticeIdPairElements.first.GetAtomicIndex()));
+        }
+        // If latticeId is same as second site Id assign second element
+        else if (latticeId1 == latticeIdPair.second)
+        {
+          atomCluster1.emplace_back(static_cast<int>(latticeIdPairElements.second.GetAtomicIndex()));
+        }
+        else
+        {
+          // Use the element from config object
+          atomCluster1.emplace_back(static_cast<int>(config.GetElementOfLattice(latticeId1).GetAtomicIndex()));
+        }
+
+        // Atom cluster for site 2
+        auto latticeId2 = canonicalSortedLatticeIdVector2[encodedIdx];
+
+        // If latticeId is same as first site Id assign first element
+        if (latticeId2 == latticeIdPair.first)
+        {
+          atomCluster2.emplace_back(static_cast<int>(latticeIdPairElements.first.GetAtomicIndex()));
+        }
+        // If latticeId is same as second site Id assign second element
+        else if (latticeId2 == latticeIdPair.second)
+        {
+          atomCluster2.emplace_back(static_cast<int>(latticeIdPairElements.second.GetAtomicIndex()));
+        }
+        else
+        {
+          // Use the element from config object
+          atomCluster2.emplace_back(static_cast<int>(config.GetElementOfLattice(latticeId2).GetAtomicIndex()));
+        }
+      }
+
+      double unit = 1;
+      clusterCounts1[atomCluster1] += unit;
+      clusterCounts2[atomCluster2] += unit;
+    }
+
+    // Extract allowed occupations (needed to calculate point functions)
+    allowedOccupations = primitiveOrbit.representativeCluster().getNumberOfAllowedSpeciesPerSite();
+
+    // cout << "Allowed Occupations : ";
+    // print1DVector(allowedOccupations);
+
+    // Extract indices of representative sites
+    // (needed to extract internal integer representation of each element)
+    indicesOfRepresentativeSites.clear();
+    for (const LatticeSite &site : primitiveOrbit.representativeCluster().latticeSites())
+    {
+      indicesOfRepresentativeSites.push_back(site.index());
+    }
+
+    // Loop over all multi-component vectors for this orbit.
+    // These are vectors of integers, where the integer represents
+    // a cluster function index.
+    //
+    // Example 1: For a binary alloy we obtain [0, 0] and [0, 0, 0]
+    // for pair and triplet terms, respectively.
+    //
+    // Example 2: For a ternary alloy we obtain [0, 0], [0, 1], [1, 0], and [1, 1]
+    // for pairs (and similarly for triplets). However, if the two sites of the pair are
+    // equivalent (which, for example, is always the case in systems with one atom
+    // in the primitive cell, such as FCC) [0, 1] and [1, 0] are considered equivalent
+    // and we will only get one of them.
+
+    for (auto &cvElement : primitiveOrbit.clusterVectorElements())
+    {
+      // For Site 1
+      double clusterVectorElement1 = 0;
+
+      /// Loop over all the counts for this orbit
+      for (const auto &clusterCount : clusterCounts1)
+      {
+        /// Loop over all permutations belonging to this multi-component vector
+        for (const auto &permutation : cvElement.sitePermutations)
+        {
+          clusterVectorElement1 += clusterCount.second * clusterSpace_.evaluateClusterProduct(
+                                                             cvElement.multiComponentVector,
+                                                             allowedOccupations,
+                                                             clusterCount.first,
+                                                             indicesOfRepresentativeSites,
+                                                             permutation);
+        }
+      }
+      // Usually we could have counted multiplicity by simply adding the number of
+      // clusters in the orbit (clusterCount.second), but in the case of
+      // local cluster vectors or changes in cluster vectors, we have only counted
+      // a subset of the clusters. We therefore use the pre-computed multiplicity.
+      clusterVector1.push_back(clusterVectorElement1 / (double)cvElement.multiplicity *
+                               (double)primitiveOrbitList_->structure().size() /
+                               (double)config.GetNumLattices());
+
+      // For Site2
+
+      double clusterVectorElement2 = 0;
+
+      /// Loop over all the counts for this orbit
+      for (const auto &clusterCount : clusterCounts2)
+      {
+        /// Loop over all permutations belonging to this multi-component vector
+        for (const auto &permutation : cvElement.sitePermutations)
+        {
+          clusterVectorElement2 += clusterCount.second * clusterSpace_.evaluateClusterProduct(
+                                                             cvElement.multiComponentVector,
+                                                             allowedOccupations,
+                                                             clusterCount.first,
+                                                             indicesOfRepresentativeSites,
+                                                             permutation);
+        }
+      }
+      // Usually we could have counted multiplicity by simply adding the number of
+      // clusters in the orbit (clusterCount.second), but in the case of
+      // local cluster vectors or changes in cluster vectors, we have only counted
+      // a subset of the clusters. We therefore use the pre-computed multiplicity.
+      clusterVector2.push_back(clusterVectorElement2 / (double)cvElement.multiplicity *
+                               (double)primitiveOrbitList_->structure().size() /
+                               (double)config.GetNumLattices());
+    }
+  }
+
+  return {clusterVector1, clusterVector2};
 }

@@ -21,10 +21,8 @@
 #include <Eigen/Dense>
 #include "McAbstract.h"
 #include "JumpEvent.h"
-#include "PotentialEnergyEstimator.h"
 #include "TimeTemperatureInterpolator.h"
 #include "VacancyMigrationPredictor.h"
-#include "ClusterExpansionParameters.h"
 
 using namespace std;
 
@@ -61,7 +59,6 @@ namespace mc
      * @param vacancyTrajectory Initial vacancy trajectory vector.
      */
     KineticMcFirstAbstract(Config config,
-                           Config supercellConfig,
                            unsigned long long int logDumpSteps,
                            unsigned long long int configDumpSteps,
                            unsigned long long int maximumSteps,
@@ -70,7 +67,7 @@ namespace mc
                            double restartEnergy,
                            double restartTime,
                            double temperature,
-                           const ClusterExpansionParameters &ceParams,
+                           VacancyMigrationPredictor &vacancyMigrationPredictor,
                            const string &timeTemperatureFilename,
                            bool isRateCorrector,
                            const Eigen::RowVector3d &vacancyTrajectory);
@@ -106,7 +103,7 @@ namespace mc
      */
     virtual void Dump() const;
 
-    /** 
+    /**
      * @brief Selects an event to simulate based on rates.
      * @return The lattice Id which will jump to vacant site.
      */
@@ -145,8 +142,7 @@ namespace mc
     /**
      * @brief Vacancy Migration Energy Predictor
      */
-    VacancyMigrationPredictor vacancyMigrationPredictor_;
-
+    VacancyMigrationPredictor &vacancyMigrationPredictor_;
 
     /**
      * @brief Time Temperature Interpolator
@@ -230,7 +226,6 @@ namespace mc
      * @param vacancyTrajectory Initial vacancy trajectory vector.
      */
     KineticMcChainAbstract(Config config,
-                           Config supercellConfig,
                            unsigned long long int logDumpSteps,
                            unsigned long long int configDumpSteps,
                            unsigned long long int maximumSteps,
@@ -239,7 +234,7 @@ namespace mc
                            double restartEnergy,
                            double restartTime,
                            double temperature,
-                           const ClusterExpansionParameters &ceParams,
+                           VacancyMigrationPredictor &vacancyMigrationPredictor,
                            const string &timeTemperatureFilename,
                            bool isRateCorrector,
                            const Eigen::RowVector3d &vacancyTrajectory);
@@ -269,21 +264,21 @@ namespace mc
 
     /**
      * @brief Lattice ID of the previous jump site.
-     * 
+     *
      */
     size_t previous_j_lattice_id_;
 
     /**
      * @brief Total rate for jump to nearest neighbours.
-     * 
+     *
      */
-    double total_rate_i_{0.0}; 
+    double total_rate_i_{0.0};
 
     /**
      * @brief Neighbours of choosen lattice Id for the jump.
      *        j -> k -> i ->l
      *        k : current position
-     * 
+     *
      */
     vector<size_t> l_lattice_id_list_{};
 

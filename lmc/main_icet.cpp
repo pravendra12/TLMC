@@ -1242,7 +1242,7 @@ int main()
   */
   
   string predictorFile = "/home/pravendra3/Documents/LatticeMonteCarlo-eigen/icetECIs.json";
-  EnergyPredictor energyPredictor(
+  SymmetricCEPredictor energyPredictor(
     predictorFile, 
     supercellCfg, 
     primCfg, 

@@ -53,7 +53,6 @@ namespace mc
      * @param vacancyTrajectory         Initial vacancy trajectory vector.
      */
     KineticMcChainOmpi(Config config,
-                       Config supercellConfig,
                        const unsigned long long int logDumpSteps,
                        const unsigned long long int configDumpSteps,
                        const unsigned long long int maximumSteps,
@@ -62,7 +61,7 @@ namespace mc
                        const double restartEnergy,
                        const double restartTime,
                        const double temperature,
-                       const ClusterExpansionParameters &ceParams,
+                       VacancyMigrationPredictor &vacancyMigrationPredictor,
                        const string &timeTemperatureFilename,
                        const bool isRateCorrector,
                        const Eigen::RowVector3d &vacancyTrajectory);

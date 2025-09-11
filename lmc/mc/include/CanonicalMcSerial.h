@@ -40,7 +40,6 @@ namespace mc
      */
 
     CanonicalMcSerial(Config config,
-                      Config supercellConfig,
                       unsigned long long int logDumpSteps,
                       unsigned long long int configDumpStep,
                       unsigned long long int maximumSteps,
@@ -48,7 +47,7 @@ namespace mc
                       unsigned long long int restartSteps,
                       double restartEnergy,
                       double temperature,
-                    const ClusterExpansionParameters &ceParams);
+                      EnergyPredictor &energyChangePredictor);
 
     /** @brief Simulate canonical monte carlo simulation
      */

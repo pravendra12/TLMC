@@ -43,14 +43,13 @@ namespace mc
      * @param json_coefficients_filename File name for cluster expansion coefficients in JSON forminitial_temperature_at.
      */
     SimulatedAnnealing(Config config,
-                       Config supercellConfig,
                        const unsigned long long int logDumpSteps,
                        const unsigned long long int configDumpSteps,
                        const unsigned long long int maximumSteps,
                        const unsigned long long int restartSteps,
                        const double restartEnergy,
                        const double initialTemperature,
-                       const ClusterExpansionParameters &ceParams);
+                       EnergyPredictor &energyChangePredictor);
 
     /**
      * @brief Starts the simulated annealing simulation.
@@ -107,7 +106,7 @@ namespace mc
      * This object is used to calculate the energy change associated with a
      * proposed event during the Monte Carlo simulation, using a cluster expansion model.
      */
-    EnergyPredictor energy_change_predictor_;
+    EnergyPredictor &energyChangePredictor_;
 
     /**
      * @brief A uniform integer distribution used to select atom indices randomly.

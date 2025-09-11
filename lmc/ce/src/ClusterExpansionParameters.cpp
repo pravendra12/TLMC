@@ -88,6 +88,20 @@ vector<double> ClusterExpansionParameters::GetClusterCutoffs() const
   return clusterCutoffs;
 }
 
+double ClusterExpansionParameters::GetMaxClusterCutoff() const
+{
+  string jsonKey = "symCE";
+  string jsonSubKey = "clusterCutoffs";
+
+  vector<double> clusterCutoffs = ReadParametersFromJson<double>(
+      allParameters_,
+      jsonKey,
+      jsonSubKey);
+
+  double maxCutoff = *std::max_element(clusterCutoffs.begin(), clusterCutoffs.end());
+  return maxCutoff;
+}
+
 vector<string> ClusterExpansionParameters::GetAllowedElements() const
 {
   string jsonKey = "symCE";
@@ -248,7 +262,7 @@ void ClusterExpansionParameters::DebugAllFunctions()
 
     auto refJumpDir = GetReferenceJumpDirection();
     cout << "Reference jump direction: "
-              << refJumpDir.transpose() << endl;
+         << refJumpDir.transpose() << endl;
 
     auto keciMap = GetKECIsMap();
     cout << "KECIs Map:" << endl;

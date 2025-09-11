@@ -42,7 +42,6 @@ namespace mc
      * @param predictorFilename Path to the JSON file containing cluster interaction coefficients.
      */
     CanonicalMcOmp(Config config,
-                   Config supercellConfig,
                    unsigned long long int logDumpSteps,
                    unsigned long long int configDumpStep,
                    unsigned long long int maximumSteps,
@@ -50,7 +49,7 @@ namespace mc
                    unsigned long long int restartSteps,
                    double restartEnergy,
                    double temperature,
-                   const ClusterExpansionParameters &ceParams);
+                   EnergyPredictor &energyChangePredictor);
 
     /** @brief Simulate canonical monte carlo simulation
      */

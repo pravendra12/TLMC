@@ -17,21 +17,19 @@ namespace mc
 {
 
   KineticMcChainOmpi::KineticMcChainOmpi(Config config,
-                                       Config supercellConfig,
-                                       const unsigned long long int logDumpSteps,
-                                       const unsigned long long int configDumpSteps,
-                                       const unsigned long long int maximumSteps,
-                                       const unsigned long long int thermodynamicAveragingSteps,
-                                       const unsigned long long int restartSteps,
-                                       const double restartEnergy,
-                                       const double restartTime,
-                                       const double temperature,
-                                       const ClusterExpansionParameters &ceParams,
-                                       const string &timeTemperatureFilename,
-                                       const bool isRateCorrector,
-                                       const Eigen::RowVector3d &vacancyTrajectory)
+                                         const unsigned long long int logDumpSteps,
+                                         const unsigned long long int configDumpSteps,
+                                         const unsigned long long int maximumSteps,
+                                         const unsigned long long int thermodynamicAveragingSteps,
+                                         const unsigned long long int restartSteps,
+                                         const double restartEnergy,
+                                         const double restartTime,
+                                         const double temperature,
+                                         VacancyMigrationPredictor &vacancyMigrationPredictor,
+                                         const string &timeTemperatureFilename,
+                                         const bool isRateCorrector,
+                                         const Eigen::RowVector3d &vacancyTrajectory)
       : KineticMcChainAbstract(move(config),
-                               supercellConfig,
                                logDumpSteps,
                                configDumpSteps,
                                maximumSteps,
@@ -40,7 +38,7 @@ namespace mc
                                restartEnergy,
                                restartTime,
                                temperature,
-                               ceParams,
+                               vacancyMigrationPredictor,
                                timeTemperatureFilename,
                                isRateCorrector,
                                vacancyTrajectory)
@@ -85,7 +83,6 @@ namespace mc
 
     config_.LatticeJump({k_lattice_id, i_lattice_id});
 
-
 #pragma omp parallel default(none) shared(i_lattice_id, k_lattice_id) reduction(+ : total_rate_i_)
     {
 #pragma omp for
@@ -100,8 +97,8 @@ namespace mc
             {i_lattice_id, l_lattice_id},
 
             vacancyMigrationPredictor_.GetBarrierAndDeltaE(config_,
-                                                             {i_lattice_id,
-                                                              l_lattice_id}),
+                                                           {i_lattice_id,
+                                                            l_lattice_id}),
 
             // Thermodynamics Beta
             beta_);

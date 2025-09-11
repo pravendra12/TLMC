@@ -17,7 +17,6 @@ namespace mc
 {
 
   KineticMcFirstAbstract::KineticMcFirstAbstract(Config config,
-                                                 Config supercellConfig,
                                                  const unsigned long long int logDumpSteps,
                                                  const unsigned long long int configDumpSteps,
                                                  const unsigned long long int maximumSteps,
@@ -26,12 +25,11 @@ namespace mc
                                                  const double restartEnergy,
                                                  const double restartTime,
                                                  const double temperature,
-                                                 const ClusterExpansionParameters &ceParams,
+                                                 VacancyMigrationPredictor &vacancyMigrationPredictor,
                                                  const string &timeTemperatureFilename,
                                                  const bool isRateCorrector,
                                                  const Eigen::RowVector3d &vacancyTrajectory)
       : McAbstract(move(config),
-                   supercellConfig,
                    logDumpSteps,
                    configDumpSteps,
                    maximumSteps,
@@ -43,9 +41,10 @@ namespace mc
                    "kmc_log.txt"),
         kEventListSize_(
             config.GetNeighborLatticeIdVectorOfLattice(0, 1).size()),
-        vacancyMigrationPredictor_(ceParams,
-                                   config),
-        timeTemperatureInterpolator_(timeTemperatureFilename),
+        vacancyMigrationPredictor_(
+            vacancyMigrationPredictor),
+        timeTemperatureInterpolator_(
+            timeTemperatureFilename),
         isTimeTemperatureInterpolator_(!timeTemperatureFilename.empty()),
         isRateCorrector_(isRateCorrector),
         vacancyLatticeId_(config_.GetVacancyLatticeId()),
@@ -213,7 +212,6 @@ namespace mc
   }
 
   KineticMcChainAbstract::KineticMcChainAbstract(Config config,
-                                                 Config supercellConfig,
                                                  const unsigned long long int logDumpSteps,
                                                  const unsigned long long int configDumpSteps,
                                                  const unsigned long long int maximumSteps,
@@ -222,12 +220,11 @@ namespace mc
                                                  const double restartEnergy,
                                                  const double restartTime,
                                                  const double temperature,
-                                                 const ClusterExpansionParameters &ceParams,
+                                                 VacancyMigrationPredictor &vacancyMigrationPredictor,
                                                  const string &timeTemperatureFilename,
                                                  const bool isRateCorrector,
                                                  const Eigen::RowVector3d &vacancyTrajectory)
       : KineticMcFirstAbstract(move(config),
-                               supercellConfig,
                                logDumpSteps,
                                configDumpSteps,
                                maximumSteps,
@@ -236,7 +233,7 @@ namespace mc
                                restartEnergy,
                                restartTime,
                                temperature,
-                               ceParams,
+                               vacancyMigrationPredictor,
                                timeTemperatureFilename,
                                isRateCorrector,
                                vacancyTrajectory),

@@ -48,7 +48,6 @@ public:
    * @param logFilename Name of log file.
    */
   McAbstract(Config config,
-             Config supercellConfig,
              unsigned long long int logDumpSteps,
              unsigned long long int configDumpSteps,
              unsigned long long int maximumSteps,

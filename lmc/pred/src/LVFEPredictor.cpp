@@ -14,7 +14,12 @@ LVFEPredictor::LVFEPredictor(
                                     maxBondOrder_,
                                     maxClusterSize_,
                                     true)),
-                            lvfeECIs_(ceParams.GetECIs("lvfe"))
+                            lvfeECIs_(ceParams.GetECIs("lvfe")),
+                            symmetricallySortedLatticeIdsVectorMap_(
+                                move(
+                                    GetsymmetricallySortedLatticeIdsVectorMap(
+                                        config,
+                                        maxBondOrder_)))
 
 {
   const int width = 80;
@@ -39,10 +44,15 @@ VectorXd LVFEPredictor::GetLocalSiteClusterVector(
     const size_t &vacancyLatticeId)
 {
   // Will be cached
+  /*
   auto sortedIdsAroundSite = GetCanonicalSortedSitesForSite(
       config,
       vacancyLatticeId,
       maxBondOrder_);
+  */
+
+  // No need to include the vacancyLatticeId
+  auto sortedIdsAroundSite = symmetricallySortedLatticeIdsVectorMap_[vacancyLatticeId];
 
   VectorXd correlationVector = GetCorrelationVector(
       config,
@@ -80,10 +90,14 @@ double LVFEPredictor::GetEffectiveVacancyFormationEnergy(
 )
 {
   // Will be cached
+  /*
   auto sortedIdsAroundSite = GetCanonicalSortedSitesForSite(
       config,
       vacancyLatticeId,
       maxBondOrder_);
+  */
+
+  auto sortedIdsAroundSite = symmetricallySortedLatticeIdsVectorMap_[vacancyLatticeId];
 
   // Will return the correlation vector with element assigned to a targetLatticeId
   VectorXd correlationVector = GetCorrelationVector(
@@ -112,15 +126,22 @@ double LVFEPredictor::GetDeForVacancyMigration(
   size_t vacancyLatticeId;
   size_t migratingAtomLatticeId;
 
-  if (config.GetElementOfLattice(latticeIdJumpPair.first) == Element("X"))
+  bool firstIsVacancy = (config.GetElementOfLattice(latticeIdJumpPair.first) == Element("X"));
+  bool secondIsVacancy = (config.GetElementOfLattice(latticeIdJumpPair.second) == Element("X"));
+
+  if (firstIsVacancy && !secondIsVacancy)
   {
     vacancyLatticeId = latticeIdJumpPair.first;
     migratingAtomLatticeId = latticeIdJumpPair.second;
   }
-  else
+  else if (!firstIsVacancy && secondIsVacancy)
   {
     vacancyLatticeId = latticeIdJumpPair.second;
     migratingAtomLatticeId = latticeIdJumpPair.first;
+  }
+  else
+  {
+    throw std::runtime_error("Error in `LVFEPredictor::GetDeForVacancyMigration`: One of the lattice sites must be a vacancy.");
   }
 
   auto migratingElement = config.GetElementOfLattice(migratingAtomLatticeId);
@@ -151,6 +172,85 @@ double LVFEPredictor::GetDeForVacancyMigration(
   double dEValue = lvfeValueAfterJump - lvfeValueBeforeJump;
 
   return dEValue;
+}
+
+double LVFEPredictor::GetDeSwap(
+    Config &config,
+    const pair<size_t, size_t> &latticeIdJumpPair)
+{
+  size_t vacancyLatticeId;
+  size_t migratingAtomLatticeId;
+
+  bool firstIsVacancy = (config.GetElementOfLattice(latticeIdJumpPair.first) == Element("X"));
+  bool secondIsVacancy = (config.GetElementOfLattice(latticeIdJumpPair.second) == Element("X"));
+
+  if (firstIsVacancy && !secondIsVacancy)
+  {
+    vacancyLatticeId = latticeIdJumpPair.first;
+    migratingAtomLatticeId = latticeIdJumpPair.second;
+  }
+  else if (!firstIsVacancy && secondIsVacancy)
+  {
+    vacancyLatticeId = latticeIdJumpPair.second;
+    migratingAtomLatticeId = latticeIdJumpPair.first;
+  }
+  else
+  {
+    throw std::runtime_error("Error in `LVFEPredictor::GetDeSwap`: One of the lattice sites must be a vacancy.");
+  }
+  auto migratingElement = config.GetElementOfLattice(migratingAtomLatticeId);
+
+  // Energy Before Vacancy Jump
+  // Ev before the jump
+
+  // Effective vacancy formation energy
+  auto lvfeValueBeforeJump = GetEffectiveVacancyFormationEnergy(
+      config,
+      vacancyLatticeId);
+
+  config.LatticeJump(latticeIdJumpPair);
+
+  // Energy After Vacancy Jump
+  // migratingElement will migrate to vacancyLatticeId
+  // migratingAtomLatticeId will be the new vacancyLatticeId
+
+  auto lvfeValueAfterJump = GetEffectiveVacancyFormationEnergy(
+      config,
+      migratingAtomLatticeId); // vacancy have migrated
+
+  // ELVFE = Ev - 1/2 * (EA + EB)
+  // For a site EA + EB with 1 -1 will lead to only 2*Jo
+  // Same for the other site EA + EB with 1 -1 will lead to only 2*Jo
+  // Leading to cancelation of Jo terms
+
+  double dEValue = lvfeValueAfterJump - lvfeValueBeforeJump;
+
+  config.LatticeJump(latticeIdJumpPair);
+
+  return dEValue;
+}
+
+vector<vector<size_t>> LVFEPredictor::GetsymmetricallySortedLatticeIdsVectorMap(
+    const Config &config,
+    const size_t &maxBondOrder)
+{
+  const size_t numLattices = config.GetNumLattices();
+
+  vector<vector<size_t>> symmetricallySortedLatticeIdsVectorMap;
+  symmetricallySortedLatticeIdsVectorMap.reserve(numLattices);
+
+  // Iterate over all the sites and get store the sorted lattice Ids
+  for (size_t latticeId = 0; latticeId < numLattices; latticeId++)
+  {
+    auto canonicalSortedLatticeIds = GetCanonicalSortedSitesForSite(
+        config,
+        latticeId,
+        maxBondOrder);
+
+    symmetricallySortedLatticeIdsVectorMap.emplace_back(move(canonicalSortedLatticeIds));
+  }
+
+  return symmetricallySortedLatticeIdsVectorMap;
 }
 
 /*

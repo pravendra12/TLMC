@@ -49,7 +49,7 @@ namespace api {
    *  \return          : A `mc::CanonicalMcSerial` object configured with the 
    *                     provided parameters.
    */
-  mc::CanonicalMcSerial BuildCanonicalMcSerialFromParameter(const Parameter &parameter);
+  void RunCanonicalMcSerialFromParameter(const Parameter &parameter);
   
   /*! \brief Constructs a first-order MPI implementation of a Kinetic Monte Carlo 
    *         simulation.
@@ -58,7 +58,7 @@ namespace api {
    *  \return          : A `mc::KineticMcFirstMpi` object configured with the 
    *                     provided parameters.
    */
-  mc::KineticMcFirstMpi BuildKineticMcFirstMpiFromParameter(const Parameter &parameter);
+  void RunKineticMcFirstMpiFromParameter(const Parameter &parameter);
   
   /*! \brief Constructs a Second-order OMP implementation of a Kinetic Monte Carlo 
    *         simulation.
@@ -67,7 +67,7 @@ namespace api {
    *  \return          : A `mc::KineticMcChainOmpi` object configured with the 
    *                     provided parameters.
    */
-  mc::KineticMcChainOmpi BuildKineticMcChainOmpiFromParameter(const Parameter &parameter);
+  void RunKineticMcChainOmpiFromParameter(const Parameter &parameter);
   
   /*! \brief Constructs a Iterator from parameters for the analysis of the 
    *         structure generated from KMC, for now only SRO analysis.
@@ -78,7 +78,7 @@ namespace api {
    */
   ansys::Traverse BuildIteratorFromParameter(const Parameter &parameter);
 
-  mc::SimulatedAnnealing BuildSimulatedAnnealingFromParameter(const Parameter &parameter);
+  void RunSimulatedAnnealingFromParameter(const Parameter &parameter);
 
 } // api
 

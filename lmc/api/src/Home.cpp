@@ -157,19 +157,15 @@ namespace api
   {
     if (parameter.method == "CanonicalMcSerial")
     {
-      auto canonical_mc_serial = api::BuildCanonicalMcSerialFromParameter(parameter);
-      canonical_mc_serial.Simulate();
+      api::RunCanonicalMcSerialFromParameter(parameter);
     }
     else if (parameter.method == "KineticMcChainOmpi")
     {
-      auto kinetic_mc_chain_ompi = api::BuildKineticMcChainOmpiFromParameter(parameter);
-      cout << "Built successfully" << endl;
-      kinetic_mc_chain_ompi.Simulate();
+      api::RunKineticMcChainOmpiFromParameter(parameter);
     }
     else if (parameter.method == "KineticMcFirstMpi")
     {
-      auto kinetic_mc_first_mpi = api::BuildKineticMcFirstMpiFromParameter(parameter);
-      kinetic_mc_first_mpi.Simulate();
+      api::RunKineticMcFirstMpiFromParameter(parameter);
     }
     else if (parameter.method == "Ansys")
     {
@@ -178,12 +174,11 @@ namespace api
     }
     else if (parameter.method == "SimulatedAnnealing")
     {
-      auto simulated_annealing = api::BuildSimulatedAnnealingFromParameter(parameter);
-      simulated_annealing.Simulate();
+      api::RunSimulatedAnnealingFromParameter(parameter);
     }
   }
 
-  mc::CanonicalMcSerial BuildCanonicalMcSerialFromParameter(const Parameter &parameter)
+  void RunCanonicalMcSerialFromParameter(const Parameter &parameter)
   {
     Config config;
     if (parameter.map_filename_.empty())
@@ -230,19 +225,23 @@ namespace api
 
     cout << "Finish config reading. Start CMC." << endl;
 
-    return mc::CanonicalMcSerial{config,
-                                 parameter.log_dump_steps_,
-                                 parameter.config_dump_steps_,
-                                 parameter.maximum_steps_,
-                                 parameter.thermodynamic_averaging_steps_,
-                                 parameter.restart_steps_,
-                                 parameter.restart_energy_,
-                                 parameter.temperature_,
-                                 energyChangePredictor};
+    mc::CanonicalMcSerial canonicalMcSerial(config,
+                                            parameter.log_dump_steps_,
+                                            parameter.config_dump_steps_,
+                                            parameter.maximum_steps_,
+                                            parameter.thermodynamic_averaging_steps_,
+                                            parameter.restart_steps_,
+                                            parameter.restart_energy_,
+                                            parameter.temperature_,
+                                            energyChangePredictor);
+
+    canonicalMcSerial.Simulate();
+
+    cout << "Simulation Completed" << endl;
   }
 
-  mc::KineticMcChainOmpi BuildKineticMcChainOmpiFromParameter(const Parameter
-                                                                  &parameter)
+  void RunKineticMcChainOmpiFromParameter(const Parameter
+                                              &parameter)
   {
     Config config;
     if (parameter.map_filename_.empty())
@@ -299,23 +298,27 @@ namespace api
 
     cout << "Finish config reading. Start KMC." << endl;
 
-    return mc::KineticMcChainOmpi{config,
-                                  parameter.log_dump_steps_,
-                                  parameter.config_dump_steps_,
-                                  parameter.maximum_steps_,
-                                  parameter.thermodynamic_averaging_steps_,
-                                  parameter.restart_steps_,
-                                  parameter.restart_energy_,
-                                  parameter.restart_time_,
-                                  parameter.temperature_,
-                                  vacancyMigrationPredictor,
-                                  parameter.time_temperature_filename_,
-                                  parameter.rate_corrector_,
-                                  parameter.vacancy_trajectory_};
+    mc::KineticMcChainOmpi kmcChainOmpi(config,
+                                        parameter.log_dump_steps_,
+                                        parameter.config_dump_steps_,
+                                        parameter.maximum_steps_,
+                                        parameter.thermodynamic_averaging_steps_,
+                                        parameter.restart_steps_,
+                                        parameter.restart_energy_,
+                                        parameter.restart_time_,
+                                        parameter.temperature_,
+                                        vacancyMigrationPredictor,
+                                        parameter.time_temperature_filename_,
+                                        parameter.rate_corrector_,
+                                        parameter.vacancy_trajectory_);
+
+    kmcChainOmpi.Simulate();
+
+    cout << "Simulation Completed" << endl;
   }
 
-  mc::KineticMcFirstMpi BuildKineticMcFirstMpiFromParameter(const Parameter
-                                                                &parameter)
+  void RunKineticMcFirstMpiFromParameter(const Parameter
+                                             &parameter)
   {
     Config config;
     if (parameter.map_filename_.empty())
@@ -372,19 +375,23 @@ namespace api
 
     cout << "Finish config reading. Start KMC." << endl;
 
-    return mc::KineticMcFirstMpi{config,
-                                 parameter.log_dump_steps_,
-                                 parameter.config_dump_steps_,
-                                 parameter.maximum_steps_,
-                                 parameter.thermodynamic_averaging_steps_,
-                                 parameter.restart_steps_,
-                                 parameter.restart_energy_,
-                                 parameter.restart_time_,
-                                 parameter.temperature_,
-                                 vacancyMigrationPredictor,
-                                 parameter.time_temperature_filename_,
-                                 parameter.rate_corrector_,
-                                 parameter.vacancy_trajectory_};
+    mc::KineticMcFirstMpi kmcFirstMpi(config,
+                                      parameter.log_dump_steps_,
+                                      parameter.config_dump_steps_,
+                                      parameter.maximum_steps_,
+                                      parameter.thermodynamic_averaging_steps_,
+                                      parameter.restart_steps_,
+                                      parameter.restart_energy_,
+                                      parameter.restart_time_,
+                                      parameter.temperature_,
+                                      vacancyMigrationPredictor,
+                                      parameter.time_temperature_filename_,
+                                      parameter.rate_corrector_,
+                                      parameter.vacancy_trajectory_);
+
+    kmcFirstMpi.Simulate();
+
+    cout << "Simulation Completed" << endl;
   }
 
   ansys::Traverse BuildIteratorFromParameter(const Parameter &parameter)
@@ -400,8 +407,8 @@ namespace api
                            parameter.max_cluster_size_};
   }
 
-  mc::SimulatedAnnealing BuildSimulatedAnnealingFromParameter(const Parameter
-                                                                  &parameter)
+  void RunSimulatedAnnealingFromParameter(const Parameter
+                                              &parameter)
   {
     Config config;
     if (parameter.map_filename_.empty())
@@ -448,14 +455,16 @@ namespace api
 
     cout << "Finish config reading. Start SA." << endl;
 
-    return mc::SimulatedAnnealing{config,
-                                  parameter.log_dump_steps_,
-                                  parameter.config_dump_steps_,
-                                  parameter.maximum_steps_,
-                                  parameter.restart_steps_,
-                                  parameter.restart_energy_,
-                                  parameter.initial_temperature_,
-                                  energyChangePredictor};
-  }
+    mc::SimulatedAnnealing simulatedAnnealing(config,
+                                              parameter.log_dump_steps_,
+                                              parameter.config_dump_steps_,
+                                              parameter.maximum_steps_,
+                                              parameter.restart_steps_,
+                                              parameter.restart_energy_,
+                                              parameter.initial_temperature_,
+                                              energyChangePredictor);
 
+    simulatedAnnealing.Simulate();
+    cout << "Simulation Completed" << endl;
+  }
 }

@@ -13,7 +13,6 @@ double EnergyPredictor::GetEnergyChange(
     const Config &config,
     const pair<size_t, size_t> &latticeIdJumpPair)
 {
-
   auto firstElement = config.GetElementOfLattice(latticeIdJumpPair.first);
   auto secondElement = config.GetElementOfLattice(latticeIdJumpPair.second);
 

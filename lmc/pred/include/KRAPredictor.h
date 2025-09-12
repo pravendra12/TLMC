@@ -48,21 +48,19 @@ public:
    */
   [[nodiscard]] double GetKRA(
       const Config &config,
-      const pair<size_t, size_t> &latticeIdJumpPair);
+      const pair<size_t, size_t> &latticeIdJumpPair) const;
 
 private:
-  /*
-    using PairMap = unordered_map<pair<size_t, size_t>,
-                                  vector<size_t>,
-                                  boost::hash<pair<size_t, size_t>>>;
-
-    static PairMap GetSymmetricallySortedLatticeIdsVectorMap(const Config &config);
-  */
+ 
+  // Assign a pair a index which can be used to access the symmetrically sorted sites
+  // around that lattice id pair
+  using PairIndexMap = unordered_map<pair<size_t, size_t>, size_t, boost::hash<pair<size_t, size_t>>>;
 
   const size_t maxBondOrder_{};
   const size_t maxClusterSize_{};
 
-  BasisSet atomicBasis_;
+  // Keep this as mutable allowing const function to make changes to it
+  mutable BasisSet atomicBasis_;
 
   const Vector3d referenceJumpDirection_{};
 
@@ -79,7 +77,15 @@ private:
 
   const unordered_map<Element, VectorXd, boost::hash<Element>> KECIsMap_{};
 
-  // const PairMap symmetricallySortedLatticeIdsPairMap_{};
+  vector<vector<size_t>> symmetricallySortedLatticeIdsVectorMap_{};
+  PairIndexMap pairToIndexHashMap_{};
+
+
+  void GetSymmetricallySortedLatticeIdsVectorMap(
+    const Config &config);
+
+  void PrintKRAPredictorInfo() const;
+
 };
 
 #endif // LMC_PRED_INCLUDE_KRAPREDICTOR_H_

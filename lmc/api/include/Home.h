@@ -25,6 +25,7 @@
 #include "SymmetricCEPredictor.h"
 #include "VacancyMigrationPredictor.h"
 #include "ClusterExpansionParameters.h"
+#include "KineticMcFirstOmp.h"
 
 using namespace std;
 
@@ -59,7 +60,9 @@ namespace api {
    *                     provided parameters.
    */
   void RunKineticMcFirstMpiFromParameter(const Parameter &parameter);
-  
+
+  void RunKineticMcFirstOmpFromParameter(const Parameter &parameter);
+
   /*! \brief Constructs a Second-order OMP implementation of a Kinetic Monte Carlo 
    *         simulation.
    *  \param parameter : The `Parameter` object containing the configuration for 

@@ -269,6 +269,7 @@ double SymmetricCEPredictor::ComputeLocalFormationEnergyForPair(
       canonicalSortedLatticeIds2,
       localOrbitsEncoding_);
 
+
   if (ecis_.size() != clusterVectorPair.first.size() ||
       ecis_.size() != clusterVectorPair.second.size())
   {
@@ -379,10 +380,14 @@ vector<vector<size_t>> SymmetricCEPredictor::GetSymmetricallySortedLatticeIdsVec
   vector<vector<size_t>> symmetricallySortedLatticeIdsVectorMap;
   symmetricallySortedLatticeIdsVectorMap.reserve(numLattices);
 
+  size_t numSortedIds = supercellConfig.GetNeighborLatticeIdVectorOfLattice(0, 1).size() + 1;
+  vector<size_t> canonicalSortedLatticeIds;
+  canonicalSortedLatticeIds.reserve(numSortedIds);
+
   // Iterate over all the sites and get store the sorted lattice Ids
   for (size_t latticeId = 0; latticeId < numLattices; latticeId++)
   {
-    auto canonicalSortedLatticeIds = GetCanonicalSortedSitesForSite(
+    canonicalSortedLatticeIds = GetCanonicalSortedSitesForSite(
         supercellConfig,
         latticeId,
         maxBondOrder);

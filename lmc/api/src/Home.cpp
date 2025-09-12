@@ -167,6 +167,10 @@ namespace api
     {
       api::RunKineticMcFirstMpiFromParameter(parameter);
     }
+    else if (parameter.method == "KineticMcFirstOmp")
+    {
+      api::RunKineticMcFirstOmpFromParameter(parameter);
+    }
     else if (parameter.method == "Ansys")
     {
       auto iterator = api::BuildIteratorFromParameter(parameter);
@@ -390,6 +394,83 @@ namespace api
                                       parameter.vacancy_trajectory_);
 
     kmcFirstMpi.Simulate();
+
+    cout << "Simulation Completed" << endl;
+  }
+
+   void RunKineticMcFirstOmpFromParameter(const Parameter
+                                             &parameter)
+  {
+    Config config;
+    if (parameter.map_filename_.empty())
+    {
+      // Generalized function to read configuration
+      // Supported formats are: .cfg, .POSCAR, .cfg.gz, .cfg.bz2, .POSCAR.gz, .POSCAR.bz2
+      config = Config::ReadConfig(parameter.config_filename_);
+    }
+
+    // Read CE Parameters
+    ClusterExpansionParameters ceParams(parameter.json_coefficients_filename_);
+
+    // Used to update the symmetric CE
+    double maxClusterCutoff = ceParams.GetMaxClusterCutoff();
+    config.UpdateNeighborList({maxClusterCutoff});
+
+    // Generate a small config for declaring symCE
+    const size_t supercellSize = 2;
+
+    auto primConfig = Config::GenerateSupercell(
+        supercellSize,
+        parameter.lattice_param_,
+        "Mo", // Does not matter as the lattice param and structure type is important
+        parameter.structure_type_);
+
+    // Declare Symmetric CE
+    SymmetricCEPredictor symCEEnergyPredictor(
+        ceParams,
+        config,
+        primConfig);
+
+    // Again update the neighbor list
+    config.UpdateNeighborList(parameter.cutoffs_);
+
+    // Declare LVFE Predictor
+    LVFEPredictor lvfePredictor(
+        ceParams,
+        config);
+
+    // Declare Energy Predictor
+    EnergyPredictor energyChangePredictor(
+        symCEEnergyPredictor,
+        lvfePredictor);
+
+    // Declare KRA Predictor
+    KRAPredictor eKRAPredictor(
+        ceParams,
+        config);
+
+    // Declare Vacacny migration predictor
+    VacancyMigrationPredictor vacancyMigrationPredictor(
+        eKRAPredictor,
+        energyChangePredictor);
+
+    cout << "Finish config reading. Start KMC." << endl;
+
+    mc::KineticMcFirstOmp kmcFirstOmp(config,
+                                      parameter.log_dump_steps_,
+                                      parameter.config_dump_steps_,
+                                      parameter.maximum_steps_,
+                                      parameter.thermodynamic_averaging_steps_,
+                                      parameter.restart_steps_,
+                                      parameter.restart_energy_,
+                                      parameter.restart_time_,
+                                      parameter.temperature_,
+                                      vacancyMigrationPredictor,
+                                      parameter.time_temperature_filename_,
+                                      parameter.rate_corrector_,
+                                      parameter.vacancy_trajectory_);
+
+    kmcFirstOmp.Simulate();
 
     cout << "Simulation Completed" << endl;
   }

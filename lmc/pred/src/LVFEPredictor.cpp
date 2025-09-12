@@ -14,34 +14,18 @@ LVFEPredictor::LVFEPredictor(
                                     maxBondOrder_,
                                     maxClusterSize_,
                                     true)),
-                            lvfeECIs_(ceParams.GetECIs("lvfe")),
-                            symmetricallySortedLatticeIdsVectorMap_(
-                                move(
-                                    GetsymmetricallySortedLatticeIdsVectorMap(
-                                        config,
-                                        maxBondOrder_)))
+                            lvfeECIs_(ceParams.GetECIs("lvfe"))
 
 {
-  const int width = 80;
-  const int labelWidth = 30;
-  const int valueWidth = width - labelWidth - 2; // 2 for spacing
-
-  // Header
-  cout << string(width, '-') << "\n";
-  cout << setw((width + 22) / 2) << right << "LVFE Predictor Info" << "\n";
-  cout << string(width, '-') << "\n";
-
-  cout << left << setw(30) << "Max bond order:" << maxBondOrder_ << "\n";
-  cout << left << setw(30) << "Max cluster size:" << maxClusterSize_ << "\n";
-  cout << left << setw(30) << "Encoded orbits size:" << encodedOrbitsForSite_.size() << "\n";
-  cout << left << setw(30) << "LVFE ECIs size:" << lvfeECIs_.size() << "\n";
-
-  cout << string(width, '-') << "\n\n";
+  // Precompute the sorted lattice Ids
+  GetSymmetricallySortedLatticeIdsVectorMap(config);
+  // Print the info
+  PrintLVFEPredictor();
 }
 
 VectorXd LVFEPredictor::GetLocalSiteClusterVector(
     const Config &config,
-    const size_t &vacancyLatticeId)
+    const size_t &vacancyLatticeId) const
 {
   // Will be cached
   /*
@@ -65,7 +49,7 @@ VectorXd LVFEPredictor::GetLocalSiteClusterVector(
 
 double LVFEPredictor::GetEffectiveVacancyFormationEnergy(
     const Config &config,
-    const size_t &vacancyLatticeId)
+    const size_t &vacancyLatticeId) const
 {
   VectorXd correlationVector = GetLocalSiteClusterVector(
       config,
@@ -87,7 +71,7 @@ double LVFEPredictor::GetEffectiveVacancyFormationEnergy(
     const size_t &vacancyLatticeId,
     const size_t &targetLatticeId, // LatticeId to which the element will be assigned
     const Element &elementToAssign // Element which need to be assigned to the lattice Id
-)
+) const
 {
   // Will be cached
   /*
@@ -121,7 +105,7 @@ double LVFEPredictor::GetEffectiveVacancyFormationEnergy(
 
 double LVFEPredictor::GetDeForVacancyMigration(
     const Config &config,
-    const pair<size_t, size_t> &latticeIdJumpPair)
+    const pair<size_t, size_t> &latticeIdJumpPair) const
 {
   size_t vacancyLatticeId;
   size_t migratingAtomLatticeId;
@@ -176,7 +160,7 @@ double LVFEPredictor::GetDeForVacancyMigration(
 
 double LVFEPredictor::GetDeSwap(
     Config &config,
-    const pair<size_t, size_t> &latticeIdJumpPair)
+    const pair<size_t, size_t> &latticeIdJumpPair) const
 {
   size_t vacancyLatticeId;
   size_t migratingAtomLatticeId;
@@ -230,121 +214,46 @@ double LVFEPredictor::GetDeSwap(
   return dEValue;
 }
 
-vector<vector<size_t>> LVFEPredictor::GetsymmetricallySortedLatticeIdsVectorMap(
-    const Config &config,
-    const size_t &maxBondOrder)
+void LVFEPredictor::GetSymmetricallySortedLatticeIdsVectorMap(
+    const Config &config) 
 {
   const size_t numLattices = config.GetNumLattices();
 
-  vector<vector<size_t>> symmetricallySortedLatticeIdsVectorMap;
-  symmetricallySortedLatticeIdsVectorMap.reserve(numLattices);
+  symmetricallySortedLatticeIdsVectorMap_.reserve(numLattices);
+
+  auto numSortedSites = config.GetNeighborLatticeIdsUpToOrder(0, maxBondOrder_).size();
+  vector<size_t> canonicalSortedLatticeIds;
+  canonicalSortedLatticeIds.reserve(numSortedSites);
 
   // Iterate over all the sites and get store the sorted lattice Ids
   for (size_t latticeId = 0; latticeId < numLattices; latticeId++)
   {
-    auto canonicalSortedLatticeIds = GetCanonicalSortedSitesForSite(
+    canonicalSortedLatticeIds = GetCanonicalSortedSitesForSite(
         config,
         latticeId,
-        maxBondOrder);
+        maxBondOrder_);
 
-    symmetricallySortedLatticeIdsVectorMap.emplace_back(move(canonicalSortedLatticeIds));
+    symmetricallySortedLatticeIdsVectorMap_.emplace_back(move(canonicalSortedLatticeIds));
   }
-
-  return symmetricallySortedLatticeIdsVectorMap;
 }
 
-/*
-double EnergyPredictor::GetEnergyOfConfigWithVacancy(
-    Config &config,
-    const size_t &vacancyLatticeId)
+void LVFEPredictor::PrintLVFEPredictor() const
 {
-  // ELVFE : From the model
-  double efveValue = GetEffectiveVacancyFormationEnergy(
-      config,
-      vacancyLatticeId);
+  const int width = 80;
+  const int labelWidth = 30;
+  const int valueWidth = width - labelWidth - 2; // 2 for spacing
 
-  double averageEnergy = 0;
-  vector<Element> elementVector = {Element("Mo"), Element("Ta")};
+  // Header
+  cout << string(width, '-') << "\n";
+  cout << setw((width + 22) / 2) << right << "LVFE Predictor Info" << "\n";
+  cout << string(width, '-') << "\n";
 
-  auto originalElement = config.GetElementOfLattice(vacancyLatticeId);
+  cout << left << setw(30) << "Max bond order:" << maxBondOrder_ << "\n";
+  cout << left << setw(30) << "Max cluster size:" << maxClusterSize_ << "\n";
+  cout << left << setw(30) << "Encoded orbits size:" << encodedOrbitsForSite_.size() << "\n";
+  cout << left << setw(30) << "Size of precomputed sortedIds vector:" 
+                           << symmetricallySortedLatticeIdsVectorMap_.size() << "\n";
+  cout << left << setw(30) << "LVFE ECIs size:" << lvfeECIs_.size() << "\n";
 
-  for (const auto &element : elementVector)
-  {
-    config.SetElementOfLattice(vacancyLatticeId, element);
-    averageEnergy += ComputeEnergyOfConfig(config);
-  }
-
-  config.SetElementOfLattice(vacancyLatticeId, originalElement);
-
-  averageEnergy /= static_cast<double>(elementVector.size());
-
-  // ELVFE = Ev - 1/2 * (EA + EB)
-
-  auto energyWithVacancy = efveValue + averageEnergy;
-
-  return energyWithVacancy;
+  cout << string(width, '-') << "\n\n";
 }
-
-*/
-
-/*
-// This function returns the local energy of the site with vacancy
-double EnergyPredictor::GetEnergyOfSiteWithVacancy(
-    const Config &config,
-    const size_t &latticeId)
-{
-  vector<Element> elementVector = {Element("Mo"), Element("Ta")};
-
-  // This will be upto max cluster cutoff
-  auto canonicalSortedLatticeIds = GetCanonicalSortedSitesForSite(
-      config,
-      latticeId,
-      1);
-  canonicalSortedLatticeIds.emplace_back(latticeId);
-
-  auto multiElementClusterVector = symCE_.GetMultiElementLocalClusterVector(
-      config,
-      latticeId,
-      elementVector,
-      canonicalSortedLatticeIds,
-      localOrbitsEncoding_);
-
-  cout << "Mo : ";
-  print1DVector(multiElementClusterVector[0]);
-  cout << endl;
-
-  cout << "Ta : ";
-  print1DVector(multiElementClusterVector[1]);
-  cout << endl;
-
-  // In principle the cluster vector will be just opposite in the sign except the
-  // first term, will check if it works later
-
-  // ELVFE : From the model
-  double efveValue = GetEffectiveVacancyFormationEnergy(
-      config,
-      latticeId);
-
-  double averageEnergy = 0;
-
-  for (int i = 0; i < multiElementClusterVector.size(); i++)
-  {
-    averageEnergy += GetTotalEnergy(
-        multiElementClusterVector[i]);
-  }
-
-  // 1/2 * (EA + EB)
-  averageEnergy /= static_cast<double>(multiElementClusterVector.size());
-
-  // Compute the effective local vacancy formation energy (ELVFE):
-  // ELVFE = Ev - 1/2 * (EA + EB)
-  // where EA and EB are the energies of the same site with elements A and B.
-
-  // Ev
-  double energyOfSiteVacancy = efveValue + averageEnergy;
-
-  return energyOfSiteVacancy;
-}
-
-
-*/

@@ -26,49 +26,7 @@ SymmetricCEPredictor::SymmetricCEPredictor(
                                              supercellConfig)))
 
 {
-  const int width = 80;
-  const int labelWidth = 40;
-  const int valueWidth = width - labelWidth - 2;
-
-  // Header
-  cout << string(width, '-') << "\n";
-  cout << setw((width + 22) / 2) << right << "Energy Predictor Info" << "\n";
-  cout << string(width, '-') << "\n";
-
-  // Table
-  cout << left << setw(labelWidth) << "Number of atoms:"
-       << right << setw(valueWidth) << nAtoms_ << "\n";
-
-  cout << left << setw(labelWidth) << "Allowed elements:"
-       << right << setw(valueWidth);
-  for (const auto &ele : allowedElements_)
-    cout << ele << " ";
-  cout << "\n";
-
-  cout << left << setw(labelWidth) << "Cluster cutoffs:"
-       << right << setw(valueWidth);
-  for (const auto &cut : clusterCutoffs_)
-    cout << cut << " ";
-  cout << "\n";
-
-  cout << left << setw(labelWidth) << "Local orbits encoding size:"
-       << right << setw(valueWidth) << localOrbitsEncoding_.size() << "\n";
-
-  cout << left << setw(labelWidth) << "Cluster vector size (with constant term):"
-       << right << setw(valueWidth) << (localOrbitsEncoding_.size() + 1) << "\n";
-
-  cout << left << setw(labelWidth) << "Chemical potentials:"
-       << "\n";
-  for (const auto &[ele, mu] : chemicalPotentialsMap_)
-  {
-    cout << "  " << left << setw(labelWidth - 2) << ele
-         << right << setw(valueWidth) << mu << "\n";
-  }
-
-  cout << left << setw(labelWidth) << "Sym CE ECIs size:"
-       << right << setw(valueWidth) << ecis_.size() << "\n";
-
-  cout << string(width, '-') << "\n\n";
+  PrintSymmetricCEPredictorInfo();
 }
 
 const vector<string> &SymmetricCEPredictor::GetAllowedElements() const
@@ -269,7 +227,6 @@ double SymmetricCEPredictor::ComputeLocalFormationEnergyForPair(
       canonicalSortedLatticeIds2,
       localOrbitsEncoding_);
 
-
   if (ecis_.size() != clusterVectorPair.first.size() ||
       ecis_.size() != clusterVectorPair.second.size())
   {
@@ -368,6 +325,8 @@ unordered_map<string, int> SymmetricCEPredictor::GetElementCountMap(
   return elementCountMap;
 }
 
+// In TiledLMC it will not use supercellConfig 
+// but rather it will be using TiledSupercell
 vector<vector<size_t>> SymmetricCEPredictor::GetSymmetricallySortedLatticeIdsVectorMap(
     const Config &supercellConfig)
 {
@@ -398,4 +357,51 @@ vector<vector<size_t>> SymmetricCEPredictor::GetSymmetricallySortedLatticeIdsVec
   }
 
   return symmetricallySortedLatticeIdsVectorMap;
+}
+
+void SymmetricCEPredictor::PrintSymmetricCEPredictorInfo() const
+{
+  const int width = 80;
+  const int labelWidth = 40;
+  const int valueWidth = width - labelWidth - 2;
+
+  // Header
+  cout << string(width, '-') << "\n";
+  cout << setw((width + 22) / 2) << right << "Energy Predictor Info" << "\n";
+  cout << string(width, '-') << "\n";
+
+  // Table
+  cout << left << setw(labelWidth) << "Number of atoms:"
+       << right << setw(valueWidth) << nAtoms_ << "\n";
+
+  cout << left << setw(labelWidth) << "Allowed elements:"
+       << right << setw(valueWidth);
+  for (const auto &ele : allowedElements_)
+    cout << ele << " ";
+  cout << "\n";
+
+  cout << left << setw(labelWidth) << "Cluster cutoffs:"
+       << right << setw(valueWidth);
+  for (const auto &cut : clusterCutoffs_)
+    cout << cut << " ";
+  cout << "\n";
+
+  cout << left << setw(labelWidth) << "Local orbits encoding size:"
+       << right << setw(valueWidth) << localOrbitsEncoding_.size() << "\n";
+
+  cout << left << setw(labelWidth) << "Cluster vector size (with constant term):"
+       << right << setw(valueWidth) << (localOrbitsEncoding_.size() + 1) << "\n";
+
+  cout << left << setw(labelWidth) << "Chemical potentials:"
+       << "\n";
+  for (const auto &[ele, mu] : chemicalPotentialsMap_)
+  {
+    cout << "  " << left << setw(labelWidth - 2) << ele
+         << right << setw(valueWidth) << mu << "\n";
+  }
+
+  cout << left << setw(labelWidth) << "Sym CE ECIs size:"
+       << right << setw(valueWidth) << ecis_.size() << "\n";
+
+  cout << string(width, '-') << "\n\n";
 }

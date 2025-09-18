@@ -133,6 +133,7 @@ public:
    */
   [[nodiscard]] std::vector<size_t> GetNeighborLatticeIdVectorOfLattice(size_t lattice_id, size_t distance_order) const;
 
+
   /*! \brief Query for the set of neighbor lattice id of a lattice.
    *  \param lattice_id      The lattice id of the lattice.
    *  \param distance_order  The order of distance between the two lattice.

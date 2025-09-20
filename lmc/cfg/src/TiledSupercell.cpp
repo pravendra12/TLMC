@@ -339,7 +339,7 @@ Vector3d TiledSupercell::GetRelativeDistanceVectorLattice(
   return relVec;
 }
 
-inline LatticeSiteMapping TiledSupercell::GetLatticeSiteMappingFromAtomId(
+LatticeSiteMapping TiledSupercell::GetLatticeSiteMappingFromAtomId(
     const size_t &atomId) const
 {
   if (atomId >= totalNumOfSites_)
@@ -353,7 +353,7 @@ inline LatticeSiteMapping TiledSupercell::GetLatticeSiteMappingFromAtomId(
   return LatticeSiteMapping{latticeId, smallConfigId};
 }
 
-inline size_t TiledSupercell::GetAtomIdFromLatticeAndConfigId(
+size_t TiledSupercell::GetAtomIdFromLatticeAndConfigId(
     const LatticeSiteMapping &latticeSiteMapping) const
 {
 

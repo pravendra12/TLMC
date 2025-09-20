@@ -18,36 +18,16 @@
 #include <utility>
 #include <omp.h>
 #include <mpi.h>
-#include "Config.h"
+#include "TiledSupercell.h"
 #include "ThermodynamicAveraging.h"
-#include "ClusterExpansionParameters.h"
 
 using namespace std;
 
 class McAbstract
 {
 public:
-  /**
-   * @brief Abstract base class for Monte Carlo simulations.
-   *
-   * This class provides the interface and common functionality for Monte Carlo simulations,
-   * including configuration management, simulation parameters, and statistics tracking.
-   *
-   * @param config Configuration used for simulation.
-   * @param supercellConfig Configuration used for training the Cluster Expansion Model.
-   * @param logDumpSteps Number of steps between logging the simulation progress.
-   * @param configDumpSteps Number of steps between dumping the configuration.
-   * @param maximumSteps Maximum number of steps to perform in the simulation.
-   * @param thermodynamicAveragingSteps Number of steps for thermodynamic averaging.
-   * @param restartSteps Step count for restarting the simulation.
-   * @param restartEnergy Energy value for restarting the simulation.
-   * @param restartTime Time value for restarting the simulation.
-   * @param temperature Constant temperature for the simulation (in Kelvin).
-   * @param elementSet Set of elements used in the configuration.
-   * @param predictorFilename Path to the JSON file containing cluster interaction coefficients.
-   * @param logFilename Name of log file.
-   */
-  McAbstract(Config config,
+
+  McAbstract(TiledSupercell tiledSupercell,
              unsigned long long int logDumpSteps,
              unsigned long long int configDumpSteps,
              unsigned long long int maximumSteps,
@@ -83,7 +63,7 @@ protected:
    * @brief Stores the configuration.
    *
    */
-  Config config_;
+  TiledSupercell tiledSupercell_;
 
   // simulation parameters
 

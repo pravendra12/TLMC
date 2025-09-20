@@ -1,15 +1,15 @@
 #include "SimulatedAnnealing.h"
 namespace mc
 {
-  SimulatedAnnealing::SimulatedAnnealing(Config config,
+  SimulatedAnnealing::SimulatedAnnealing(TiledSupercell tiledSupercell,
                                          const unsigned long long int logDumpSteps,
                                          const unsigned long long int configDumpSteps,
                                          const unsigned long long int maximumSteps,
                                          const unsigned long long int restartSteps,
                                          const double restartEnergy,
                                          const double initialTemperature,
-                                         EnergyPredictor &energyChangePredictor)
-      : McAbstract(move(config),
+                                         EnergyPredictorTLMC &energyChangePredictor)
+      : McAbstract(move(tiledSupercell),
                    logDumpSteps,
                    configDumpSteps,
                    maximumSteps,
@@ -20,7 +20,7 @@ namespace mc
                    initialTemperature, // temperature
                    "sa_log.txt"),
         energyChangePredictor_(energyChangePredictor),
-        atom_index_selector_(0, config_.GetNumAtoms() - 1),
+        atomIndexSelector_(0, tiledSupercell.GetTotalNumOfSites() - 1),
         initialTemperature_(initialTemperature)
 
   {
@@ -44,12 +44,11 @@ namespace mc
     }
     if (steps_ % configDumpSteps_ == 0)
     {
-      // config_.WriteConfig(to_string(steps_) + ".cfg", config_);
-      config_.WriteConfig(to_string(steps_) + ".cfg.gz", config_);
+      tiledSupercell_.WriteAtomVectorInfoToFile(to_string(steps_) + ".txt");
     }
     if (steps_ == maximumSteps_)
     {
-      config_.WriteConfig("end.cfg", config_);
+      tiledSupercell_.WriteAtomVectorInfoToFile(to_string(steps_) + ".txt");
     }
 
     // log steps
@@ -73,7 +72,7 @@ namespace mc
       ofs_ << steps_ << '\t'
            << temperature_ << '\t'
            << energy_ << '\t'
-           << energy_ / double(config_.GetNumAtoms()) << endl;
+           << energy_ / double(tiledSupercell_.GetTotalNumOfSites()) << endl;
     }
   }
 
@@ -84,23 +83,43 @@ namespace mc
     beta_ = 1.0 / constants::kBoltzmann / temperature_;
   }
 
-  pair<size_t, size_t> SimulatedAnnealing::GenerateLatticeIdJumpPair()
+  pair<LatticeSiteMapping, LatticeSiteMapping> SimulatedAnnealing::GenerateLatticeSiteIdJumpPair()
   {
-    size_t lattice_id1, lattice_id2;
+    LatticeSiteMapping latticeSiteId1;
+    LatticeSiteMapping latticeSiteId2;
     do
     {
-      lattice_id1 = atom_index_selector_(generator_);
-      lattice_id2 = atom_index_selector_(generator_);
-    } while (config_.GetElementOfLattice(lattice_id1) == config_.GetElementOfLattice(lattice_id2));
-    return {lattice_id1, lattice_id2};
+      auto atomId1 = atomIndexSelector_(generator_);
+      latticeSiteId1 = tiledSupercell_.GetLatticeSiteMappingFromAtomId(atomId1);
+
+      auto atomId2 = atomIndexSelector_(generator_);
+      latticeSiteId2 = tiledSupercell_.GetLatticeSiteMappingFromAtomId(atomId2);
+
+    } while (tiledSupercell_.GetElementAtSite(latticeSiteId1) == tiledSupercell_.GetElementAtSite(latticeSiteId2));
+
+    return {latticeSiteId1, latticeSiteId2};
   }
 
-  void SimulatedAnnealing::SelectEvent(const pair<size_t, size_t> &lattice_id_jump_pair,
+  pair<LatticeSiteMapping, LatticeSiteMapping> SimulatedAnnealing::GenerateVacancyLatticeSiteIdJumpPair()
+  {
+    auto latticeSiteId1 = tiledSupercell_.GetVacancySiteId();
+
+    LatticeSiteMapping latticeSiteId2;
+    do
+    {
+      auto atomId2 = atomIndexSelector_(generator_);
+      latticeSiteId2 = tiledSupercell_.GetLatticeSiteMappingFromAtomId(atomId2);
+    } while (tiledSupercell_.GetElementAtSite(latticeSiteId1) == tiledSupercell_.GetElementAtSite(latticeSiteId2));
+
+    return {latticeSiteId1, latticeSiteId2};
+  }
+
+  void SimulatedAnnealing::SelectEvent(const pair<LatticeSiteMapping, LatticeSiteMapping> &lattice_id_jump_pair,
                                        const double dE)
   {
     if (dE < 0)
     {
-      config_.LatticeJump(lattice_id_jump_pair);
+      tiledSupercell_.LatticeJump(lattice_id_jump_pair);
       energy_ += dE;
       absolute_energy_ += dE;
     }
@@ -110,7 +129,7 @@ namespace mc
       double random_number = unitDistribution_(generator_);
       if (random_number < possibility)
       {
-        config_.LatticeJump(lattice_id_jump_pair);
+        tiledSupercell_.LatticeJump(lattice_id_jump_pair);
         energy_ += dE;
         absolute_energy_ += dE;
       }
@@ -121,9 +140,11 @@ namespace mc
   {
     while (steps_ <= maximumSteps_)
     {
-      auto lattice_id_jump_pair = GenerateLatticeIdJumpPair();
+      // condition can provided based on the whether to use vacancy-lattice site pair
+      // or lattice-lattice site pair
+      auto lattice_id_jump_pair = GenerateLatticeSiteIdJumpPair();
       auto dE = energyChangePredictor_.GetEnergyChange(
-          config_,
+          tiledSupercell_,
           lattice_id_jump_pair);
       Dump();
       UpdateTemperature();

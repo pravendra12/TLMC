@@ -2,9 +2,10 @@
 #include "Config.h"
 
 TiledSupercell::TiledSupercell(
-    const Config &smallConfig,
-    const Cube &cubeObj) : smallConfig_(move(smallConfig)),
+    Config &smallConfig,
+    const Cube &cubeObj) : smallConfig_(smallConfig),
                            cubeObj_(move(cubeObj)),
+                           superBasis_(smallConfig.GetBasis() * static_cast<double>(cubeObj_.GetSizeOfCube())),
                            numSitesPerSmallConfig_(
                                smallConfig.GetNumLattices()),
                            numSmallConfig_(
@@ -19,17 +20,49 @@ TiledSupercell::TiledSupercell(
   PrintTiledSupercell();
 }
 
+const Config &TiledSupercell::GetSmallConfig() const
+{
+  return smallConfig_;
+}
+
+const Matrix3d &TiledSupercell::GetSuperBasis() const
+{
+  return superBasis_;
+}
+
+const Cube &TiledSupercell::GetCube() const
+{
+  return cubeObj_;
+}
+
+size_t TiledSupercell::GetNumOfSitesPerSmallConfig() const
+{
+  return numSitesPerSmallConfig_;
+}
+
+size_t TiledSupercell::GetNumOfSmallConfig() const
+{
+  return numSmallConfig_;
+}
+
+size_t TiledSupercell::GetTotalNumOfSites() const
+{
+  return totalNumOfSites_;
+}
+
 // these latticePair are bascially teh
 // <LatticeId, smallConfigId> which will be used to
 // get the atomId then the swap will happen
 void TiledSupercell::LatticeJump(
-    const pair<size_t, size_t> &latticeAndConfigIdPair1,
-    const pair<size_t, size_t> &latticeAndConfigIdPair2)
+    const pair<LatticeSiteMapping, LatticeSiteMapping> &latticeSiteMappingPair)
 {
+  auto latticeSiteMapping1 = latticeSiteMappingPair.first;
+  auto latticeSiteMapping2 = latticeSiteMappingPair.second;
+
   auto atomId1 = GetAtomIdFromLatticeAndConfigId(
-      latticeAndConfigIdPair1);
+      latticeSiteMapping1);
   auto atomId2 = GetAtomIdFromLatticeAndConfigId(
-      latticeAndConfigIdPair2);
+      latticeSiteMapping2);
 
   if (atomId1 >= atomVector_.size() || atomId2 >= atomVector_.size())
   {
@@ -44,7 +77,7 @@ void TiledSupercell::LatticeJump(
   std::swap(atomVector_[atomId1], atomVector_[atomId2]);
 }
 
-vector<pair<size_t, int>> TiledSupercell::GetNeighborLatticeIdVectorOfLattice(
+vector<LatticeSiteEncodedMapping> TiledSupercell::GetNeighborLatticeIdVectorOfLattice(
     const size_t &latticeId,
     const size_t &distanceOrder) const
 {
@@ -76,12 +109,118 @@ vector<pair<size_t, int>> TiledSupercell::GetNeighborLatticeIdVectorOfLattice(
   return neighbourList_.at(distanceOrder - 1).at(latticeId);
 }
 
+vector<LatticeSiteEncodedMapping> TiledSupercell::GetNeighborLatticeIdsUpToOrder(
+    const size_t &latticeId,
+    const size_t &maxBondOrder) const
+{
+  if (maxBondOrder == 0)
+  {
+    throw std::invalid_argument(
+        "Error in TiledSupercell::GetNeighborLatticeIdsUpToOrder: "
+        "maxBondOrder must be >= 1");
+  }
+  if (maxBondOrder > neighbourList_.size())
+  {
+    throw std::out_of_range(
+        "Error in TiledSupercell::GetNeighborLatticeIdsUpToOrder: "
+        "maxBondOrder (" +
+        std::to_string(maxBondOrder) +
+        ") exceeds neighbourList_ size (" +
+        std::to_string(neighbourList_.size()) + ")");
+  }
+  if (latticeId >= neighbourList_[0].size())
+  {
+    throw std::out_of_range(
+        "Error in TiledSupercell::GetNeighborLatticeIdsUpToOrder: "
+        "latticeId (" +
+        std::to_string(latticeId) +
+        ") exceeds number of lattice sites (" +
+        std::to_string(neighbourList_[0].size()) + ")");
+  }
+
+  vector<LatticeSiteEncodedMapping> neighborsUpToOrder;
+  for (size_t order = 1; order < maxBondOrder + 1; ++order)
+  {
+    const auto &ids = GetNeighborLatticeIdVectorOfLattice(latticeId, order);
+    neighborsUpToOrder.insert(neighborsUpToOrder.end(), ids.begin(), ids.end());
+  }
+
+  return neighborsUpToOrder;
+}
+
+vector<NeighbourOfPair> TiledSupercell::GetNeighboringLatticeIdSetOfPair(
+    const pair<size_t, size_t> &latticeIdPair,
+    const size_t &maxBondOrder,
+    const bool removeLatticeIdDuplicates) const
+{
+
+  // MAJOR ISSUE
+
+  // 1
+  // common neighbours are still a issue need to think about the common neibhours
+  // as two same latticeId can have diffent encodedIndex it like seeing the same id
+  // from two different sides, this will be a major issue, but in principle these
+  // common sites viewed from either site will have same element so keep one of it
+
+  // SOLUTION
+  // This is solved using NeighbourOfPair which also store this neighbour belongs to
+  // which site in the latticeIdPair first or second
+
+  // 2
+  // Right now this function is only be expected to be used if the first nn latticeIdPair in the
+  // TileSupercell, for the case where they are not the first nn in the TiledSupercell
+  // then return all the neighbours without any use seen set
+  // One way to make it more generic to use a bool removeLatticeIdDuplicates
+
+  // SOLUTION
+  // Use removeLatticeIdDuplicates tag which will specify whether to remove those
+  // sites which have same latticeId but different encodedConfigIdx, it is useful
+  // when one have to get the neighbours of pair which contains latticeIds at first nn
+  // in TiledSupercell, also there can be case when the two same latticeId may not be
+  // first nn in the TiledSupercell in that case one would be interested to get all the
+  // neighbours, not sure whether later will be used at all but a now the function is
+  // more generic
+
+  vector<NeighbourOfPair> neighbours;
+
+  // If deduplication is needed, use a set to track added latticeIds
+  unordered_set<size_t> seen;
+
+  for (size_t bondOrder = 1; bondOrder <= maxBondOrder; ++bondOrder)
+  {
+    auto neighborsVector1 = GetNeighborLatticeIdVectorOfLattice(latticeIdPair.first, bondOrder);
+    auto neighborsVector2 = GetNeighborLatticeIdVectorOfLattice(latticeIdPair.second, bondOrder);
+
+    for (const auto &nn : neighborsVector1)
+    {
+      auto id = nn.latticeId;
+      if (id != latticeIdPair.first && id != latticeIdPair.second)
+      {
+        if (!removeLatticeIdDuplicates || seen.insert(id).second)
+          neighbours.emplace_back(nn, NeighbourOfPair::SourceSite::First);
+      }
+    }
+
+    for (const auto &nn : neighborsVector2)
+    {
+      auto id = nn.latticeId;
+      if (id != latticeIdPair.first && id != latticeIdPair.second)
+      {
+        if (!removeLatticeIdDuplicates || seen.insert(id).second)
+          neighbours.emplace_back(nn, NeighbourOfPair::SourceSite::Second);
+      }
+    }
+  }
+
+  return neighbours;
+}
+
 void TiledSupercell::SetElementAtSite(
-    const pair<size_t, size_t> &latticeAndConfigIdPair,
+    const LatticeSiteMapping &latticeSiteMapping,
     const Element &element)
 {
   size_t atomId = GetAtomIdFromLatticeAndConfigId(
-      latticeAndConfigIdPair);
+      latticeSiteMapping);
 
   if (atomId >= totalNumOfSites_)
   {
@@ -89,18 +228,18 @@ void TiledSupercell::SetElementAtSite(
         "TiledSupercell::SetElementAtSite error: "
         "atomId " +
         std::to_string(atomId) +
-        " (from latticeId " + std::to_string(latticeAndConfigIdPair.first) +
-        ", smallConfigId " + std::to_string(latticeAndConfigIdPair.second) +
+        " (from latticeId " + std::to_string(latticeSiteMapping.latticeId) +
+        ", smallConfigId " + std::to_string(latticeSiteMapping.smallConfigId) +
         ") exceeds total number of sites " + std::to_string(totalNumOfSites_));
   }
   atomVector_[atomId] = element;
 }
 
 Element TiledSupercell::GetElementAtSite(
-    const pair<size_t, size_t> &latticeAndConfigIdPair)
+    const LatticeSiteMapping &latticeSiteMapping) const
 {
   size_t atomId = GetAtomIdFromLatticeAndConfigId(
-      latticeAndConfigIdPair);
+      latticeSiteMapping);
 
   if (atomId >= totalNumOfSites_)
   {
@@ -108,35 +247,117 @@ Element TiledSupercell::GetElementAtSite(
         "TiledSupercell::GetElementAtSite error: "
         "atomId " +
         std::to_string(atomId) +
-        " (from latticeId " + std::to_string(latticeAndConfigIdPair.first) +
-        ", smallConfigId " + std::to_string(latticeAndConfigIdPair.second) +
+        " (from latticeId " + std::to_string(latticeSiteMapping.latticeId) +
+        ", smallConfigId " + std::to_string(latticeSiteMapping.smallConfigId) +
         ") exceeds total number of sites " + std::to_string(totalNumOfSites_));
   }
 
   return atomVector_.at(atomId);
 }
 
-inline pair<size_t, size_t> TiledSupercell::GetLatticeAndConfigIdFromAtomId(
+LatticeSiteMapping TiledSupercell::GetVacancySiteId() const
+{
+  size_t xCount = std::count(atomVector_.begin(), atomVector_.end(), Element("X"));
+
+  if (xCount == 0)
+  {
+    throw std::runtime_error(
+        "Error in `TiledSupercell::GetVacancySiteId`: No vacancy found in TiledSupercell. Expected exactly one vacancy.");
+  }
+
+  if (xCount > 1)
+  {
+    throw std::runtime_error(
+        "Error in `TiledSupercell::GetVacancySiteId`: More than one vacancy found in TiledSupercell. Expected exactly one vacancy.");
+  }
+
+  // Safe to get the index now
+  auto it = std::find(atomVector_.begin(), atomVector_.end(), Element("X"));
+  size_t vacancyIndex = std::distance(atomVector_.begin(), it);
+
+  auto vacancySiteId = GetLatticeSiteMappingFromAtomId(vacancyIndex);
+
+  return vacancySiteId;
+}
+
+LatticeSiteMapping TiledSupercell::GetLatticeSiteMappingFromEncoding(
+    const LatticeSiteEncodedMapping &latticeSiteEncoding,
+    const LatticeSiteMapping &refLatticeSiteMapping) const
+{
+  size_t neighbourConfigIdx;
+  if (latticeSiteEncoding.encodedSmallConfigId == -1)
+  {
+    neighbourConfigIdx = refLatticeSiteMapping.smallConfigId;
+  }
+  else
+  {
+    const auto &neighborsOfSmallConfig = cubeObj_.GetNeighbors(refLatticeSiteMapping.smallConfigId);
+
+    neighbourConfigIdx = neighborsOfSmallConfig[latticeSiteEncoding.encodedSmallConfigId];
+  }
+
+  return LatticeSiteMapping(
+      latticeSiteEncoding.latticeId,
+      neighbourConfigIdx);
+}
+
+// Return the absolute relative position vector of a lattice site in the supercell
+Vector3d TiledSupercell::GetRelativePositionOfLatticeSiteMapping(
+    const LatticeSiteMapping &latticeSiteId) const
+{
+  const size_t smallConfigIdx = latticeSiteId.smallConfigId;
+  const size_t latticeId = latticeSiteId.latticeId;
+
+  // Offset of this smallConfig in the cube
+  Vector3d offset = cubeObj_.GetRelativePosition(smallConfigIdx).cast<double>();
+
+  // Position of latticeId in the small config
+  Vector3d smallConfigPos = smallConfig_.GetRelativePositionMatrix().col(static_cast<int>(latticeId));
+
+  // Supercell relative position = small config position + offset (scaled by cube size)
+  Vector3d relPos = (smallConfigPos + offset) / static_cast<double>(cubeObj_.GetSizeOfCube());
+
+  return relPos;
+}
+
+// Return the relative distance vector between two lattice sites in the supercell
+Vector3d TiledSupercell::GetRelativeDistanceVectorLattice(
+    const LatticeSiteMapping &site1,
+    const LatticeSiteMapping &site2) const
+{
+  Vector3d relVec = GetRelativePositionOfLatticeSiteMapping(site2) -
+                    GetRelativePositionOfLatticeSiteMapping(site1);
+
+  // Apply periodic boundary conditions
+  for (int kDim = 0; kDim < 3; ++kDim)
+  {
+    while (relVec[kDim] >= 0.5)
+      relVec[kDim] -= 1.0;
+    while (relVec[kDim] < -0.5)
+      relVec[kDim] += 1.0;
+  }
+  return relVec;
+}
+
+inline LatticeSiteMapping TiledSupercell::GetLatticeSiteMappingFromAtomId(
     const size_t &atomId) const
 {
   if (atomId >= totalNumOfSites_)
   {
-    throw std::out_of_range("Error in `TiledSupercell::GetLatticeAndConfigIdFromAtomId`: Atom index exceeds total number of atoms");
+    throw std::out_of_range("Error in `TiledSupercell::GetLatticeSiteMappingFromAtomId`: Atom index exceeds total number of atoms");
   }
 
   size_t smallConfigId = atomId / numSitesPerSmallConfig_;
   size_t latticeId = atomId % numSitesPerSmallConfig_;
 
-  return {latticeId, smallConfigId};
+  return LatticeSiteMapping{latticeId, smallConfigId};
 }
 
 inline size_t TiledSupercell::GetAtomIdFromLatticeAndConfigId(
-    const pair<size_t, size_t> &latticeAndConfigIdPair) const
+    const LatticeSiteMapping &latticeSiteMapping) const
 {
-  size_t latticeId = latticeAndConfigIdPair.first;
-  size_t smallConfigId = latticeAndConfigIdPair.second;
 
-  size_t atomId = smallConfigId * numSitesPerSmallConfig_ + latticeId;
+  size_t atomId = latticeSiteMapping.smallConfigId * numSitesPerSmallConfig_ + latticeSiteMapping.latticeId;
 
   if (atomId >= totalNumOfSites_)
   {
@@ -219,10 +440,10 @@ void TiledSupercell::WriteAtomVectorInfoToFile(
 
   for (size_t i = 0; i < atomVector_.size(); ++i)
   {
-    auto latticeAndConfigIdPair = GetLatticeAndConfigIdFromAtomId(i);
+    auto latticeAndConfigIdPair = GetLatticeSiteMappingFromAtomId(i);
 
-    size_t latticeId = latticeAndConfigIdPair.first;
-    size_t smallCfgIdx = latticeAndConfigIdPair.second;
+    size_t latticeId = latticeAndConfigIdPair.latticeId;
+    size_t smallCfgIdx = latticeAndConfigIdPair.smallConfigId;
 
     outFile << i << "\t"
             << smallCfgIdx << "\t"
@@ -240,10 +461,10 @@ void TiledSupercell::WriteAtomVectorInfoToBinary(
 
   for (size_t i = 0; i < atomVector_.size(); ++i)
   {
-    auto latticeAndConfigIdPair = GetLatticeAndConfigIdFromAtomId(i);
+    auto latticeAndConfigIdPair = GetLatticeSiteMappingFromAtomId(i);
 
-    size_t latticeId = latticeAndConfigIdPair.first;
-    size_t smallCfgIdx = latticeAndConfigIdPair.second;
+    size_t latticeId = latticeAndConfigIdPair.latticeId;
+    size_t smallCfgIdx = latticeAndConfigIdPair.smallConfigId;
 
     size_t elementId = atomVector_[i].GetAtomicIndex(); // Atomic Number
 
@@ -439,9 +660,9 @@ void TiledSupercell::InitializeAtomVector()
 
   for (size_t i = 0; i < totalNumOfSites_; i++)
   {
-    auto latticeAndConfigIdPair = GetLatticeAndConfigIdFromAtomId(i);
+    auto latticeAndConfigIdPair = GetLatticeSiteMappingFromAtomId(i);
 
-    auto latticeId = latticeAndConfigIdPair.first;
+    auto latticeId = latticeAndConfigIdPair.latticeId;
     // auto smallConfigId = configAndLatticeIdPair.second;
 
     atomVector_.emplace_back(
@@ -452,6 +673,8 @@ void TiledSupercell::InitializeAtomVector()
 void TiledSupercell::UpdateNeighbourLists(
     const size_t maxBondOrder)
 {
+  neighbourList_.clear();
+  neighbourList_.reserve(maxBondOrder);
   // The reference smallConfig sits at configIndex 0
   // It does matter what index one assign to the reference config
   // because the encoded Index will be used which applies to all the smallConfig
@@ -470,12 +693,10 @@ void TiledSupercell::UpdateNeighbourLists(
     smallConfigIdxToEncodedIdxMap[neighbourOfSmallConfig[idx]] = idx;
   }
 
-  neighbourList_.reserve(maxBondOrder);
-
-  vector<vector<pair<size_t, int>>> neighbourListBondOrder;
+  vector<vector<LatticeSiteEncodedMapping>> neighbourListBondOrder;
   neighbourListBondOrder.reserve(numSitesPerSmallConfig_);
 
-  vector<pair<size_t, int>> encodedNeighbourPairVector;
+  vector<LatticeSiteEncodedMapping> encodedNeighbourPairVector;
 
   for (size_t bondOrder = 1; bondOrder < maxBondOrder + 1; bondOrder++)
   {
@@ -495,7 +716,7 @@ void TiledSupercell::UpdateNeighbourLists(
 
       for (const auto &entry : neighbourPairVector)
       {
-        size_t nnlatticeId = entry.first;
+        size_t nnLatticeId = entry.first;
         size_t smallConfigIdxInCube = entry.second;
 
         if (smallConfigIdxInCube != referenceConfigIdx)
@@ -503,16 +724,17 @@ void TiledSupercell::UpdateNeighbourLists(
           // Get the encoded index for the map
           int encodedIndex = smallConfigIdxToEncodedIdxMap.at(smallConfigIdxInCube);
 
-          encodedNeighbourPairVector.emplace_back(
-              make_pair(nnlatticeId,
-                        encodedIndex));
+          encodedNeighbourPairVector.emplace_back(LatticeSiteEncodedMapping(
+              nnLatticeId,
+              encodedIndex));
         }
         else
         {
           // If the nnLatticeId for a give latticeId lies in same config then
           encodedNeighbourPairVector.emplace_back(
-              make_pair(nnlatticeId,
-                        -1));
+              LatticeSiteEncodedMapping(
+                  nnLatticeId,
+                  -1));
         }
       }
       neighbourListBondOrder.emplace_back(encodedNeighbourPairVector);

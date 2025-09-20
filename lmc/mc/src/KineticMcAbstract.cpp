@@ -16,7 +16,7 @@
 namespace mc
 {
 
-  KineticMcFirstAbstract::KineticMcFirstAbstract(Config config,
+  KineticMcFirstAbstract::KineticMcFirstAbstract(TiledSupercell tiledSupercell,
                                                  const unsigned long long int logDumpSteps,
                                                  const unsigned long long int configDumpSteps,
                                                  const unsigned long long int maximumSteps,
@@ -25,11 +25,11 @@ namespace mc
                                                  const double restartEnergy,
                                                  const double restartTime,
                                                  const double temperature,
-                                                 VacancyMigrationPredictor &vacancyMigrationPredictor,
+                                                 VacancyMigrationPredictorTLMC &vacancyMigrationPredictor,
                                                  const string &timeTemperatureFilename,
                                                  const bool isRateCorrector,
                                                  const Eigen::RowVector3d &vacancyTrajectory)
-      : McAbstract(move(config),
+      : McAbstract(move(tiledSupercell),
                    logDumpSteps,
                    configDumpSteps,
                    maximumSteps,
@@ -40,14 +40,14 @@ namespace mc
                    temperature,
                    "kmc_log.txt"),
         kEventListSize_(
-            config.GetNeighborLatticeIdVectorOfLattice(0, 1).size()),
+            tiledSupercell_.GetNeighborLatticeIdVectorOfLattice(0, 1).size()),
         vacancyMigrationPredictor_(
             vacancyMigrationPredictor),
         timeTemperatureInterpolator_(
             timeTemperatureFilename),
         isTimeTemperatureInterpolator_(!timeTemperatureFilename.empty()),
         isRateCorrector_(isRateCorrector),
-        vacancyLatticeId_(config_.GetVacancyLatticeId()),
+        vacancyLatticeSiteId_(tiledSupercell_.GetVacancySiteId()),
         vacancyTrajectory_(vacancyTrajectory),
         event_k_i_list_(kEventListSize_)
   {
@@ -90,11 +90,13 @@ namespace mc
     }
     if (steps_ % configDumpSteps_ == 0)
     {
-      config_.WriteConfig(to_string(steps_) + ".cfg.gz", config_);
+      // config_.WriteConfig(to_string(steps_) + ".cfg.gz", config_);
+      tiledSupercell_.WriteAtomVectorInfoToFile(to_string(steps_) + ".txt");
     }
     if (steps_ == maximumSteps_)
     {
-      config_.WriteConfig("end.cfg", config_);
+      tiledSupercell_.WriteAtomVectorInfoToFile(to_string(steps_) + ".txt");
+      // config_.WriteConfig("end.cfg", config_);
     }
 
     unsigned long long int logDumpSteps;
@@ -120,7 +122,8 @@ namespace mc
            << event_k_i_.GetForwardBarrier() << '\t'
            << event_k_i_.GetEnergyChange() << '\t'
            << event_k_i_.GetBackwardBarrier() << "\t"
-           << event_k_i_.GetIdJumpPair().second << '\t'
+           << "(" << event_k_i_.GetIdJumpPair().second.latticeId
+           << ", " << event_k_i_.GetIdJumpPair().second.smallConfigId << ")\t"
            << vacancyTrajectory_ << endl;
     }
   }
@@ -156,7 +159,8 @@ namespace mc
       if (isnan(one_step_time) or isinf(one_step_time) or one_step_time < 0.0)
       {
 
-        config_.WriteConfig("debug" + to_string(steps_) + ".cfg.gz", config_);
+        // config_.WriteConfig("debug" + to_string(steps_) + ".cfg.gz", config_);
+        tiledSupercell_.WriteAtomVectorInfoToFile("debug" + to_string(steps_) + ".txt");
         cerr << "Invalid time step: " << one_step_time << endl;
         cerr << "For each event: Energy Barrier, Energy Change, Probability, " << endl;
         for (auto &event : event_k_i_list_)
@@ -191,16 +195,17 @@ namespace mc
     absolute_energy_ += event_k_i_.GetEnergyChange();
 
     Eigen::RowVector3d vacancyTrajectory_step =
-        (config_.GetRelativeDistanceVectorLattice(vacancyLatticeId_,
-                                                  event_k_i_.GetIdJumpPair().second))
+        (tiledSupercell_.GetRelativeDistanceVectorLattice(
+             vacancyLatticeSiteId_,
+             event_k_i_.GetIdJumpPair().second))
             .transpose() *
-        config_.GetBasis();
+        tiledSupercell_.GetSuperBasis();
 
     vacancyTrajectory_ += vacancyTrajectory_step;
 
-    config_.LatticeJump(event_k_i_.GetIdJumpPair());
+    tiledSupercell_.LatticeJump(event_k_i_.GetIdJumpPair());
     ++steps_;
-    vacancyLatticeId_ = event_k_i_.GetIdJumpPair().second;
+    vacancyLatticeSiteId_ = event_k_i_.GetIdJumpPair().second;
   }
 
   void KineticMcFirstAbstract::Simulate()
@@ -211,7 +216,7 @@ namespace mc
     }
   }
 
-  KineticMcChainAbstract::KineticMcChainAbstract(Config config,
+  KineticMcChainAbstract::KineticMcChainAbstract(TiledSupercell tiledSupercell,
                                                  const unsigned long long int logDumpSteps,
                                                  const unsigned long long int configDumpSteps,
                                                  const unsigned long long int maximumSteps,
@@ -220,11 +225,11 @@ namespace mc
                                                  const double restartEnergy,
                                                  const double restartTime,
                                                  const double temperature,
-                                                 VacancyMigrationPredictor &vacancyMigrationPredictor,
+                                                 VacancyMigrationPredictorTLMC &vacancyMigrationPredictor,
                                                  const string &timeTemperatureFilename,
                                                  const bool isRateCorrector,
                                                  const Eigen::RowVector3d &vacancyTrajectory)
-      : KineticMcFirstAbstract(move(config),
+      : KineticMcFirstAbstract(move(tiledSupercell),
                                logDumpSteps,
                                configDumpSteps,
                                maximumSteps,
@@ -237,12 +242,17 @@ namespace mc
                                timeTemperatureFilename,
                                isRateCorrector,
                                vacancyTrajectory),
-        previous_j_lattice_id_(config_.GetNeighborLatticeIdVectorOfLattice(vacancyLatticeId_, 1)[0]),
+        previous_j_lattice_id_(
+            tiledSupercell_.GetLatticeSiteMappingFromEncoding(
+                tiledSupercell_.GetNeighborLatticeIdVectorOfLattice(vacancyLatticeSiteId_.latticeId, 1)[0],
+                vacancyLatticeSiteId_)),
         l_lattice_id_list_(kEventListSize_)
   {
     MPI_Op_create(DataSum, 1, &mpi_op_);
     DefineStruct(&mpi_datatype_);
   }
+
+  
 
   void KineticMcChainAbstract::OneStepSimulation()
   {

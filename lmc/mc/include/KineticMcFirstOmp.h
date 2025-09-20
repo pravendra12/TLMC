@@ -3,13 +3,14 @@
 #include <random>
 #include <omp.h>
 #include "JumpEvent.h"
+#include "TiledSupercell.h"
 #include "KineticMcAbstract.h"
-#include "VacancyMigrationPredictor.h"
+#include "VacancyMigrationPredictorTLMC.h"
 
 namespace mc {
 class KineticMcFirstOmp : public KineticMcFirstAbstract {
   public:
-    KineticMcFirstOmp(Config config,
+    KineticMcFirstOmp(TiledSupercell tiledSupercell,
                       const unsigned long long int logDumpSteps,
                       const unsigned long long int configDumpSteps,
                       const unsigned long long int maximumSteps,
@@ -18,7 +19,7 @@ class KineticMcFirstOmp : public KineticMcFirstAbstract {
                       const double restartEnergy,
                       const double restartTime,
                       const double temperature,
-                      VacancyMigrationPredictor &vacancyMigrationPredictor,
+                      VacancyMigrationPredictorTLMC &vacancyMigrationPredictor,
                       const string &timeTemperatureFilename,
                       const bool isRateCorrector,
                       const Eigen::RowVector3d &vacancyTrajectory);

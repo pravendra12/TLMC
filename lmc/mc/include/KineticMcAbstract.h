@@ -22,7 +22,7 @@
 #include "McAbstract.h"
 #include "JumpEvent.h"
 #include "TimeTemperatureInterpolator.h"
-#include "VacancyMigrationPredictor.h"
+#include "VacancyMigrationPredictorTLMC.h"
 
 using namespace std;
 
@@ -39,26 +39,8 @@ namespace mc
   public:
     /**
      * Constructor for KineticMcFirstAbstract.
-     *
-     * Initializes the kinetic Monte Carlo simulation with the given parameters.
-     *
-     * @param config Simulation configuration.
-     * @param supercellConfig Training configuration used for the Cluster Expansion Model.
-     * @param logDumpSteps Steps between logging progress.
-     * @param configDumpSteps Steps between configuration dumps.
-     * @param maximumSteps Maximum simulation steps.
-     * @param thermodynamicAveragingSteps Steps for thermodynamic averaging.
-     * @param restartSteps Steps for restarting the simulation.
-     * @param restartEnergy Restart energy.
-     * @param restartTime Restart time.
-     * @param temperature Simulation temperature (in Kelvin).
-     * @param elementSet Set of elements involved in the simulation.
-     * @param predictorFilename Path to JSON file with cluster interaction coefficients.
-     * @param timeTemperatureFilename Path to time-temperature data file.
-     * @param isRateCorrector Whether rate correction needs to be applied.
-     * @param vacancyTrajectory Initial vacancy trajectory vector.
      */
-    KineticMcFirstAbstract(Config config,
+    KineticMcFirstAbstract(TiledSupercell tiledSupercell,
                            unsigned long long int logDumpSteps,
                            unsigned long long int configDumpSteps,
                            unsigned long long int maximumSteps,
@@ -67,7 +49,7 @@ namespace mc
                            double restartEnergy,
                            double restartTime,
                            double temperature,
-                           VacancyMigrationPredictor &vacancyMigrationPredictor,
+                           VacancyMigrationPredictorTLMC &vacancyMigrationPredictor,
                            const string &timeTemperatureFilename,
                            bool isRateCorrector,
                            const Eigen::RowVector3d &vacancyTrajectory);
@@ -142,7 +124,7 @@ namespace mc
     /**
      * @brief Vacancy Migration Energy Predictor
      */
-    VacancyMigrationPredictor &vacancyMigrationPredictor_;
+    VacancyMigrationPredictorTLMC &vacancyMigrationPredictor_;
 
     /**
      * @brief Time Temperature Interpolator
@@ -169,7 +151,7 @@ namespace mc
      * @brief Vacancy Lattice Id.
      *
      */
-    size_t vacancyLatticeId_;
+    LatticeSiteMapping vacancyLatticeSiteId_;
 
     /**
      * @brief Vacancy Trajectory Vector
@@ -208,24 +190,8 @@ namespace mc
      * Constructor for KineticMcFirstAbstract.
      *
      * Initializes the kinetic Monte Carlo simulation with the given parameters.
-     *
-     * @param config Simulation configuration.
-     * @param supercellConfig Training configuration used for the Cluster Expansion Model.
-     * @param logDumpSteps Steps between logging progress.
-     * @param configDumpSteps Steps between configuration dumps.
-     * @param maximumSteps Maximum simulation steps.
-     * @param thermodynamicAveragingSteps Steps for thermodynamic averaging.
-     * @param restartSteps Steps for restarting the simulation.
-     * @param restartEnergy Restart energy.
-     * @param restartTime Restart time.
-     * @param temperature Simulation temperature (in Kelvin).
-     * @param elementSet Set of elements involved in the simulation.
-     * @param predictorFilename Path to JSON file with cluster interaction coefficients.
-     * @param timeTemperatureFilename Path to time-temperature data file.
-     * @param isRateCorrector Whether rate correction needs to be applied.
-     * @param vacancyTrajectory Initial vacancy trajectory vector.
      */
-    KineticMcChainAbstract(Config config,
+    KineticMcChainAbstract(TiledSupercell tiledSupercell,
                            unsigned long long int logDumpSteps,
                            unsigned long long int configDumpSteps,
                            unsigned long long int maximumSteps,
@@ -234,7 +200,7 @@ namespace mc
                            double restartEnergy,
                            double restartTime,
                            double temperature,
-                           VacancyMigrationPredictor &vacancyMigrationPredictor,
+                           VacancyMigrationPredictorTLMC &vacancyMigrationPredictor,
                            const string &timeTemperatureFilename,
                            bool isRateCorrector,
                            const Eigen::RowVector3d &vacancyTrajectory);
@@ -266,7 +232,7 @@ namespace mc
      * @brief Lattice ID of the previous jump site.
      *
      */
-    size_t previous_j_lattice_id_;
+    LatticeSiteMapping previous_j_lattice_id_;
 
     /**
      * @brief Total rate for jump to nearest neighbours.
@@ -280,7 +246,7 @@ namespace mc
      *        k : current position
      *
      */
-    vector<size_t> l_lattice_id_list_{};
+    vector<LatticeSiteMapping> l_lattice_id_list_{};
 
     MPI_Op mpi_op_{};
     MPI_Datatype mpi_datatype_{};

@@ -60,7 +60,7 @@ namespace mc
       size_t ct = 0;
       do
       {
-        lattice_id_jump_pair = GenerateLatticeIdJumpPair();
+        lattice_id_jump_pair = GenerateLatticeSiteIdJumpPair();
         ct++;
         if (ct == 50)
         {

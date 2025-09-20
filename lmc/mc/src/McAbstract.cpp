@@ -13,7 +13,7 @@
 
 #include "McAbstract.h"
 
-McAbstract::McAbstract(Config config,
+McAbstract::McAbstract(TiledSupercell tiledSupercell,
                        unsigned long long int logDumpSteps,
                        unsigned long long int configDumpSteps,
                        unsigned long long int maximumSteps,
@@ -23,7 +23,7 @@ McAbstract::McAbstract(Config config,
                        double restartTime,
                        double temperature,
                        const string &logFilename)
-    : config_(move(config)),
+    : tiledSupercell_(move(tiledSupercell)),
       logDumpSteps_(logDumpSteps),
       configDumpSteps_(configDumpSteps),
       maximumSteps_(maximumSteps),

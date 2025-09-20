@@ -16,7 +16,8 @@
 #include "SymmetrySpglib.h"
 #include "BasisSet.h"
 #include "AtomClusterType.hpp"
-
+#include "TiledSupercell.h"
+#include "Cube.h"
 
 using namespace std;
 using namespace Eigen;
@@ -41,23 +42,22 @@ public:
       const vector<size_t> &canonicalSortedLatticeIdVector,
       const vector<vector<vector<int>>> &localOrbitEncoding) const;
 
-
   vector<double> GetLocalClusterVector(
-    const Config &config, 
-    const size_t &targetLatticeId, // element will be assigned to this lattice Id
-    const Element &elementToAssign, 
-    const vector<size_t> &canonicalSortedLatticeIdVector, 
-    const vector<vector<vector<int>>> &localOrbitEncoding) const;
+      const Config &config,
+      const size_t &targetLatticeId, // element will be assigned to this lattice Id
+      const Element &elementToAssign,
+      const vector<size_t> &canonicalSortedLatticeIdVector,
+      const vector<vector<vector<int>>> &localOrbitEncoding) const;
 
   vector<double> GetClusterVectorForConfig(
-    const Config &config);
+      const Config &config);
 
   vector<vector<double>> GetMultiElementLocalClusterVector(
-    const Config &config, 
-    const size_t &centralLatticeId, 
-    const vector<Element> &elementVector, 
-    const vector<size_t> &canonicalSortedLatticeIdVector, 
-    const vector<vector<vector<int>>> &localOrbitEncoding) const;
+      const Config &config,
+      const size_t &centralLatticeId,
+      const vector<Element> &elementVector,
+      const vector<size_t> &canonicalSortedLatticeIdVector,
+      const vector<vector<vector<int>>> &localOrbitEncoding) const;
 
   void TestSymmetricCE(
       Config &config,
@@ -66,19 +66,35 @@ public:
 
   // Original serial implementation
   pair<vector<double>, vector<double>> GetLocalClusterVectorForPairSerial(
-    const Config &config, 
-    const pair<size_t, size_t> &latticeIdPair, 
-    const pair<Element, Element> &latticeIdPairElements, 
-    const vector<size_t> &canonicalSortedLatticeIdVector1, 
-    const vector<size_t> &canonicalSortedLatticeIdVector2, 
-    const vector<vector<vector<int>>> &localOrbitEncoding) const;
+      const Config &config,
+      const pair<size_t, size_t> &latticeIdPair,
+      const pair<Element, Element> &latticeIdPairElements,
+      const vector<size_t> &canonicalSortedLatticeIdVector1,
+      const vector<size_t> &canonicalSortedLatticeIdVector2,
+      const vector<vector<vector<int>>> &localOrbitEncoding) const;
 
   pair<vector<double>, vector<double>> GetLocalClusterVectorForPair(
-    const Config &config, 
-    const pair<size_t, size_t> &latticeIdPair, 
-    const pair<Element, Element> &latticeIdPairElements, 
-    const vector<size_t> &canonicalSortedLatticeIdVector1, 
-    const vector<size_t> &canonicalSortedLatticeIdVector2, 
+      const Config &config,
+      const pair<size_t, size_t> &latticeIdPair,
+      const pair<Element, Element> &latticeIdPairElements,
+      const vector<size_t> &canonicalSortedLatticeIdVector1,
+      const vector<size_t> &canonicalSortedLatticeIdVector2,
+      const vector<vector<vector<int>>> &localOrbitEncoding) const;
+
+  // Returns clusterVector for a site in tiledSupercell
+  // cluster vector is scaled by the totalNumSitesInSupercell
+  vector<double> GetLocalClusterVector(
+      const TiledSupercell &tiledSupercell,
+      const size_t &smallConfigIdx,
+      const vector<LatticeSiteEncodedMapping> &symmetricSortedLatticeSitesEncoded,
+      const vector<vector<vector<int>>> &localOrbitEncoding) const;
+
+  pair<vector<double>, vector<double>> GetLocalClusterVectorForPair(
+    const TiledSupercell &tiledSupercell, 
+    const pair<LatticeSiteMapping, LatticeSiteMapping> &latticeSitePair, 
+    const pair<Element, Element> &latticeSitePairElements, 
+    const vector<LatticeSiteEncodedMapping> &symmetricSortedLatticeSitesEncoded1, 
+    const vector<LatticeSiteEncodedMapping> &symmetricSortedLatticeSitesEncoded2, 
     const vector<vector<vector<int>>> &localOrbitEncoding) const;
 
 private:

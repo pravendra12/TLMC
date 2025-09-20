@@ -19,7 +19,7 @@
 #include <utility>
 #include <chrono>
 #include "McAbstract.h"
-#include "EnergyPredictor.h"
+#include "EnergyPredictorTLMC.h"
 
 using namespace std;
 
@@ -34,20 +34,9 @@ namespace mc
      * Initializes the Canonical Monte Carlo simulation with the given configuration,
      * training setup, and simulation parameters.
      *
-     * @param config Configuration used for the simulation.
-     * @param supercellConfig Configuration used to train the Cluster Expansion model.
-     * @param logDumpSteps Number of steps between logging simulation progress.
-     * @param configDumpSteps Number of steps between dumping the configuration.
-     * @param maximumSteps Maximum number of Monte Carlo steps to run.
-     * @param thermodynamicAveragingSteps Number of steps to use for thermodynamic averaging.
-     * @param restartSteps Step index for restarting the simulation.
-     * @param restartEnergy Energy value to resume the simulation from.
-     * @param temperature Constant simulation temperature (in Kelvin).
-     * @param elementSet Set of elements present in the configuration.
-     * @param predictorFilename Path to the JSON file containing cluster interaction coefficients.
      */
 
-    CanonicalMcAbstract(Config config,
+    CanonicalMcAbstract(TiledSupercell tiledSupercell,
                         unsigned long long int logDumpSteps,
                         unsigned long long int configDumpSteps,
                         unsigned long long int maximumSteps,
@@ -55,7 +44,7 @@ namespace mc
                         unsigned long long int restartSteps,
                         double restartEnergy,
                         double temperature,
-                        EnergyPredictor &energyChangePredictor);
+                        EnergyPredictorTLMC &energyChangePredictor);
 
     /*!
      * @brief Starts the simulation process.
@@ -73,9 +62,9 @@ namespace mc
     /*! @brief Generates a lattice Id jump pair.
      *  \returns A pair of lattice Ids.
      */
-    pair<size_t, size_t> GenerateLatticeIdJumpPair();
+    pair<LatticeSiteMapping, LatticeSiteMapping> GenerateLatticeSiteIdJumpPair();
 
-    pair<size_t, size_t> GenerateVacancyLatticeIdJumpPair();
+    pair<LatticeSiteMapping, LatticeSiteMapping> GenerateVacancyLatticeSiteIdJumpPair();
 
     /*!
      * @brief Selects an event based on the lattice ID pair and energy change.
@@ -86,11 +75,11 @@ namespace mc
      * \param lattice_id_jump_pair Pair of lattice Ids.
      * \param dE                   Energy change associated with the event.
      */
-    void SelectEvent(const pair<size_t, size_t> &lattice_id_jump_pair,
-                     double dE);
+    void SelectEvent(const pair<LatticeSiteMapping, LatticeSiteMapping> &lattice_id_jump_pair,
+                     const double dE);
 
 
-    EnergyPredictor &energyChangePredictor_;
+    EnergyPredictorTLMC &energyChangePredictor_;
 
     /** @brief Random Lattice Id Generator
      */

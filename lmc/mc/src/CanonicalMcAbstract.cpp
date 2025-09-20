@@ -14,7 +14,7 @@
 
 namespace mc
 {
-  CanonicalMcAbstract::CanonicalMcAbstract(Config config,
+  CanonicalMcAbstract::CanonicalMcAbstract(TiledSupercell tiledSupercell,
                                            const unsigned long long int logDumpSteps,
                                            const unsigned long long int configDumpSteps,
                                            const unsigned long long int maximumSteps,
@@ -22,8 +22,8 @@ namespace mc
                                            const unsigned long long int restartSteps,
                                            const double restartEnergy,
                                            const double temperature,
-                                           EnergyPredictor &energyChangePredictor)
-      : McAbstract(move(config),
+                                           EnergyPredictorTLMC &energyChangePredictor)
+      : McAbstract(move(tiledSupercell),
                    logDumpSteps,
                    configDumpSteps,
                    maximumSteps,
@@ -34,32 +34,39 @@ namespace mc
                    temperature,
                    "cmc_log.txt"),
         energyChangePredictor_(energyChangePredictor),
-        atomIndexSelector_(0, config_.GetNumAtoms() - 1)
+        atomIndexSelector_(0, tiledSupercell_.GetTotalNumOfSites() - 1)
   {
   }
 
-  pair<size_t, size_t> CanonicalMcAbstract::GenerateLatticeIdJumpPair()
+  pair<LatticeSiteMapping, LatticeSiteMapping> CanonicalMcAbstract::GenerateLatticeSiteIdJumpPair()
   {
-    size_t latticeId1, latticeId2;
+    LatticeSiteMapping latticeSiteId1;
+    LatticeSiteMapping latticeSiteId2;
     do
     {
-      latticeId1 = atomIndexSelector_(generator_);
-      latticeId2 = atomIndexSelector_(generator_);
-    } while (config_.GetElementOfLattice(latticeId1) == config_.GetElementOfLattice(latticeId2));
-    return {latticeId1, latticeId2};
+      auto atomId1 = atomIndexSelector_(generator_);
+      latticeSiteId1 = tiledSupercell_.GetLatticeSiteMappingFromAtomId(atomId1);
+
+      auto atomId2 = atomIndexSelector_(generator_);
+      latticeSiteId2 = tiledSupercell_.GetLatticeSiteMappingFromAtomId(atomId2);
+
+    } while (tiledSupercell_.GetElementAtSite(latticeSiteId1) == tiledSupercell_.GetElementAtSite(latticeSiteId2));
+
+    return {latticeSiteId1, latticeSiteId2};
   }
 
-  pair<size_t, size_t> CanonicalMcAbstract::GenerateVacancyLatticeIdJumpPair()
+  pair<LatticeSiteMapping, LatticeSiteMapping> CanonicalMcAbstract::GenerateVacancyLatticeSiteIdJumpPair()
   {
-    size_t latticeId1 = config_.GetVacancyLatticeId();
+    auto latticeSiteId1 = tiledSupercell_.GetVacancySiteId();
 
-    size_t latticeId2;
+    LatticeSiteMapping latticeSiteId2;
     do
     {
-      // latticeId1 = atomIndexSelector_(generator_);
-      latticeId2 = atomIndexSelector_(generator_);
-    } while (config_.GetElementOfLattice(latticeId1) == config_.GetElementOfLattice(latticeId2));
-    return {latticeId1, latticeId2};
+      auto atomId2 = atomIndexSelector_(generator_);
+      latticeSiteId2 = tiledSupercell_.GetLatticeSiteMappingFromAtomId(atomId2);
+    } while (tiledSupercell_.GetElementAtSite(latticeSiteId1) == tiledSupercell_.GetElementAtSite(latticeSiteId2));
+
+    return {latticeSiteId1, latticeSiteId2};
   }
 
   void CanonicalMcAbstract::Dump() const
@@ -75,11 +82,11 @@ namespace mc
     }
     if (steps_ % configDumpSteps_ == 0)
     {
-      config_.WriteConfig(to_string(steps_) + ".cfg.gz", config_);
+      tiledSupercell_.WriteAtomVectorInfoToFile(to_string(steps_) + ".txt");
     }
     if (steps_ == maximumSteps_)
     {
-      config_.WriteConfig("end.cfg.gz", config_);
+      tiledSupercell_.WriteAtomVectorInfoToFile(to_string(steps_) + ".txt");
     }
     unsigned long long int logDumpSteps;
     if (steps_ > 10 * logDumpSteps_)
@@ -100,17 +107,17 @@ namespace mc
       ofs_ << steps_ << '\t'
            << temperature_ << '\t'
            << energy_ << '\t'
-           << energy_ / static_cast<double>(config_.GetNumAtoms()) << "\t"
+           << energy_ / static_cast<double>(tiledSupercell_.GetTotalNumOfSites()) << "\t"
            << thermodynamicAveraging_.GetThermodynamicAverage(beta_)
            << endl;
     }
   }
-  void CanonicalMcAbstract::SelectEvent(const pair<size_t, size_t> &lattice_id_jump_pair,
+  void CanonicalMcAbstract::SelectEvent(const pair<LatticeSiteMapping, LatticeSiteMapping> &lattice_id_jump_pair,
                                         const double dE)
   {
     if (dE < 0)
     {
-      config_.LatticeJump(lattice_id_jump_pair);
+      tiledSupercell_.LatticeJump(lattice_id_jump_pair);
       energy_ += dE;
       absolute_energy_ += dE;
 
@@ -122,7 +129,7 @@ namespace mc
       double random_number = unitDistribution_(generator_);
       if (random_number < possibility)
       {
-        config_.LatticeJump(lattice_id_jump_pair);
+        tiledSupercell_.LatticeJump(lattice_id_jump_pair);
         energy_ += dE;
         absolute_energy_ += dE;
 

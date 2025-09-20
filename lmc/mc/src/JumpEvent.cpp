@@ -15,7 +15,7 @@
 namespace mc
 {
   JumpEvent::JumpEvent() = default;
-  JumpEvent::JumpEvent(const pair<size_t, size_t> &jumpPair,
+  JumpEvent::JumpEvent(const pair<LatticeSiteMapping, LatticeSiteMapping> &jumpPair,
                        const pair<double, double> &barrierAndDe,
                        double beta)
       : beta_(beta),
@@ -25,7 +25,7 @@ namespace mc
         forward_rate_(exp(-forward_barrier_ * beta_))
   {}
 
-  const pair<size_t, size_t> &JumpEvent::GetIdJumpPair() const
+  const pair<LatticeSiteMapping, LatticeSiteMapping> &JumpEvent::GetIdJumpPair() const
   {
     return jump_pair_;
   }

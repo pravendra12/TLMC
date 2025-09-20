@@ -62,7 +62,7 @@ message(STATUS "Current build type is ${CMAKE_BUILD_TYPE}")
 #file(GLOB PROJECT_SRC ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/*/src/*.cpp)
 file(GLOB PROJECT_SRC
      ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/api/src/*.cpp
-     ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/ansys/src/*.cpp
+     # ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/ansys/src/*.cpp
      ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/cfg/src/*.cpp
      ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/ce/src/*.cpp
      ${PROJECT_SOURCE_DIR}/${PROJECT_NAME}/mc/src/*.cpp

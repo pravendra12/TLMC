@@ -16,7 +16,7 @@
 #include <omp.h>
 namespace mc
 {
-  CanonicalMcSerial::CanonicalMcSerial(Config config,
+  CanonicalMcSerial::CanonicalMcSerial(TiledSupercell tiledSupercell,
                                        unsigned long long int logDumpSteps,
                                        unsigned long long int configDumpStep,
                                        unsigned long long int maximumSteps,
@@ -24,8 +24,8 @@ namespace mc
                                        unsigned long long int restartSteps,
                                        double restartEnergy,
                                        double temperature,
-                                       EnergyPredictor &energyChangePredictor)
-      : CanonicalMcAbstract(move(config),
+                                       EnergyPredictorTLMC &energyChangePredictor)
+      : CanonicalMcAbstract(move(tiledSupercell),
                             logDumpSteps,
                             configDumpStep,
                             maximumSteps,
@@ -56,17 +56,17 @@ namespace mc
     while (steps_ <= maximumSteps_)
     {
 
-      // auto latticeIdJumpPair = GenerateLatticeIdJumpPair();
+      // auto latticeSiteIdJumpPair = GenerateLatticeSiteIdJumpPair();
       // One site would need to be a vacant site 
       // This can be made conditional based on the type of hamiltonian being used
     
-      auto latticeIdJumpPair = GenerateVacancyLatticeIdJumpPair();
+      auto latticeSiteIdJumpPair = GenerateVacancyLatticeSiteIdJumpPair();
 
-      auto dE = energyChangePredictor_.GetEnergyChange(config_,
-                                                       latticeIdJumpPair);
+      auto dE = energyChangePredictor_.GetEnergyChange(tiledSupercell_,
+                                                       latticeSiteIdJumpPair);
       Dump();
 
-      SelectEvent(latticeIdJumpPair, dE);
+      SelectEvent(latticeSiteIdJumpPair, dE);
 
       ++steps_;
     }

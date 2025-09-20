@@ -3,7 +3,7 @@
 namespace mc
 {
 
-  KineticMcFirstOmp::KineticMcFirstOmp(Config config,
+  KineticMcFirstOmp::KineticMcFirstOmp(TiledSupercell tiledSupercell,
                                        const unsigned long long int logDumpSteps,
                                        const unsigned long long int configDumpSteps,
                                        const unsigned long long int maximumSteps,
@@ -12,11 +12,11 @@ namespace mc
                                        const double restartEnergy,
                                        const double restartTime,
                                        const double temperature,
-                                       VacancyMigrationPredictor &vacancyMigrationPredictor,
+                                       VacancyMigrationPredictorTLMC &vacancyMigrationPredictor,
                                        const string &timeTemperatureFilename,
                                        const bool isRateCorrector,
                                        const Eigen::RowVector3d &vacancyTrajectory)
-      : KineticMcFirstAbstract(move(config),
+      : KineticMcFirstAbstract(move(tiledSupercell),
                                logDumpSteps,
                                configDumpSteps,
                                maximumSteps,
@@ -50,17 +50,22 @@ namespace mc
   void KineticMcFirstOmp::BuildEventList()
   {
     total_rate_k_ = 0.0;
-    const auto neighbor_lattice_id_vector = config_.GetNeighborLatticeIdVectorOfLattice(vacancyLatticeId_, 1);
-#pragma omp parallel default(none) shared(neighbor_lattice_id_vector) reduction(+ : total_rate_k_)
+    const auto encoded_neighbor_lattice_id_vector = tiledSupercell_.GetNeighborLatticeIdVectorOfLattice(
+      vacancyLatticeSiteId_.latticeId, 1);
+
+#pragma omp parallel default(none) shared(encoded_neighbor_lattice_id_vector) reduction(+ : total_rate_k_)
     {
 #pragma omp for
       for (size_t i = 0; i < kEventListSize_; ++i)
       {
-        const auto neighbor_lattice_id = neighbor_lattice_id_vector[i];
+        const auto neighbor_lattice_id = tiledSupercell_.GetLatticeSiteMappingFromEncoding(
+            encoded_neighbor_lattice_id_vector[i],
+            vacancyLatticeSiteId_);
+
         JumpEvent lattice_jump_event(
-            {vacancyLatticeId_, neighbor_lattice_id},
-            vacancyMigrationPredictor_.GetBarrierAndDeltaE(config_,
-                                                           {vacancyLatticeId_,
+            {vacancyLatticeSiteId_, neighbor_lattice_id},
+            vacancyMigrationPredictor_.GetBarrierAndDeltaE(tiledSupercell_,
+                                                           {vacancyLatticeSiteId_,
                                                             neighbor_lattice_id}),
             beta_);
         total_rate_k_ += lattice_jump_event.GetForwardRate();

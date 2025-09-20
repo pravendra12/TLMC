@@ -17,6 +17,7 @@
 #include <utility>
 #include <array>
 #include <cmath>
+#include "LatticeSiteMapping.hpp"
 
 using namespace std;
 
@@ -35,14 +36,14 @@ namespace mc
      *  @param beta Inverse temperature factor (1/kT), used in rate calculations.
      */
     JumpEvent(
-        const pair<size_t, size_t> &jumpPair,
+        const pair<LatticeSiteMapping, LatticeSiteMapping> &jumpPair,
         const pair<double, double> &barrierAndDe,
         double beta);
 
     /**
      * @brief Get the Id Jump Pair
      */
-    [[nodiscard]] const pair<size_t, size_t> &GetIdJumpPair() const;
+    [[nodiscard]] const pair<LatticeSiteMapping, LatticeSiteMapping> &GetIdJumpPair() const;
 
     /**
      * @brief Get the Forward Barrier
@@ -114,7 +115,7 @@ namespace mc
     /**
      * @brief Pair of lattice site indices representing the atom-vacancy jump.
      */
-    std::pair<size_t, size_t> jump_pair_{};
+    std::pair<LatticeSiteMapping, LatticeSiteMapping> jump_pair_{};
 
     /**
      * @brief Energy barrier for the forward jump (in eV).

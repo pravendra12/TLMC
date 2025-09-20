@@ -15,17 +15,14 @@
 
 #include "Parameter.h"
 #include "Traverse.h"
-#include "KRAPredictor.h"
-#include "LVFEPredictor.h"
-#include "EnergyPredictor.h"
-#include "KineticMcFirstMpi.h"
-#include "CanonicalMcSerial.h"
-#include "SimulatedAnnealing.h"
-#include "KineticMcChainOmpi.h"
-#include "SymmetricCEPredictor.h"
-#include "VacancyMigrationPredictor.h"
+#include "VacancyMigrationPredictorTLMC.h"
+#include "EnergyPredictorTLMC.h"
+#include "KRAPredictorTLMC.h"
+#include "LVFEPredictorTLMC.h"
 #include "ClusterExpansionParameters.h"
-#include "KineticMcFirstOmp.h"
+#include "KineticMcFirstMpi.h"
+#include "TiledSupercell.h"
+#include "Cube.h"
 
 using namespace std;
 
@@ -42,46 +39,10 @@ namespace api {
    *                     be printed.
    */
   void Run(const Parameter &parameter);
-  
-  /*! \brief Constructs a serial implementation of a Canonical Monte Carlo 
-   *         simulation.
-   *  \param parameter : The `Parameter` object containing the configuration for 
-   *                     the simulation.
-   *  \return          : A `mc::CanonicalMcSerial` object configured with the 
-   *                     provided parameters.
-   */
-  void RunCanonicalMcSerialFromParameter(const Parameter &parameter);
-  
-  /*! \brief Constructs a first-order MPI implementation of a Kinetic Monte Carlo 
-   *         simulation.
-   *  \param parameter : The `Parameter` object containing the configuration for 
-   *                     the simulation.
-   *  \return          : A `mc::KineticMcFirstMpi` object configured with the 
-   *                     provided parameters.
-   */
+    
+
   void RunKineticMcFirstMpiFromParameter(const Parameter &parameter);
 
-  void RunKineticMcFirstOmpFromParameter(const Parameter &parameter);
-
-  /*! \brief Constructs a Second-order OMP implementation of a Kinetic Monte Carlo 
-   *         simulation.
-   *  \param parameter : The `Parameter` object containing the configuration for 
-   *                     the simulation.
-   *  \return          : A `mc::KineticMcChainOmpi` object configured with the 
-   *                     provided parameters.
-   */
-  void RunKineticMcChainOmpiFromParameter(const Parameter &parameter);
-  
-  /*! \brief Constructs a Iterator from parameters for the analysis of the 
-   *         structure generated from KMC, for now only SRO analysis.
-   *  \param parameter : The `Parameter` object containing the configuration for 
-   *                     the simulation.
-   *  \return          : A `ansys::Traverse` object configured with the 
-   *                     provided parameters.
-   */
-  ansys::Traverse BuildIteratorFromParameter(const Parameter &parameter);
-
-  void RunSimulatedAnnealingFromParameter(const Parameter &parameter);
 
 } // api
 

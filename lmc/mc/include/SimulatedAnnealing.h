@@ -5,8 +5,7 @@
 #include <random>
 #include "Config.h"
 #include "McAbstract.h"
-#include "PotentialEnergyEstimator.h"
-#include "EnergyPredictor.h"
+#include "EnergyPredictorTLMC.h"
 #include "ClusterExpansionParameters.h"
 
 using namespace std;
@@ -29,27 +28,15 @@ namespace mc
     /**
      * @brief Constructs a SimulatedAnnealing object with the given configuration.
      *
-     * @param config The configuration object for the simulation.
-     * @param supercell_config The configuration of the supercell.
-     * @param log_dump_steps The number of steps between logging simulation data.
-     * @param config_dump_steps The number of steps between configuration dumps.
-     * @param maximum_steps The maximum number of steps for the simulation.
-     * @param restart_steps The number of steps before restarting the simulation.
-     * @param restart_energy The energy threshold for simulation restart.
-     * @param initial_temperature The initial temperature for the simulated annealing process.
-     * @param element_set Set of elements in the system.
-     * @param max_cluster_size Maximum size of the clusters in the simulation.
-     * @param max_bond_order Maximum bond order for clusters.
-     * @param json_coefficients_filename File name for cluster expansion coefficients in JSON forminitial_temperature_at.
      */
-    SimulatedAnnealing(Config config,
+    SimulatedAnnealing(TiledSupercell tiledSupercell,
                        const unsigned long long int logDumpSteps,
                        const unsigned long long int configDumpSteps,
                        const unsigned long long int maximumSteps,
                        const unsigned long long int restartSteps,
                        const double restartEnergy,
                        const double initialTemperature,
-                       EnergyPredictor &energyChangePredictor);
+                       EnergyPredictorTLMC &energyChangePredictor);
 
     /**
      * @brief Starts the simulated annealing simulation.
@@ -86,7 +73,10 @@ namespace mc
      *
      * @return A pair of size_t values representing the lattice indices for a jump.
      */
-    pair<size_t, size_t> GenerateLatticeIdJumpPair();
+
+    pair<LatticeSiteMapping, LatticeSiteMapping> GenerateLatticeSiteIdJumpPair();
+
+    pair<LatticeSiteMapping, LatticeSiteMapping> GenerateVacancyLatticeSiteIdJumpPair();
 
     /**
      * @brief Selects an event using the Metropolis-Hastings algorithm.
@@ -98,7 +88,9 @@ namespace mc
      * @param lattice_id_jump_pair A pair of lattice indices representing the jump.
      * @param dE The energy change associated with the event.
      */
-    void SelectEvent(const pair<size_t, size_t> &lattice_id_jump_pair, double dE);
+    void SelectEvent(
+        const pair<LatticeSiteMapping, LatticeSiteMapping> &lattice_id_jump_pair,
+        const double dE);
 
     /**
      * @brief An object that estimates the potential energy change using cluster expansion.
@@ -106,14 +98,14 @@ namespace mc
      * This object is used to calculate the energy change associated with a
      * proposed event during the Monte Carlo simulation, using a cluster expansion model.
      */
-    EnergyPredictor &energyChangePredictor_;
+    EnergyPredictorTLMC &energyChangePredictor_;
 
     /**
      * @brief A uniform integer distribution used to select atom indices randomly.
      *
      * This distribution is used to randomly select atoms during the simulation.
      */
-    mutable uniform_int_distribution<size_t> atom_index_selector_;
+    mutable uniform_int_distribution<size_t> atomIndexSelector_;
 
     /**
      * @brief The initial temperature for the simulated annealing process.

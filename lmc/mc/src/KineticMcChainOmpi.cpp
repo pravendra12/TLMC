@@ -16,7 +16,7 @@
 namespace mc
 {
 
-  KineticMcChainOmpi::KineticMcChainOmpi(Config config,
+  KineticMcChainOmpi::KineticMcChainOmpi(TiledSupercell tiledSupercell,
                                          const unsigned long long int logDumpSteps,
                                          const unsigned long long int configDumpSteps,
                                          const unsigned long long int maximumSteps,
@@ -25,11 +25,11 @@ namespace mc
                                          const double restartEnergy,
                                          const double restartTime,
                                          const double temperature,
-                                         VacancyMigrationPredictor &vacancyMigrationPredictor,
+                                         VacancyMigrationPredictorTLMC &vacancyMigrationPredictor,
                                          const string &timeTemperatureFilename,
                                          const bool isRateCorrector,
                                          const Eigen::RowVector3d &vacancyTrajectory)
-      : KineticMcChainAbstract(move(config),
+      : KineticMcChainAbstract(move(tiledSupercell),
                                logDumpSteps,
                                configDumpSteps,
                                maximumSteps,
@@ -66,14 +66,24 @@ namespace mc
   // Update  first_event_ki and l_index_list for each process
   void KineticMcChainOmpi::BuildEventList()
   {
-    const auto k_lattice_id = vacancyLatticeId_;
+    const auto k_lattice_id = vacancyLatticeSiteId_;
 
-    const auto i_lattice_id = config_.GetNeighborLatticeIdVectorOfLattice(k_lattice_id, 1)[static_cast<size_t>(world_rank_)];
+    // LATTICE_ID , ENCODED_CONFIG_IDX
+    const auto encoded_i_lattice_site_id =
+        tiledSupercell_.GetNeighborLatticeIdVectorOfLattice(k_lattice_id.latticeId, 1)[static_cast<size_t>(world_rank_)];
+
+    const auto i_lattice_id = tiledSupercell_.GetLatticeSiteMappingFromEncoding(
+        encoded_i_lattice_site_id,
+        k_lattice_id);
 
     size_t it = 0;
 
-    for (auto l_lattice_id : config_.GetNeighborLatticeIdVectorOfLattice(i_lattice_id, 1))
+    for (const auto &encoded_l_lattice_id : tiledSupercell_.GetNeighborLatticeIdVectorOfLattice(i_lattice_id.latticeId, 1))
     {
+      const auto l_lattice_id = tiledSupercell_.GetLatticeSiteMappingFromEncoding(
+          encoded_l_lattice_id,
+          i_lattice_id);
+
       l_lattice_id_list_[it] = l_lattice_id;
       ++it;
     }
@@ -81,7 +91,7 @@ namespace mc
     total_rate_k_ = 0.0;
     total_rate_i_ = 0.0;
 
-    config_.LatticeJump({k_lattice_id, i_lattice_id});
+    tiledSupercell_.LatticeJump({k_lattice_id, i_lattice_id});
 
 #pragma omp parallel default(none) shared(i_lattice_id, k_lattice_id) reduction(+ : total_rate_i_)
     {
@@ -96,7 +106,7 @@ namespace mc
             // {Vacancy, Migrating Atom}
             {i_lattice_id, l_lattice_id},
 
-            vacancyMigrationPredictor_.GetBarrierAndDeltaE(config_,
+            vacancyMigrationPredictor_.GetBarrierAndDeltaE(tiledSupercell_,
                                                            {i_lattice_id,
                                                             l_lattice_id}),
 
@@ -111,7 +121,7 @@ namespace mc
         total_rate_i_ += r_i_l;
       }
     }
-    config_.LatticeJump({i_lattice_id, k_lattice_id});
+    tiledSupercell_.LatticeJump({i_lattice_id, k_lattice_id});
 
     double rate_k_i = event_k_i_.GetForwardRate();
     MPI_Allreduce(&rate_k_i, &total_rate_k_, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);

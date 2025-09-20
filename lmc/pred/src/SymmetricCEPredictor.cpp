@@ -325,8 +325,6 @@ unordered_map<string, int> SymmetricCEPredictor::GetElementCountMap(
   return elementCountMap;
 }
 
-// In TiledLMC it will not use supercellConfig 
-// but rather it will be using TiledSupercell
 vector<vector<size_t>> SymmetricCEPredictor::GetSymmetricallySortedLatticeIdsVectorMap(
     const Config &supercellConfig)
 {

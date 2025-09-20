@@ -115,6 +115,11 @@ struct Parameter {
   /// Size of the supercell used for training.
   size_t supercell_size_{};
 
+  size_t cube_size_{};
+
+  size_t vacancayLatticeId_{};
+  size_t smallConfigId_{};
+
   /// Lattice parameter of the structure.
   double lattice_param_{};
 
@@ -159,6 +164,8 @@ struct Parameter {
 
   /// Number of each solute element in the system.
   std::vector<size_t> solute_number_set_{};
+
+
 
   /// Early stopping criteria based on the number of steps.
   unsigned long long int early_stop_steps_{};

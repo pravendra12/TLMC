@@ -36,23 +36,8 @@ namespace mc
      *
      * Sets up the kinetic Monte Carlo simulation using the Second-Order Residence Time Algorithm.
      *
-     * @param config                    Simulation configuration.
-     * @param supercellConfig           Training configuration for the Cluster Expansion Model.
-     * @param logDumpSteps              Number of steps between log outputs.
-     * @param configDumpSteps           Number of steps between configuration dumps.
-     * @param maximumSteps              Maximum number of simulation steps.
-     * @param thermodynamicAveragingSteps Number of steps for thermodynamic averaging.
-     * @param restartSteps              Number of steps for simulation restart.
-     * @param restartEnergy             Energy value for restart.
-     * @param restartTime               Time value for restart.
-     * @param temperature               Simulation temperature in Kelvin.
-     * @param elementSet                Set of elements in the simulation.
-     * @param predictorFilename         Path to the JSON file with cluster interaction coefficients.
-     * @param timeTemperatureFilename   Path to the time-temperature data file.
-     * @param isRateCorrector           Flag to enable rate correction.
-     * @param vacancyTrajectory         Initial vacancy trajectory vector.
      */
-    KineticMcChainOmpi(Config config,
+    KineticMcChainOmpi(TiledSupercell tiledSupercell,
                        const unsigned long long int logDumpSteps,
                        const unsigned long long int configDumpSteps,
                        const unsigned long long int maximumSteps,
@@ -61,7 +46,7 @@ namespace mc
                        const double restartEnergy,
                        const double restartTime,
                        const double temperature,
-                       VacancyMigrationPredictor &vacancyMigrationPredictor,
+                       VacancyMigrationPredictorTLMC &vacancyMigrationPredictor,
                        const string &timeTemperatureFilename,
                        const bool isRateCorrector,
                        const Eigen::RowVector3d &vacancyTrajectory);

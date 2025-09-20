@@ -13,7 +13,7 @@
 namespace mc
 {
 
-  KineticMcFirstMpi::KineticMcFirstMpi(Config config,
+  KineticMcFirstMpi::KineticMcFirstMpi(TiledSupercell tiledSupercell,
                                        const unsigned long long int logDumpSteps,
                                        const unsigned long long int configDumpSteps,
                                        const unsigned long long int maximumSteps,
@@ -22,11 +22,11 @@ namespace mc
                                        const double restartEnergy,
                                        const double restartTime,
                                        const double temperature,
-                                       VacancyMigrationPredictor &vacancyMigrationPredictor,
+                                       VacancyMigrationPredictorTLMC &vacancyMigrationPredictor,
                                        const string &timeTemperatureFilename,
                                        const bool isRateCorrector,
                                        const Eigen::RowVector3d &vacancyTrajectory)
-      : KineticMcFirstAbstract(move(config),
+      : KineticMcFirstAbstract(move(tiledSupercell),
                                logDumpSteps,
                                configDumpSteps,
                                maximumSteps,
@@ -59,15 +59,21 @@ namespace mc
     total_rate_k_ = 0;
 
     // Neighbours of Vacancy
-    const auto neighbor_vacancy_id =
-        config_.GetNeighborLatticeIdVectorOfLattice(vacancyLatticeId_, 1)[static_cast<size_t>(world_rank_)];
+    // LATTICE_ID , ENCODED_CONFIG_IDX
+    const auto encodedNeighborOfVacancySiteId =
+        tiledSupercell_.GetNeighborLatticeIdVectorOfLattice(vacancyLatticeSiteId_.latticeId, 1)[static_cast<size_t>(world_rank_)];
+
+
+    LatticeSiteMapping neighbourOfVacancySiteId = tiledSupercell_.GetLatticeSiteMappingFromEncoding(
+        encodedNeighborOfVacancySiteId,
+        vacancyLatticeSiteId_);
 
     JumpEvent local_event_k_i(
         // Jump Pair
-        {vacancyLatticeId_, neighbor_vacancy_id},
-        vacancyMigrationPredictor_.GetBarrierAndDeltaE(config_,
-                                                       {vacancyLatticeId_,
-                                                        neighbor_vacancy_id}),
+        {vacancyLatticeSiteId_, neighbourOfVacancySiteId},
+        vacancyMigrationPredictor_.GetBarrierAndDeltaE(tiledSupercell_,
+                                                       {vacancyLatticeSiteId_,
+                                                        neighbourOfVacancySiteId}),
         beta_);
 
     event_k_i_ = local_event_k_i; // Assign the local variable to the member variable

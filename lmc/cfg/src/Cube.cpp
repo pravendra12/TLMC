@@ -177,7 +177,7 @@ void Cube::UpdateNeighbors()
   }
 }
 
-vector<size_t> Cube::GetNeighbors(size_t siteIndex) const
+const vector<size_t>& Cube::GetNeighbors(size_t siteIndex) const
 {
   if (siteIndex >= neighbors_.size())
     throw std::out_of_range("Site index out of range");

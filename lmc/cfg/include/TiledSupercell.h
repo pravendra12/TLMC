@@ -145,11 +145,20 @@ public:
   size_t GetAtomIdFromLatticeAndConfigId(
       const LatticeSiteMapping &latticeSiteMapping) const;
 
+
   // Builds a map from latticeId -> neighbors for all sites in the supercell
   // LATTICE_ID_IN_SMALL_CFG : {<NN_LATTICE_ID_IN_SMALL_CFG , SMALL_CFG_ID_IN_CUBE>}
   // User will provide a maxBondOrder such that the smallCfg must have its neighbours
   // being updated // need to add some check for the same
   void UpdateNeighbourLists(const size_t maxBondOrder);
+
+
+  // Maps the atom information to a 1-D vector
+  // this has been made public so that one can load a config or atom vector 
+  // then assign it to the tiledSuprecell
+  void UpdateAtomVector(const Config &config);
+  
+
 
   // I/O
 
@@ -272,7 +281,6 @@ private:
       const size_t maxBondOrder     // Number of neighbor shells
   ) const;
 
-  // Maps the atom information to a 1-D vector
   void InitializeAtomVector();
 
   void PrintTiledSupercell() const;

@@ -23,6 +23,39 @@ int main()
       "Mo",
       "BCC");
 
+  // Now to make a 50x50x50 supercell with 10x10x10 small suprecells
+  // One would need to stack 5 of these small cfg in a cube
+  // total 5x5x5 cube = 125 cubes
+  // Total Atoms = 125 * 2000
+  Cube cubeObj(5);
+
+  TiledSupercell tiledSupercell(
+      smallCfg,
+      cubeObj);
+
+  // read the large config 
+  auto largeCfg = Config::ReadCfg("/home/pravendra3/Documents/TLMC/bin/testingTiledSuprecellCreationFromAtomVector/start_KMC_7.4e7_T_1700K.cfg.gz");
+
+  tiledSupercell.UpdateAtomVector(largeCfg);
+
+  auto largeCfgFromTiledVersion = tiledSupercell.MakeSupercell();
+
+  Config::WriteConfig("/home/pravendra3/Documents/TLMC/bin/testingTiledSuprecellCreationFromAtomVector/start_KMC_7.4e7_T_1700K_from_tiledSupercell.cfg.gz", 
+  largeCfgFromTiledVersion);
+
+}
+
+/*
+int main()
+{
+  size_t smallConfigSize = 10;
+  double latticeParam = 3.2;
+  auto smallCfg = Config::GenerateSupercell(
+      smallConfigSize,
+      latticeParam,
+      "Mo",
+      "BCC");
+
   smallCfg.UpdateNeighborList({3});
   smallCfg.SetElementOfLattice(1, Element("X"));
   smallCfg.SetElementOfLattice(
@@ -113,3 +146,4 @@ int main()
 
   return 0;
 }
+*/

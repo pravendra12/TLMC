@@ -63,6 +63,8 @@ struct Parameter {
   /// Configuration file name.
   std::string config_filename_{};
 
+  std::string large_config_filename_{};
+
   /// Filename for the mapping file.
   std::string map_filename_{};
 

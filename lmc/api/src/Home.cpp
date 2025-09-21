@@ -342,6 +342,14 @@ namespace api
         smallConfig,
         cubeObj);
 
+    {
+      auto largeConfig = Config::ReadConfig(parameter.large_config_filename_);
+
+      tiledSupercell.UpdateAtomVector(largeConfig);
+    }
+
+    // but this may have implementation on memory later but for now lets keep it
+
     // Now set a vacancy
     // the original config will not have any vacancy
     // This will be read as parameter

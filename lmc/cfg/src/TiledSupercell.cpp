@@ -366,6 +366,45 @@ size_t TiledSupercell::GetAtomIdFromLatticeAndConfigId(
   return atomId;
 }
 
+struct Vector3iHash
+{
+  size_t operator()(const Eigen::Vector3i &v) const
+  {
+    return std::hash<int>()(v[0]) ^ std::hash<int>()(v[1] << 1) ^ std::hash<int>()(v[2] << 2);
+  }
+};
+
+void TiledSupercell::UpdateAtomVector(
+    const Config &config)
+{
+  if (config.GetNumAtoms() != totalNumOfSites_)
+    throw std::runtime_error("Config size does not match Tiled Supercell size");
+
+  const auto &relPos = config.GetRelativePositionMatrix(); // 3 x numAtomsSmallCfg
+
+  // Build a hash map: discretized positions → lattice index
+  std::unordered_map<Eigen::Vector3i, size_t, Vector3iHash> posToLatticeId;
+  for (size_t j = 0; j < config.GetNumLattices(); ++j)
+  {
+    Eigen::Vector3i key = (relPos.col(j) / constants::kEpsilon).array().round().cast<int>();
+    posToLatticeId[key] = j;
+  }
+
+  for (size_t i = 0; i < totalNumOfSites_; ++i)
+  {
+    auto latticeSiteMapping = GetLatticeSiteMappingFromAtomId(i);
+    Vector3d pos = GetRelativePositionOfLatticeSiteMapping(latticeSiteMapping);
+
+    Eigen::Vector3i key = (pos / constants::kEpsilon).array().round().cast<int>();
+
+    auto it = posToLatticeId.find(key);
+    if (it == posToLatticeId.end())
+      throw std::runtime_error("No matching lattice site found");
+
+    SetElementAtSite(latticeSiteMapping, config.GetElementOfLattice(it->second));
+  }
+}
+
 // I/O
 
 Config TiledSupercell::MakeSupercell() const

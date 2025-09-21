@@ -68,6 +68,10 @@ namespace api
       {
         config_filename_ = std::string(segs[1]);
       }
+      else if (segs[0] == "large_config_filename")
+      {
+        large_config_filename_ = std::string(segs[1]);
+      }
       else if (segs[0] == "map_filename")
       {
         map_filename_ = std::string(segs[1]);

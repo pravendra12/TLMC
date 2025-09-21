@@ -348,19 +348,18 @@ namespace api
       tiledSupercell.UpdateAtomVector(largeConfig);
     }
 
-    // but this may have implementation on memory later but for now lets keep it
 
     // Now set a vacancy
     // the original config will not have any vacancy
     // This will be read as parameter
-    const size_t vacancyLatticeId = 0;
-    const size_t smallConfigId = 0;
-
-    LatticeSiteMapping vacancyLatticeSite(
-        vacancyLatticeId,
-        smallConfigId);
-
-    tiledSupercell.SetElementAtSite(vacancyLatticeSite, Element("X"));
+//     const size_t vacancyLatticeId = 0;
+//     const size_t smallConfigId = 0;
+// 
+//     LatticeSiteMapping vacancyLatticeSite(
+//         vacancyLatticeId,
+//         smallConfigId);
+// 
+//     tiledSupercell.SetElementAtSite(vacancyLatticeSite, Element("X"));
 
     // Read CE Parameters
     ClusterExpansionParameters ceParams(parameter.json_coefficients_filename_);

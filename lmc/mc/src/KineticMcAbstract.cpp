@@ -91,11 +91,14 @@ namespace mc
     if (steps_ % configDumpSteps_ == 0)
     {
       // config_.WriteConfig(to_string(steps_) + ".cfg.gz", config_);
-      tiledSupercell_.WriteAtomVectorInfoToFile(to_string(steps_) + ".txt");
+      // tiledSupercell_.WriteAtomVectorInfoToFile(to_string(steps_) + ".txt");
+      tiledSupercell_.WriteAtomicIndicesToFile(to_string(steps_) + ".bin.gz");
+
     }
     if (steps_ == maximumSteps_)
     {
-      tiledSupercell_.WriteAtomVectorInfoToFile(to_string(steps_) + ".txt");
+      tiledSupercell_.WriteAtomicIndicesToFile(to_string(steps_) + ".bin.gz");
+      // tiledSupercell_.WriteAtomVectorInfoToFile(to_string(steps_) + ".txt");
       // config_.WriteConfig("end.cfg", config_);
     }
 

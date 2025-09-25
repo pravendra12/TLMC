@@ -21,6 +21,7 @@
 #include "LVFEPredictorTLMC.h"
 #include "ClusterExpansionParameters.h"
 #include "KineticMcFirstMpi.h"
+#include "CanonicalMcSerial.h"
 #include "TiledSupercell.h"
 #include "Cube.h"
 
@@ -39,7 +40,8 @@ namespace api {
    *                     be printed.
    */
   void Run(const Parameter &parameter);
-    
+
+  void RunCanonicalMcSerialFromParameter(const Parameter &parameter);
 
   void RunKineticMcFirstMpiFromParameter(const Parameter &parameter);
 

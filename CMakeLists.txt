@@ -187,7 +187,7 @@ if (NOT pybind11_FOUND)
 endif()
 target_link_libraries_system(${PROJECT_NAME} PRIVATE pybind11::embed)
 
-# target_link_libraries(${PROJECT_NAME} PRIVATE pybind11::embed)   # use ::module if building a Python module
+
 
 ###################################################### ARMADILLO #######################################################
 #find_package(ARMADILLO REQUIRED)

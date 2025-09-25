@@ -122,6 +122,10 @@ struct Parameter {
   size_t vacancayLatticeId_{};
   size_t smallConfigId_{};
 
+
+  // atomic_indices_filename
+  std::string atomic_indices_filename_{};
+
   /// Lattice parameter of the structure.
   double lattice_param_{};
 

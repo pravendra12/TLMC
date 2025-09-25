@@ -57,9 +57,9 @@ namespace mc
     {
 
       // auto latticeSiteIdJumpPair = GenerateLatticeSiteIdJumpPair();
-      // One site would need to be a vacant site 
+      // One site would need to be a vacant site
       // This can be made conditional based on the type of hamiltonian being used
-    
+
       auto latticeSiteIdJumpPair = GenerateVacancyLatticeSiteIdJumpPair();
 
       auto dE = energyChangePredictor_.GetEnergyChange(tiledSupercell_,

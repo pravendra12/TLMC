@@ -11,9 +11,17 @@
 #include "LatticeSiteMapping.hpp"
 #include "LatticeSiteEncodedMapping.hpp"
 #include "NeighbourOfPair.hpp"
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
+#include <boost/iostreams/filter/bzip2.hpp>
+#include <boost/filesystem.hpp>
+#include <vector>
+#include <fstream>
+#include <cstdint>
 
 using namespace std;
 using namespace Eigen;
+namespace io = boost::iostreams;
 
 // This class represents the superconfig formed by placing the
 // config inside cube madeup of those config
@@ -145,20 +153,24 @@ public:
   size_t GetAtomIdFromLatticeAndConfigId(
       const LatticeSiteMapping &latticeSiteMapping) const;
 
-
   // Builds a map from latticeId -> neighbors for all sites in the supercell
   // LATTICE_ID_IN_SMALL_CFG : {<NN_LATTICE_ID_IN_SMALL_CFG , SMALL_CFG_ID_IN_CUBE>}
   // User will provide a maxBondOrder such that the smallCfg must have its neighbours
   // being updated // need to add some check for the same
   void UpdateNeighbourLists(const size_t maxBondOrder);
 
-
   // Maps the atom information to a 1-D vector
-  // this has been made public so that one can load a config or atom vector 
+  // this has been made public so that one can load a config or atom vector
   // then assign it to the tiledSuprecell
   void UpdateAtomVector(const Config &config);
-  
 
+
+
+  /**
+   * @brief Update the TiledSupercell's atom vector using a dumped atomic indices vector.
+   * @see docs/AtomUpdateGuide.md
+   */
+  void UpdateAtomVector(const vector<uint64_t> &atomicIndicesVector);
 
   // I/O
 
@@ -174,10 +186,15 @@ public:
   // Writes the atom info to binary file
   void WriteAtomVectorInfoToBinary(const string &filename) const;
 
+  // Write the Atom Index Vector to a binary compressed file
+  void WriteAtomicIndicesToFile(const string &filename) const;
+
   // to read the atom vector from file
   static vector<Element> ReadAtomVectorInfoFromFile(const string &filename);
 
-  static vector<Element> ReadAtomVectorInfoFromBinary(const std::string &filename);
+  static vector<Element> ReadAtomVectorInfoFromBinary(const string &filename);
+
+  static vector<uint64_t> ReadAtomicIndicesFromFile(const string &filename);
 
 private:
   const Config &smallConfig_; // Dont want smallConfig to be const so as to update the neighbours inside the TiledSupercell
@@ -186,6 +203,8 @@ private:
   const Matrix3d superBasis_{};
 
   vector<Element> atomVector_{};
+  // This vector will be used for dumping the atomic information for efficieny purpose
+  vector<uint64_t> atomIndexVector_{};
 
   // neighbourList_ is a 3-level nested container that stores neighbor information
   // for each lattice site in the tiled supercell.

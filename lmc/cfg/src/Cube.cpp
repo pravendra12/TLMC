@@ -168,7 +168,7 @@ void Cube::UpdateNeighbors()
     }
 
     // --- Step 3: Sort neighbors canonically ---
-    std::sort(centeredNeighbors.begin(), centeredNeighbors.end(),PositionCompareState);
+    std::sort(centeredNeighbors.begin(), centeredNeighbors.end(), PositionCompareState);
 
     // Store sorted neighbor IDs
     neighbors_[idx].reserve(centeredNeighbors.size());
@@ -177,7 +177,7 @@ void Cube::UpdateNeighbors()
   }
 }
 
-const vector<size_t>& Cube::GetNeighbors(size_t siteIndex) const
+const vector<size_t> &Cube::GetNeighbors(size_t siteIndex) const
 {
   if (siteIndex >= neighbors_.size())
     throw std::out_of_range("Site index out of range");
@@ -222,3 +222,5 @@ size_t Cube::GetCentralSiteId() const
 
   return ci * sizeOfCube_ * sizeOfCube_ + cj * sizeOfCube_ + ck;
 }
+
+

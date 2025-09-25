@@ -75,6 +75,8 @@ void TiledSupercell::LatticeJump(
   }
 
   std::swap(atomVector_[atomId1], atomVector_[atomId2]);
+  // Also make a swap to atomIndicesVector_
+  std::swap(atomIndexVector_[atomId1], atomIndexVector_[atomId2]);
 }
 
 vector<LatticeSiteEncodedMapping> TiledSupercell::GetNeighborLatticeIdVectorOfLattice(
@@ -233,6 +235,7 @@ void TiledSupercell::SetElementAtSite(
         ") exceeds total number of sites " + std::to_string(totalNumOfSites_));
   }
   atomVector_[atomId] = element;
+  atomIndexVector_[atomId] = static_cast<uint64_t>(element.GetAtomicIndex());
 }
 
 Element TiledSupercell::GetElementAtSite(
@@ -378,7 +381,7 @@ void TiledSupercell::UpdateAtomVector(
     const Config &config)
 {
   if (config.GetNumAtoms() != totalNumOfSites_)
-    throw std::runtime_error("Config size does not match Tiled Supercell size");
+    throw std::runtime_error("Error in `TiledSupercell::UpdateAtomVector`: Config size does not match Tiled Supercell size");
 
   const auto &relPos = config.GetRelativePositionMatrix(); // 3 x numAtomsSmallCfg
 
@@ -402,6 +405,26 @@ void TiledSupercell::UpdateAtomVector(
       throw std::runtime_error("No matching lattice site found");
 
     SetElementAtSite(latticeSiteMapping, config.GetElementOfLattice(it->second));
+  }
+}
+
+void TiledSupercell::UpdateAtomVector(
+    const vector<uint64_t> &atomicIndicesVector)
+{
+  if (totalNumOfSites_ != atomicIndicesVector.size())
+    throw std::runtime_error("Error in `TiledSupercell::UpdateAtomVector`: Size of atomicIndicesVector does not matches totalNumOfSites in TiledSupercell");
+
+  atomVector_.clear();
+  atomIndexVector_.clear();
+
+  atomVector_.reserve(totalNumOfSites_);
+  atomIndexVector_.reserve(totalNumOfSites_);
+
+  for (size_t  i = 0; i < totalNumOfSites_; i++)
+  {
+    auto atomicIndex = size_t(atomicIndicesVector[i]); // AtomicNumber
+    atomVector_.emplace_back(Element(atomicIndex));
+    atomIndexVector_.emplace_back(atomicIndicesVector[i]);
   }
 }
 
@@ -574,6 +597,76 @@ vector<Element> TiledSupercell::ReadAtomVectorInfoFromBinary(
   return atomVector;
 }
 
+void TiledSupercell::WriteAtomicIndicesToFile(
+    const string &filename) const
+{
+
+  std::ofstream ofs(filename, std::ios_base::out | std::ios_base::binary);
+  if (!ofs)
+    throw std::runtime_error("Cannot open file");
+
+  io::filtering_ostream fos;
+
+  // Push compressor if needed
+  std::string ext = boost::filesystem::path(filename).extension().string();
+  if (ext == ".gz")
+  {
+    fos.push(io::gzip_compressor());
+  }
+  else if (ext == ".bz2")
+  {
+    fos.push(io::bzip2_compressor());
+  }
+
+  // Push file stream last
+  fos.push(ofs);
+
+  uint64_t numAtoms = atomIndexVector_.size();
+  fos.write(reinterpret_cast<const char *>(&numAtoms), sizeof(numAtoms));
+  fos.write(reinterpret_cast<const char *>(atomIndexVector_.data()), atomIndexVector_.size() * sizeof(uint64_t));
+
+  // Important: flush to ensure all compressed data is written
+  fos.flush();
+}
+
+vector<uint64_t> TiledSupercell::ReadAtomicIndicesFromFile(const string &filename)
+{
+
+  std::ifstream ifs(filename, std::ios_base::in | std::ios_base::binary);
+  if (!ifs)
+    throw std::runtime_error("Error in `TiledSupercell::ReadAtomicIndicesFromFile`: Cannot open file for reading");
+
+  io::filtering_istream fis;
+
+  // Push decompressor if needed
+  std::string ext = boost::filesystem::path(filename).extension().string();
+  if (ext == ".gz")
+  {
+    fis.push(io::gzip_decompressor());
+  }
+  else if (ext == ".bz2")
+  {
+    fis.push(io::bzip2_decompressor());
+  }
+
+  // Push file stream last
+  fis.push(ifs);
+
+  // Read number of atoms
+  uint64_t numAtoms;
+  fis.read(reinterpret_cast<char *>(&numAtoms), sizeof(numAtoms));
+  if (!fis)
+    throw std::runtime_error("Failed to read number of atoms");
+
+  // Allocate vector and read indices
+  std::vector<uint64_t> atomicIndexVector(numAtoms);
+  fis.read(reinterpret_cast<char *>(atomicIndexVector.data()), numAtoms * sizeof(uint64_t));
+  if (!fis)
+    throw std::runtime_error("Failed to read atom indices");
+
+  return atomicIndexVector;
+}
+
 // Helpers
 
 // This function checks whether relative to a reference lattice Id the
@@ -696,6 +789,7 @@ vector<pair<size_t, size_t>> TiledSupercell::GetLatticeNeighbors(
 void TiledSupercell::InitializeAtomVector()
 {
   atomVector_.reserve(totalNumOfSites_);
+  atomIndexVector_.reserve(totalNumOfSites_);
 
   for (size_t i = 0; i < totalNumOfSites_; i++)
   {
@@ -704,8 +798,13 @@ void TiledSupercell::InitializeAtomVector()
     auto latticeId = latticeAndConfigIdPair.latticeId;
     // auto smallConfigId = configAndLatticeIdPair.second;
 
+    auto element = smallConfig_.GetElementOfLattice(latticeId);
+
     atomVector_.emplace_back(
-        smallConfig_.GetElementOfLattice(latticeId));
+        element);
+
+    atomIndexVector_.emplace_back(
+        static_cast<uint64_t>(element.GetAtomicIndex()));
   }
 }
 

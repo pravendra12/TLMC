@@ -82,11 +82,14 @@ namespace mc
     }
     if (steps_ % configDumpSteps_ == 0)
     {
-      tiledSupercell_.WriteAtomVectorInfoToFile(to_string(steps_) + ".txt");
+      // tiledSupercell_.WriteAtomVectorInfoToFile(to_string(steps_) + ".txt");
+      tiledSupercell_.WriteAtomicIndicesToFile(to_string(steps_) + ".bin.gz");
     }
     if (steps_ == maximumSteps_)
     {
-      tiledSupercell_.WriteAtomVectorInfoToFile(to_string(steps_) + ".txt");
+      // tiledSupercell_.WriteAtomVectorInfoToFile(to_string(steps_) + ".txt");
+      tiledSupercell_.WriteAtomicIndicesToFile(to_string(steps_) + ".bin.gz");
+
     }
     unsigned long long int logDumpSteps;
     if (steps_ > 10 * logDumpSteps_)

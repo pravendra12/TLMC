@@ -12,7 +12,7 @@ public:
   Cube(
       const size_t &sizeOfCube);
 
-  const vector<size_t>& GetNeighbors(size_t siteIndex) const;
+  const vector<size_t> &GetNeighbors(size_t siteIndex) const;
 
   Vector3i GetRelativePosition(size_t siteIndex) const;
 

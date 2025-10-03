@@ -190,3 +190,24 @@ double EnergyPredictorTLMC::GetEnergyChangeWithVacancy(
 
   return dE;
 }
+
+/// @brief 
+/// @param tiledSupercell 
+/// @param latticeSiteJumpPair 
+/// @param numThreads 
+void EnergyPredictorTLMC::ProfileEnergyChange(
+    const TiledSupercell &tiledSupercell,
+    const pair<LatticeSiteMapping, LatticeSiteMapping> &latticeSiteJumpPair,
+    int numThreads)
+{
+  omp_set_num_threads(numThreads);
+  auto start = std::chrono::high_resolution_clock::now();
+
+  double dE = GetEnergyChange(tiledSupercell, latticeSiteJumpPair);
+
+  auto end = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> elapsed = end - start;
+
+  std::cout << "Time: " << elapsed.count()
+            << " | dE: " << dE << " s\n";
+}

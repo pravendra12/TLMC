@@ -154,6 +154,10 @@ namespace api
       cout << "max_bond_order: " << parameter.max_bond_order_ << endl;
       cout << "max_cluster_size: " << parameter.max_cluster_size_ << endl;
     }
+    else if (parameter.method == "ConvertAtomVectorsToConfigs")
+    {
+      cout << "path_tlmc_output: " << parameter.path_tlmc_output_ << endl;
+    }
   }
 
   void Run(const Parameter &parameter)
@@ -163,24 +167,22 @@ namespace api
     {
       api::RunCanonicalMcSerialFromParameter(parameter);
     }
-    /*
-    else if (parameter.method == "KineticMcChainOmpi")
-    {
-      api::RunKineticMcChainOmpiFromParameter(parameter);
-    }
     else if (parameter.method == "KineticMcFirstMpi")
     {
       api::RunKineticMcFirstMpiFromParameter(parameter);
     }
-    else if (parameter.method == "KineticMcFirstOmp")
+    else if (parameter.method == "ProfileEnergyPredictor")
     {
-      api::RunKineticMcFirstOmpFromParameter(parameter);
+      api::ProfileEnergyPredictor(parameter);
     }
-      */
-
-    if (parameter.method == "KineticMcFirstMpi")
+    else if (parameter.method == "CanonicalMcOmp")
     {
-      api::RunKineticMcFirstMpiFromParameter(parameter);
+      api::RunCanonicalMcOmpFromParameter(parameter);
+    }
+    else if (parameter.method == "ConvertAtomVectorsToConfigs")
+    {
+
+      ConvertAtomVectorsToConfigs(parameter.path_tlmc_output_);
     }
   }
 
@@ -265,85 +267,89 @@ namespace api
 
     cout << "Simulation Completed" << endl;
   }
-  /*
 
-  void RunKineticMcChainOmpiFromParameter(const Parameter
-                                              &parameter)
+  void RunCanonicalMcOmpFromParameter(const Parameter &parameter)
   {
-    Config config;
-    if (parameter.map_filename_.empty())
-    {
-      // Generalized function to read configuration
-      // Supported formats are: .cfg, .POSCAR, .cfg.gz, .cfg.bz2, .POSCAR.gz, .POSCAR.bz2
-      config = Config::ReadConfig(parameter.config_filename_);
-    }
+    Config smallConfig = Config::GenerateSupercell(
+        parameter.supercell_size_,
+        parameter.lattice_param_,
+        "X",
+        parameter.structure_type_);
+
+    // Declare the cube object
+    Cube cubeObj(parameter.cube_size_);
+
+    // Declare the tiled supercell
+    TiledSupercell tiledSupercell(
+        smallConfig,
+        cubeObj);
+
+    vector<uint64_t> atomIndexVector = TiledSupercell::ReadAtomicIndicesFromFile(
+        parameter.atomic_indices_filename_);
+
+    // Update the atom vector
+    tiledSupercell.UpdateAtomVector(atomIndexVector);
 
     // Read CE Parameters
     ClusterExpansionParameters ceParams(parameter.json_coefficients_filename_);
 
     // Used to update the symmetric CE
     double maxClusterCutoff = ceParams.GetMaxClusterCutoff();
-    config.UpdateNeighborList({maxClusterCutoff});
+    smallConfig.UpdateNeighborList({maxClusterCutoff});
+
+    // will be dependent on the size of cutoff list using which smallConfig was updated
+    tiledSupercell.UpdateNeighbourLists(1);
 
     // Generate a small config for declaring symCE
-    const size_t supercellSize = 2;
+    const size_t primSize = 2;
 
     auto primConfig = Config::GenerateSupercell(
-        supercellSize,
+        primSize,
         parameter.lattice_param_,
         "Mo", // Does not matter as the lattice param and structure type is important
         parameter.structure_type_);
 
     // Declare Symmetric CE
-    SymmetricCEPredictor symCEEnergyPredictor(
+    SymmetricCEPredictorTLMC symCEEnergyPredictor(
         ceParams,
-        config,
+        tiledSupercell,
         primConfig);
 
     // Again update the neighbor list
-    config.UpdateNeighborList(parameter.cutoffs_);
+    smallConfig.UpdateNeighborList(parameter.cutoffs_);
+    tiledSupercell.UpdateNeighbourLists(parameter.cutoffs_.size());
 
     // Declare LVFE Predictor
-    LVFEPredictor lvfePredictor(
+    LVFEPredictorTLMC lvfePredictor(
         ceParams,
-        config);
+        tiledSupercell);
 
     // Declare Energy Predictor
-    EnergyPredictor energyChangePredictor(
+    EnergyPredictorTLMC energyChangePredictor(
         symCEEnergyPredictor,
         lvfePredictor);
 
-    // Declare KRA Predictor
-    KRAPredictor eKRAPredictor(
-        ceParams,
-        config);
+    // Update to first nn
+    tiledSupercell.UpdateNeighbourLists(1);
 
-    // Declare Vacacny migration predictor
-    VacancyMigrationPredictor vacancyMigrationPredictor(
-        eKRAPredictor,
+    cout << "Finish config reading. Start CMC." << endl;
+
+    mc::CanonicalMcOmp canonicalMcOmp(
+        tiledSupercell,
+        parameter.log_dump_steps_,
+        parameter.config_dump_steps_,
+        parameter.maximum_steps_,
+        parameter.thermodynamic_averaging_steps_,
+        parameter.restart_steps_,
+        parameter.restart_steps_,
+        parameter.temperature_,
         energyChangePredictor);
 
-    cout << "Finish config reading. Start KMC." << endl;
-
-    mc::KineticMcChainOmpi kmcChainOmpi(config,
-                                        parameter.log_dump_steps_,
-                                        parameter.config_dump_steps_,
-                                        parameter.maximum_steps_,
-                                        parameter.thermodynamic_averaging_steps_,
-                                        parameter.restart_steps_,
-                                        parameter.restart_energy_,
-                                        parameter.restart_time_,
-                                        parameter.temperature_,
-                                        vacancyMigrationPredictor,
-                                        parameter.time_temperature_filename_,
-                                        parameter.rate_corrector_,
-                                        parameter.vacancy_trajectory_);
-
-    kmcChainOmpi.Simulate();
+    canonicalMcOmp.Simulate();
 
     cout << "Simulation Completed" << endl;
   }
-  */
+
   void RunKineticMcFirstMpiFromParameter(const Parameter
                                              &parameter)
   {
@@ -442,144 +448,149 @@ namespace api
     cout << "Simulation Completed" << endl;
   }
 
-  /*
-     void RunKineticMcFirstOmpFromParameter(const Parameter
-                                               &parameter)
+  void ProfileEnergyPredictor(const Parameter &parameter)
+  {
+    // Read CE Parameters
+    ClusterExpansionParameters ceParams(parameter.json_coefficients_filename_);
+
+    auto allowedElements = ceParams.GetAllowedElements();
+
+    vector<double> compositionVector;
+    compositionVector.reserve(allowedElements.size());
+
+    int n = allowedElements.size();
+    int base = 100 / n;
+    int remainder = 100 % n;
+
+    // Initialize all parts to 'base'
+    compositionVector.assign(n, base);
+
+    // Add 1 to the first 'remainder' parts
+    for (int i = 0; i < remainder; ++i)
     {
-      Config config;
-      if (parameter.map_filename_.empty())
-      {
-        // Generalized function to read configuration
-        // Supported formats are: .cfg, .POSCAR, .cfg.gz, .cfg.bz2, .POSCAR.gz, .POSCAR.bz2
-        config = Config::ReadConfig(parameter.config_filename_);
-      }
-
-      // Read CE Parameters
-      ClusterExpansionParameters ceParams(parameter.json_coefficients_filename_);
-
-      // Used to update the symmetric CE
-      double maxClusterCutoff = ceParams.GetMaxClusterCutoff();
-      config.UpdateNeighborList({maxClusterCutoff});
-
-      // Generate a small config for declaring symCE
-      const size_t supercellSize = 2;
-
-      auto primConfig = Config::GenerateSupercell(
-          supercellSize,
-          parameter.lattice_param_,
-          "Mo", // Does not matter as the lattice param and structure type is important
-          parameter.structure_type_);
-
-      // Declare Symmetric CE
-      SymmetricCEPredictor symCEEnergyPredictor(
-          ceParams,
-          config,
-          primConfig);
-
-      // Again update the neighbor list
-      config.UpdateNeighborList(parameter.cutoffs_);
-
-      // Declare LVFE Predictor
-      LVFEPredictor lvfePredictor(
-          ceParams,
-          config);
-
-      // Declare Energy Predictor
-      EnergyPredictor energyChangePredictor(
-          symCEEnergyPredictor,
-          lvfePredictor);
-
-      // Declare KRA Predictor
-      KRAPredictor eKRAPredictor(
-          ceParams,
-          config);
-
-      // Declare Vacacny migration predictor
-      VacancyMigrationPredictor vacancyMigrationPredictor(
-          eKRAPredictor,
-          energyChangePredictor);
-
-      cout << "Finish config reading. Start KMC." << endl;
-
-      mc::KineticMcFirstOmp kmcFirstOmp(config,
-                                        parameter.log_dump_steps_,
-                                        parameter.config_dump_steps_,
-                                        parameter.maximum_steps_,
-                                        parameter.thermodynamic_averaging_steps_,
-                                        parameter.restart_steps_,
-                                        parameter.restart_energy_,
-                                        parameter.restart_time_,
-                                        parameter.temperature_,
-                                        vacancyMigrationPredictor,
-                                        parameter.time_temperature_filename_,
-                                        parameter.rate_corrector_,
-                                        parameter.vacancy_trajectory_);
-
-      kmcFirstOmp.Simulate();
-
-      cout << "Simulation Completed" << endl;
+      compositionVector[i] += 1.0;
     }
 
-    void RunSimulatedAnnealingFromParameter(const Parameter
-                                                &parameter)
+    Config smallConfig = Config::GenerateAlloySupercell(
+        parameter.supercell_size_,
+        parameter.lattice_param_,
+        parameter.structure_type_,
+        allowedElements,
+        compositionVector,
+        1);
+
+    // Declare the cube object
+    Cube cubeObj(parameter.cube_size_);
+
+    // Declare the tiled supercell
+    TiledSupercell tiledSupercell(
+        smallConfig,
+        cubeObj);
+
+    size_t largeSupercellSize = parameter.supercell_size_ * parameter.cube_size_;
+
+    Config largeConfig = Config::GenerateAlloySupercell(
+        largeSupercellSize,
+        parameter.lattice_param_,
+        parameter.structure_type_,
+        allowedElements,
+        compositionVector,
+        1);
+
+    // Update the atom vector
+    tiledSupercell.UpdateAtomVector(largeConfig);
+
+    // Used to update the symmetric CE
+    double maxClusterCutoff = ceParams.GetMaxClusterCutoff();
+    smallConfig.UpdateNeighborList({maxClusterCutoff});
+
+    // will be dependent on the size of cutoff list using which smallConfig was updated
+    tiledSupercell.UpdateNeighbourLists(1);
+
+    // Generate a small config for declaring symCE
+    const size_t primSize = 2;
+
+    auto primConfig = Config::GenerateSupercell(
+        primSize,
+        parameter.lattice_param_,
+        "Mo", // Does not matter as the lattice param and structure type is important
+        parameter.structure_type_);
+
+    // Declare Symmetric CE
+    SymmetricCEPredictorTLMC symCEEnergyPredictor(
+        ceParams,
+        tiledSupercell,
+        primConfig);
+
+    // Again update the neighbor list
+    smallConfig.UpdateNeighborList(parameter.cutoffs_);
+    tiledSupercell.UpdateNeighbourLists(parameter.cutoffs_.size());
+
+    // Declare LVFE Predictor
+    LVFEPredictorTLMC lvfePredictor(
+        ceParams,
+        tiledSupercell);
+
+    // Declare Energy Predictor
+    EnergyPredictorTLMC energyChangePredictor(
+        symCEEnergyPredictor,
+        lvfePredictor);
+
+    // Select a lattice pair with different elements
+    // The central Id is choosen so no worry of periodic boundary
+    // All first nn are in the same cell
+    size_t latticeId1 = smallConfig.GetCentralAtomLatticeId();
+    size_t smallConfigIdx = 1;
+
+    auto latticeSite1 = LatticeSiteMapping(latticeId1, 1);
+    auto element1 = tiledSupercell.GetElementAtSite(latticeSite1);
+
+    LatticeSiteMapping latticeSite2;
+    for (auto nnId : smallConfig.GetNeighborLatticeIdVectorOfLattice(latticeId1, 1))
     {
-      Config config;
-      if (parameter.map_filename_.empty())
+      auto nnSite = LatticeSiteMapping(nnId, smallConfigIdx);
+      auto element2 = tiledSupercell.GetElementAtSite(nnSite);
+
+      if (element1 != element2)
       {
-        // Generalized function to read configuration
-        // Supported formats are: .cfg, .POSCAR, .cfg.gz, .cfg.bz2, .POSCAR.gz, .POSCAR.bz2
-        config = Config::ReadConfig(parameter.config_filename_);
+        latticeSite2 = nnSite;
+        break;
       }
-
-      // Read CE Parameters
-      ClusterExpansionParameters ceParams(parameter.json_coefficients_filename_);
-
-      // Used to update the symmetric CE
-      double maxClusterCutoff = ceParams.GetMaxClusterCutoff();
-      config.UpdateNeighborList({maxClusterCutoff});
-
-      // Generate a small config for declaring symCE
-      const size_t supercellSize = 2;
-
-      auto primConfig = Config::GenerateSupercell(
-          supercellSize,
-          parameter.lattice_param_,
-          "Mo", // Does not matter as the lattice param and structure type is important
-          parameter.structure_type_);
-
-      // Declare Symmetric CE
-      SymmetricCEPredictor symCEEnergyPredictor(
-          ceParams,
-          config,
-          primConfig);
-
-      // Again update the neighbor list
-      config.UpdateNeighborList(parameter.cutoffs_);
-
-      // Declare LVFE Predictor
-      LVFEPredictor lvfePredictor(
-          ceParams,
-          config);
-
-      // Declare Energy Predictor
-      EnergyPredictor energyChangePredictor(
-          symCEEnergyPredictor,
-          lvfePredictor);
-
-      cout << "Finish config reading. Start SA." << endl;
-
-      mc::SimulatedAnnealing simulatedAnnealing(config,
-                                                parameter.log_dump_steps_,
-                                                parameter.config_dump_steps_,
-                                                parameter.maximum_steps_,
-                                                parameter.restart_steps_,
-                                                parameter.restart_energy_,
-                                                parameter.initial_temperature_,
-                                                energyChangePredictor);
-
-      simulatedAnnealing.Simulate();
-      cout << "Simulation Completed" << endl;
     }
-  */
 
+    // Profiling
+    int maxThreads = omp_get_max_threads();
+    cout << "Max Number of Threads: " << maxThreads << endl;
+
+    vector<int> threadList = {1, 2, 4, 8, 12, 16, 32, 48};
+
+    // --- Without vacancy ---
+    cout << "=== Profiling without vacancy ===" << endl;
+    for (const auto threadCount : threadList)
+    {
+      if (threadCount <= maxThreads)
+      {
+        cout << "[Without Vacancy] Threads: " << threadCount << " | ";
+        energyChangePredictor.ProfileEnergyChange(
+            tiledSupercell,
+            make_pair(latticeSite1, latticeSite2),
+            threadCount);
+      }
+    }
+
+    // --- With vacancy ---
+    tiledSupercell.SetElementAtSite(latticeSite1, Element("X"));
+    cout << "\n=== Profiling with vacancy ===" << endl;
+    for (const auto threadCount : threadList)
+    {
+      if (threadCount <= maxThreads)
+      {
+        cout << "[With Vacancy] Threads: " << threadCount << " | ";
+        energyChangePredictor.ProfileEnergyChange(
+            tiledSupercell,
+            make_pair(latticeSite1, latticeSite2),
+            threadCount);
+      }
+    }
+  }
 }

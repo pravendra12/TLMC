@@ -64,6 +64,13 @@ namespace mc
      */
     pair<LatticeSiteMapping, LatticeSiteMapping> GenerateLatticeSiteIdJumpPair();
 
+    /*
+      Generates the latticeSiteIdJumpPair in the same cube
+      Used in the parallel monte carlo
+    */
+    pair<LatticeSiteMapping, LatticeSiteMapping> GenerateJumpPairInCube();
+
+    /// Generates a random cube index 
     pair<LatticeSiteMapping, LatticeSiteMapping> GenerateVacancyLatticeSiteIdJumpPair();
 
     /*!
@@ -84,6 +91,14 @@ namespace mc
     /** @brief Random Lattice Id Generator
      */
     mutable uniform_int_distribution<size_t> atomIndexSelector_;
+
+    /// Random Cube Index Generator
+    mutable uniform_int_distribution<size_t> cubeIndexSelector_;
+
+    // Random index generator in a small config
+    mutable uniform_int_distribution<size_t> smallConfigAtomIndexSelector_;
+
+
   };
 }
 

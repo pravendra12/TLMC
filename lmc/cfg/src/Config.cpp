@@ -101,7 +101,7 @@ size_t Config::GetCentralAtomLatticeId() const
 
   // Exit the program if no match is found
   std::cerr << "Error: Central atom not found in the lattice!" << std::endl;
-   exit(EXIT_FAILURE); // Exit with failure status
+  exit(EXIT_FAILURE); // Exit with failure status
 }
 
 size_t Config::GetVacancyAtomId() const
@@ -151,7 +151,6 @@ Config::GetElementOfAtomIdVectorMap() const
   }
   return element_list_map;
 }
-
 
 std::vector<size_t> Config::GetNeighborAtomIdVectorOfAtom(size_t atom_id, size_t distance_order) const
 {
@@ -218,7 +217,6 @@ size_t Config::GetLatticeIdOfAtom(size_t atomId) const
 {
   return atom_to_lattice_hashmap_.at(atomId);
 }
-
 
 Eigen::Ref<const Eigen::Vector3d> Config::GetRelativePositionOfLattice(size_t lattice_id) const
 {
@@ -574,9 +572,6 @@ void Config::LatticeJump(const std::pair<size_t, size_t> &lattice_id_jump_pair)
   atom_to_lattice_hashmap_.at(atom_id_rhs) = lattice_id_lhs;
   lattice_to_atom_hashmap_.at(lattice_id_lhs) = atom_id_rhs;
   lattice_to_atom_hashmap_.at(lattice_id_rhs) = atom_id_lhs;
-
-
-
 
   //  std::cout << "After Swap : " << std::endl;
   //  std::cout << "Lattice ID : " << "{ " << lattice_id_lhs << GetElementOfLattice(lattice_id_lhs) << ", " <<
@@ -1135,6 +1130,64 @@ Config Config::GenerateSupercell(
   return supercell;
 }
 
+Config Config::GenerateAlloySupercell(
+    size_t supercell_size,
+    double lattice_param,
+    std::string structure_type,
+    const std::vector<std::string> &element_vector,
+    const std::vector<double> &composition_vector,
+    unsigned seed)
+{
+
+  string baseElement;
+
+  for (int i = 0; i < composition_vector.size(); i++)
+  {
+    if (composition_vector[i] != 0)
+    {
+      baseElement = element_vector[i];
+      break;
+    }
+  }
+
+  // First element in the element vector is the base element
+  auto base_supercell = GenerateSupercell(supercell_size,
+                                          lattice_param,
+                                          baseElement,
+                                          structure_type);
+
+  auto atom_vector = base_supercell.GetAtomVector();
+  auto num_atoms = base_supercell.GetNumAtoms();
+
+  int start_index = 0;
+
+  for (int el = 1; el < composition_vector.size(); ++el)
+  {
+    int num_atoms_el = composition_vector[el] * num_atoms / 100;
+
+    // std::cout << num_atoms_el << std::endl;
+
+    for (int i = start_index; i < start_index + num_atoms_el; ++i)
+    {
+      atom_vector[i] = Element(element_vector[el]);
+    }
+    start_index += num_atoms_el;
+  }
+
+  std::mt19937 mersenne_twister_rng_(seed);
+
+  std::shuffle(atom_vector.begin(), atom_vector.end(), mersenne_twister_rng_);
+
+  Config supercell = Config{base_supercell.GetBasis(),
+                            base_supercell.GetRelativePositionMatrix(),
+                            atom_vector};
+
+  supercell.ReassignLattice();
+  supercell.Wrap();
+
+  return supercell;
+}
+
 void Config::WriteConfig(const std::string &filename, const Config &config_out)
 {
   WriteConfigExtended(filename, config_out, {});
@@ -1398,4 +1451,3 @@ Config Config::ExtractLocalSupercell(
   Eigen::Matrix3d newBasis = GetBasis();
   return Config(newBasis, relativePositionMatrix, atomVector);
 }
-

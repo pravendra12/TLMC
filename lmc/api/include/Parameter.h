@@ -171,7 +171,8 @@ struct Parameter {
   /// Number of each solute element in the system.
   std::vector<size_t> solute_number_set_{};
 
-
+  // Path where TiledLMC output from cmc or kmc is present
+  std::string path_tlmc_output_{}; 
 
   /// Early stopping criteria based on the number of steps.
   unsigned long long int early_stop_steps_{};

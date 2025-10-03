@@ -1,6 +1,7 @@
 #ifndef LMC_PRED_INCLUDE_ENERGYPREDICTORTLMC_H_
 #define LMC_PRED_INCLUDE_ENERGYPREDICTORTLMC_H_
 
+#include <chrono>
 #include "Config.h"
 #include "PrintUtility.h"
 #include "ClusterExpansionParameters.h"
@@ -26,6 +27,11 @@ public:
   double GetEnergyChangeWithVacancy(
       const TiledSupercell &tiledSupercell,
       const pair<LatticeSiteMapping, LatticeSiteMapping> &latticeSiteJumpPair);
+
+  void ProfileEnergyChange(
+    const TiledSupercell &tiledSupercell, 
+    const pair<LatticeSiteMapping, LatticeSiteMapping> &latticeSiteJumpPair, 
+    int numThreads);
 
 private:
   SymmetricCEPredictorTLMC &symCEEnergyPredictor_;

@@ -76,6 +76,10 @@ namespace api
       {
         atomic_indices_filename_ = std::string(segs[1]);
       }
+      else if (segs[0] == "path_tlmc_output")
+      {
+        path_tlmc_output_ = std::string(segs[1]);
+      }
       else if (segs[0] == "map_filename")
       {
         map_filename_ = std::string(segs[1]);

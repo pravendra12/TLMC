@@ -34,7 +34,9 @@ namespace mc
                    temperature,
                    "cmc_log.txt"),
         energyChangePredictor_(energyChangePredictor),
-        atomIndexSelector_(0, tiledSupercell_.GetTotalNumOfSites() - 1)
+        atomIndexSelector_(0, tiledSupercell_.GetTotalNumOfSites() - 1),
+        cubeIndexSelector_(0, tiledSupercell_.GetNumOfSmallConfig() - 1),
+        smallConfigAtomIndexSelector_(0, tiledSupercell.GetNumOfSitesPerSmallConfig()-1)
   {
   }
 
@@ -49,6 +51,25 @@ namespace mc
 
       auto atomId2 = atomIndexSelector_(generator_);
       latticeSiteId2 = tiledSupercell_.GetLatticeSiteMappingFromAtomId(atomId2);
+
+    } while (tiledSupercell_.GetElementAtSite(latticeSiteId1) == tiledSupercell_.GetElementAtSite(latticeSiteId2));
+
+    return {latticeSiteId1, latticeSiteId2};
+  }
+
+  pair<LatticeSiteMapping, LatticeSiteMapping> CanonicalMcAbstract::GenerateJumpPairInCube()
+  {
+    auto randomCubeIdx = cubeIndexSelector_(generator_);
+
+    LatticeSiteMapping latticeSiteId1;
+    LatticeSiteMapping latticeSiteId2;
+    do
+    {
+      auto atomId1 = smallConfigAtomIndexSelector_(generator_);
+      latticeSiteId1 = LatticeSiteMapping(atomId1, randomCubeIdx);
+
+      auto atomId2 = smallConfigAtomIndexSelector_(generator_);
+      latticeSiteId2 = LatticeSiteMapping(atomId2, randomCubeIdx);
 
     } while (tiledSupercell_.GetElementAtSite(latticeSiteId1) == tiledSupercell_.GetElementAtSite(latticeSiteId2));
 
@@ -89,7 +110,6 @@ namespace mc
     {
       // tiledSupercell_.WriteAtomVectorInfoToFile(to_string(steps_) + ".txt");
       tiledSupercell_.WriteAtomicIndicesToFile(to_string(steps_) + ".bin.gz");
-
     }
     unsigned long long int logDumpSteps;
     if (steps_ > 10 * logDumpSteps_)

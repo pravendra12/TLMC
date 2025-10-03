@@ -13,7 +13,7 @@
 #include "CanonicalMcOmp.h"
 namespace mc
 {
-  CanonicalMcOmp::CanonicalMcOmp(Config config,
+  CanonicalMcOmp::CanonicalMcOmp(TiledSupercell tiledSupercell,
                                  unsigned long long int logDumpSteps,
                                  unsigned long long int configDumpStep,
                                  unsigned long long int maximumSteps,
@@ -21,8 +21,8 @@ namespace mc
                                  unsigned long long int restartSteps,
                                  double restartEnergy,
                                  double temperature,
-                                 EnergyPredictor &energyChangePredictor)
-      : CanonicalMcAbstract(move(config),
+                                 EnergyPredictorTLMC &energyChangePredictor)
+      : CanonicalMcAbstract(move(tiledSupercell),
                             logDumpSteps,
                             configDumpStep,
                             maximumSteps,
@@ -54,53 +54,47 @@ namespace mc
     event_vector_.clear();
     unavailable_position_.clear();
 
-    pair<size_t, size_t> lattice_id_jump_pair;
+    pair<LatticeSiteMapping, LatticeSiteMapping> latticeIdJumpPair;
+    size_t cubeIdx;
     for (size_t i = 0; i < num_threads_; ++i)
     {
       size_t ct = 0;
       do
       {
-        lattice_id_jump_pair = GenerateLatticeSiteIdJumpPair();
+        // lattice_id_jump_pair = GenerateLatticeSiteIdJumpPair();
+        latticeIdJumpPair = GenerateJumpPairInCube();
+        cubeIdx = latticeIdJumpPair.first.smallConfigId;
+
         ct++;
         if (ct == 50)
         {
           break;
         }
-      } while (unavailable_position_.find(lattice_id_jump_pair.first) != unavailable_position_.end() || unavailable_position_.find(lattice_id_jump_pair.second) != unavailable_position_.end());
+      } while (unavailable_position_.find(cubeIdx) != unavailable_position_.end());
       if (ct == 50)
       {
         break;
       }
-      for (auto selected_lattice_index : {lattice_id_jump_pair.first, lattice_id_jump_pair.second})
-      {
-        unavailable_position_.emplace(selected_lattice_index);
 
-        auto firstNN = config_.GetNeighborLatticeIdVectorOfLattice(selected_lattice_index, 1);
-        copy(firstNN.begin(), firstNN.end(),
-             inserter(unavailable_position_,
-                      unavailable_position_.end()));
+      unavailable_position_.emplace(cubeIdx);
 
-        auto secondNN = config_.GetNeighborLatticeIdVectorOfLattice(selected_lattice_index, 2);
-        copy(secondNN.begin(), secondNN.end(),
-             inserter(unavailable_position_,
-                      unavailable_position_.end()));
+      // const std::vector<size_t> &Cube::GetNeighbors(size_t siteIndex)
+      auto neighboursOfCube = tiledSupercell_.GetCube().GetNeighbors(cubeIdx);
 
-        auto thirdNN = config_.GetNeighborLatticeIdVectorOfLattice(selected_lattice_index, 3);
-        copy(thirdNN.begin(), thirdNN.end(),
-             inserter(unavailable_position_,
-                      unavailable_position_.end()));
-      }
-      event_vector_.emplace_back(lattice_id_jump_pair, 0);
+      copy(neighboursOfCube.begin(), neighboursOfCube.end(),
+           inserter(unavailable_position_,
+                    unavailable_position_.end()));
+
+      event_vector_.emplace_back(latticeIdJumpPair, 0);
     }
 #pragma omp parallel for default(none)
     for (auto &event : event_vector_)
     {
-      event.second = energyChangePredictor_.GetEnergyChange(config_, event.first);
+      event.second = energyChangePredictor_.GetEnergyChange(tiledSupercell_, event.first);
     }
   }
   void CanonicalMcOmp::Simulate()
   {
-
     while (steps_ <= maximumSteps_)
     {
       BuildEventVector();
@@ -113,5 +107,4 @@ namespace mc
       }
     }
   }
- 
 } // mc

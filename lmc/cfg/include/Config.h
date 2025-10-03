@@ -13,6 +13,7 @@
 #ifndef LMC_CFG_INCLUDE_CONFIG_H_
 #define LMC_CFG_INCLUDE_CONFIG_H_
 
+#include <random>
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -133,7 +134,6 @@ public:
    */
   [[nodiscard]] std::vector<size_t> GetNeighborLatticeIdVectorOfLattice(size_t lattice_id, size_t distance_order) const;
 
-
   /*! \brief Query for the set of neighbor lattice id of a lattice.
    *  \param lattice_id      The lattice id of the lattice.
    *  \param distance_order  The order of distance between the two lattice.
@@ -170,7 +170,7 @@ public:
    *  \param atomId  The atom id of the atom.
    *  \return         The lattice id for the atom.
    */
-  [[nodiscard]]size_t GetLatticeIdOfAtom(size_t atomId) const;
+  [[nodiscard]] size_t GetLatticeIdOfAtom(size_t atomId) const;
 
   /*! \brief Query for the cartesian position of a lattice site. //prav: relative position of lattice
    *  \param lattice_id  The lattice id of the lattice site.
@@ -200,11 +200,11 @@ public:
 
   std::vector<size_t> GetSortedLatticeVectorStateOfPair(
       const std::pair<size_t, size_t> &lattice_id_pair, const size_t &max_bond_order) const;
-  
+
   // Returns the sorted lattice vector including the lattice pair
   std::vector<size_t> GetSortedLatticeVectorStateWithPair(
-    const std::pair<size_t, size_t> &lattice_id_jump_pair, 
-    const size_t &max_bond_order) const;
+      const std::pair<size_t, size_t> &lattice_id_jump_pair,
+      const size_t &max_bond_order) const;
 
   /*! \brief Computes the center position of a lattice pair while accounting for
                periodic boundary conditions.
@@ -317,6 +317,14 @@ public:
    */
   static Config GenerateSupercell(size_t supercell_size, double lattice_param, const std::string &element_symbol, const std::string &structure_type);
 
+  static Config GenerateAlloySupercell(
+      size_t supercell_size,
+      double lattice_param,
+      std::string structure_type,
+      const std::vector<std::string> &element_vector,
+      const std::vector<double> &composition_vector,
+      unsigned seed);
+
   /*! \brief Write the configuration to a file.
    *  \param filename  The name of the file to write the configuration to.
    */
@@ -362,7 +370,7 @@ public:
   //  */
   void WriteLattice(const std::string &filename, size_t &max_bond_order) const;
 
-  Config ExtractLocalSupercell(const std::pair<size_t,size_t>& latticeJumpPair, size_t supercellSize, double latticeParam) const;
+  Config ExtractLocalSupercell(const std::pair<size_t, size_t> &latticeJumpPair, size_t supercellSize, double latticeParam) const;
   Config ExtractLocalSupercellGrok(const std::pair<size_t, size_t> &latticeJumpPair, size_t supercellSize, double latticeParam) const;
 
 private:

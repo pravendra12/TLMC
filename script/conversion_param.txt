@@ -1,0 +1,2 @@
+simulation_method ConvertAtomVectorsToConfigs
+path_tlmc_output //media/sf_Phd/MoTa/CMC/newVersion/ss300x300x300/cmc_1700K

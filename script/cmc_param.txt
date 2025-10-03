@@ -1,30 +1,12 @@
-# ==========================================================
-# Canonical Monte Carlo Simulation Parameters
-# ==========================================================
-simulation_method CanonicalMcSerial
-# ----------------------------
-# General Simulation Settings
-# ----------------------------               
+simulation_method CanonicalMcSerial          
 temperature                        600                                 
-
-# ----------------------------
-# Input File Names
-# ----------------------------
 json_coefficients_filename         /home/pravendra3/Documents/LatticeMonteCarlo-eigen/script/coefficientFile_MoTa_V3.1.json                    
 atomic_indices_filename            /home/pravendra3/Documents/TLMC/bin/testingAtomIndicesReadWrite/atomIndices.bin.gz             
 structure_type                     BCC                                 
-
-# ----------------------------
-# Supercell & Lattice Settings
-# ----------------------------
 cutoffs                            3, 4, 5                             
 supercell_size                     4                                   
 cube_size                          5                                   
-lattice_param                      3.2                                 
-
-# ----------------------------
-# CMC Parameters
-# ----------------------------
+lattice_param                      3.2               
 log_dump_steps                      10                                 
 thermodynamic_averaging_steps       100                                
 config_dump_steps                   10                                 

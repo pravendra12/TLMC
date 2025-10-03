@@ -24,28 +24,34 @@
 #include "CanonicalMcSerial.h"
 #include "TiledSupercell.h"
 #include "Cube.h"
+#include "CanonicalMcOmp.h"
+#include "ConvertAtomVectorsToConfigs.h"
 
 using namespace std;
 
-namespace api {
+namespace api
+{
 
-  /*! \brief Prints the details of the given simulation parameters. 
-   *  \param parameter : The `Parameter` object containing simulation settings to 
+  /*! \brief Prints the details of the given simulation parameters.
+   *  \param parameter : The `Parameter` object containing simulation settings to
    *                     be printed.
    */
   void Print(const Parameter &parameter);
-  
+
   /*! \brief Executes a Monte Carlo simulation using the provided parameters.
-   *  \param parameter : The `Parameter` object containing simulation settings to 
+   *  \param parameter : The `Parameter` object containing simulation settings to
    *                     be printed.
    */
   void Run(const Parameter &parameter);
 
   void RunCanonicalMcSerialFromParameter(const Parameter &parameter);
 
+  void RunCanonicalMcOmpFromParameter(const Parameter &parameter);
+
   void RunKineticMcFirstMpiFromParameter(const Parameter &parameter);
 
+  void ProfileEnergyPredictor(const Parameter &parameter);
 
 } // api
 
-#endif //LMC_API_INCLUDE_HOME_H_
+#endif // LMC_API_INCLUDE_HOME_H_

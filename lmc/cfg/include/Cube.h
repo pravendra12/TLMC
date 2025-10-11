@@ -1,7 +1,7 @@
 #ifndef LMC_CFG_INCLUDE_CUBE_H_
 #define LMC_CFG_INCLUDE_CUBE_H_
 
-#include "eigen3/Eigen/Dense"
+#include "Eigen/Dense"
 
 using namespace std;
 using namespace Eigen;

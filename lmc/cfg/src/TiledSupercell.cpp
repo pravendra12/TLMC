@@ -18,6 +18,9 @@ TiledSupercell::TiledSupercell(
   // it
   InitializeAtomVector();
   PrintTiledSupercell();
+
+  atomVector_.resize(totalNumOfSites_);
+  atomIndexVector_.resize(totalNumOfSites_);
 }
 
 const Config &TiledSupercell::GetSmallConfig() const
@@ -377,6 +380,7 @@ struct Vector3iHash
   }
 };
 
+/*
 void TiledSupercell::UpdateAtomVector(
     const Config &config)
 {
@@ -407,6 +411,63 @@ void TiledSupercell::UpdateAtomVector(
     SetElementAtSite(latticeSiteMapping, config.GetElementOfLattice(it->second));
   }
 }
+*/
+
+void TiledSupercell::UpdateAtomVector(
+    const Config &config)
+{
+  if (config.GetNumAtoms() != totalNumOfSites_)
+    throw std::runtime_error(
+        "Error in `TiledSupercell::UpdateAtomVector`: Config size does not match Tiled Supercell size");
+
+  const auto &relPos = config.GetRelativePositionMatrix(); // 3 x numAtomsSmallCfg
+  const size_t numLattices = config.GetNumLattices();
+
+  // Build hash map: discretized positions → lattice index
+  std::unordered_map<Eigen::Vector3i, size_t, Vector3iHash> posToLatticeId;
+  posToLatticeId.reserve(numLattices);
+
+  for (size_t j = 0; j < numLattices; ++j)
+  {
+    Eigen::Vector3i key = (relPos.col(j) / constants::kEpsilon).array().round().cast<int>();
+    posToLatticeId[key] = j;
+  }
+
+  // Precompute lattice keys for all sites
+  std::vector<Eigen::Vector3i> latticeKeys(totalNumOfSites_);
+#pragma omp parallel for schedule(static)
+  for (size_t i = 0; i < totalNumOfSites_; ++i)
+  {
+    auto latticeSiteMapping = GetLatticeSiteMappingFromAtomId(i);
+    Vector3d pos = GetRelativePositionOfLatticeSiteMapping(latticeSiteMapping);
+    latticeKeys[i] = (pos / constants::kEpsilon).array().round().cast<int>();
+  }
+
+  std::atomic<bool> errorFlag(false);
+
+// Assign elements in parallel
+#pragma omp parallel for schedule(static)
+  for (size_t i = 0; i < totalNumOfSites_; ++i)
+  {
+    if (errorFlag.load())
+      continue; // skip if error detected
+
+    auto latticeSiteMapping = GetLatticeSiteMappingFromAtomId(i);
+    const Eigen::Vector3i &key = latticeKeys[i];
+
+    auto it = posToLatticeId.find(key);
+    if (it == posToLatticeId.end())
+    {
+      errorFlag = true;
+      continue;
+    }
+
+    SetElementAtSite(latticeSiteMapping, config.GetElementOfLattice(it->second));
+  }
+
+  if (errorFlag.load())
+    throw std::runtime_error("No matching lattice site found during UpdateAtomVector.");
+}
 
 void TiledSupercell::UpdateAtomVector(
     const vector<uint64_t> &atomicIndicesVector)
@@ -420,7 +481,7 @@ void TiledSupercell::UpdateAtomVector(
   atomVector_.reserve(totalNumOfSites_);
   atomIndexVector_.reserve(totalNumOfSites_);
 
-  for (size_t  i = 0; i < totalNumOfSites_; i++)
+  for (size_t i = 0; i < totalNumOfSites_; i++)
   {
     auto atomicIndex = size_t(atomicIndicesVector[i]); // AtomicNumber
     atomVector_.emplace_back(Element(atomicIndex));

@@ -18,6 +18,8 @@
 #include <vector>
 #include <fstream>
 #include <cstdint>
+#include <atomic>
+#include <omp.h>
 
 using namespace std;
 using namespace Eigen;

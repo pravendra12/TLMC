@@ -181,7 +181,6 @@ namespace api
     }
     else if (parameter.method == "ConvertAtomVectorsToConfigs")
     {
-
       ConvertAtomVectorsToConfigs(parameter.path_tlmc_output_);
     }
   }
@@ -284,11 +283,33 @@ namespace api
         smallConfig,
         cubeObj);
 
-    vector<uint64_t> atomIndexVector = TiledSupercell::ReadAtomicIndicesFromFile(
-        parameter.atomic_indices_filename_);
+    if (!parameter.config_filename_.empty() && parameter.atomic_indices_filename_.empty())
+    {
+      cout << "[INFO] Using configuration file: " << parameter.config_filename_ << endl;
 
-    // Update the atom vector
-    tiledSupercell.UpdateAtomVector(atomIndexVector);
+      Config largeConfig = Config::ReadCfg(parameter.config_filename_);
+      tiledSupercell.UpdateAtomVector(largeConfig);
+    }
+    else if (parameter.config_filename_.empty() && !parameter.atomic_indices_filename_.empty())
+    {
+      cout << "[INFO] Using atomic indices file: " << parameter.atomic_indices_filename_ << endl;
+
+      vector<uint64_t> atomIndexVector = TiledSupercell::ReadAtomicIndicesFromFile(
+          parameter.atomic_indices_filename_);
+      tiledSupercell.UpdateAtomVector(atomIndexVector);
+    }
+    else if (!parameter.config_filename_.empty() && !parameter.atomic_indices_filename_.empty())
+    {
+      cerr << "[ERROR] Both configuration and atomic indices files are provided. "
+                << "Please specify only one input source." << endl;
+      return;
+    }
+    else
+    {
+      cerr << "[ERROR] Neither configuration file nor atomic indices file provided in parameters."
+                << endl;
+      return;
+    }
 
     // Read CE Parameters
     ClusterExpansionParameters ceParams(parameter.json_coefficients_filename_);
@@ -593,4 +614,5 @@ namespace api
       }
     }
   }
+
 }

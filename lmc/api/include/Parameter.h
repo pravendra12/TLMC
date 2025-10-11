@@ -77,6 +77,7 @@ struct Parameter {
   /// Type of logging.
   std::string log_type_{};
 
+
   /// Type of configuration format (e.g., POSCAR, XYZ)       
   /// **************Need To Check Once **********
   std::string config_type_{};

@@ -27,6 +27,7 @@
 #include "CanonicalMcOmp.h"
 #include "ConvertAtomVectorsToConfigs.h"
 
+
 using namespace std;
 
 namespace api
@@ -51,6 +52,7 @@ namespace api
   void RunKineticMcFirstMpiFromParameter(const Parameter &parameter);
 
   void ProfileEnergyPredictor(const Parameter &parameter);
+
 
 } // api
 

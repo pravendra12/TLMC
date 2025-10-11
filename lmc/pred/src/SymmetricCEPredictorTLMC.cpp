@@ -143,7 +143,7 @@ double SymmetricCEPredictorTLMC::ComputeLocalFormationEnergyOfSite(
 double SymmetricCEPredictorTLMC::ComputeLocalFormationEnergyForPair(
     const TiledSupercell &tiledSupercell,
     const pair<LatticeSiteMapping, LatticeSiteMapping> &latticeSitePair, // here the elements will be assigned in the same order
-    // This is expected to get desired behaviour
+    // This is expected to get desired behaviour when
     // latticeSitePairElements.first <-> latticeSitePair.first
     // latticeSitePairElements.second <-> latticeSitePair.second
     const pair<Element, Element> &latticeSitePairElements)

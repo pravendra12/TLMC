@@ -71,8 +71,15 @@ void ConvertAtomVectorsToConfigs(const string &pathToTLMCRun)
         smallCfg, cubeObj, atomVector);
 
     // Write output
-    string outFile = outputPath + "/" + baseName + ".cfg.gz";
-    Config::WriteConfig(outFile, largeCfgFromAtomVector);
+    string outFile = outputPath + "/" + baseName + ".xyz.gz";
+    // Config::WriteConfig(outFile, largeCfgFromAtomVector);
+    Config::WriteXyzExtended(
+      outFile, 
+      largeCfgFromAtomVector, 
+      {},
+      {}
+    );
+
   }
 
   cout << "[INFO] Conversion completed successfully." << endl;

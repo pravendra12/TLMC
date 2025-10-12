@@ -93,6 +93,10 @@ public:
 
   LatticeSiteMapping GetVacancySiteId() const;
 
+  // Sets the vacancy at random site and returns where the vacancy was set successfully
+  // And original element is also set which was there at the choosen site
+  void SetVacancyAtRandomSite(Element &originalElement);
+
   /**
    * @brief Decodes an encoded lattice site mapping into an actual lattice site mapping.
    *

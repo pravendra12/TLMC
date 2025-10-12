@@ -286,6 +286,32 @@ LatticeSiteMapping TiledSupercell::GetVacancySiteId() const
   return vacancySiteId;
 }
 
+void TiledSupercell::SetVacancyAtRandomSite(Element &originalElement)
+{
+
+  // Random number generator
+  std::random_device rd;
+  std::mt19937_64 rng(rd());
+
+  // Pick a random site
+  std::uniform_int_distribution<size_t> dist(0, totalNumOfSites_ - 1);
+  size_t atomId = dist(rng);
+
+  auto latticeSiteId = GetLatticeSiteMappingFromAtomId(atomId);
+
+  originalElement = GetElementAtSite(latticeSiteId);
+
+  // Insert the vacancy
+  SetElementAtSite(latticeSiteId, Element("X"));
+
+  // Print info
+  cout << "Vacancy 'X' was set at site ("
+            << latticeSiteId.latticeId << ", "
+            << latticeSiteId.smallConfigId << ") "
+            << "replacing element '" << originalElement.GetElementString() << "'"
+            << endl;
+}
+
 LatticeSiteMapping TiledSupercell::GetLatticeSiteMappingFromEncoding(
     const LatticeSiteEncodedMapping &latticeSiteEncoding,
     const LatticeSiteMapping &refLatticeSiteMapping) const

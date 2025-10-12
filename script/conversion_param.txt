@@ -1,3 +1,3 @@
 simulation_method ConvertAtomVectorsToConfigs
-path_tlmc_output //media/sf_Phd/MoTa/CMC/ss350x350x350
+path_tlmc_output /home/pravendra3/Documents/TLMC/bin/testingCMCWithAtomIndices
 

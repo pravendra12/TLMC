@@ -400,6 +400,10 @@ namespace api
   void RunKineticMcFirstMpiFromParameter(const Parameter
                                              &parameter)
   {
+
+    // Read CE Parameters
+    ClusterExpansionParameters ceParams(parameter.json_coefficients_filename_);
+
     Config smallConfig = Config::GenerateSupercell(
         parameter.supercell_size_,
         parameter.lattice_param_,
@@ -419,9 +423,6 @@ namespace api
 
     // Update the atom vector
     tiledSupercell.UpdateAtomVector(atomIndexVector);
-
-    // Read CE Parameters
-    ClusterExpansionParameters ceParams(parameter.json_coefficients_filename_);
 
     // Used to update the symmetric CE
     double maxClusterCutoff = ceParams.GetMaxClusterCutoff();
@@ -473,6 +474,30 @@ namespace api
 
     // Update to first nn
     tiledSupercell.UpdateNeighbourLists(1);
+
+    // Check if vacancy is present in the supercell
+    try
+    {
+      auto vacancySiteId = tiledSupercell.GetVacancySiteId();
+
+      // Print info about the found vacancy
+      std::cout << "Vacancy 'X' was found at site ("
+                << vacancySiteId.latticeId << ", "
+                << vacancySiteId.smallConfigId << ")"
+                << std::endl;
+    }
+    catch (const std::runtime_error &e)
+    {
+      // Print warning
+      std::cerr << "WARNING: " << e.what() << "\n";
+      std::cerr << "→ No valid vacancy found. Inserting a vacancy at a random site.\n";
+
+      // Create a variable to hold the original element that will be replaced
+      Element originalElement("X");
+
+      // Insert vacancy at random site
+      tiledSupercell.SetVacancyAtRandomSite(originalElement);
+    }
 
     cout << "Finish config reading. Start KMC." << endl;
 

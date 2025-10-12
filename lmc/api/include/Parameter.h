@@ -177,6 +177,11 @@ struct Parameter {
 
   /// Early stopping criteria based on the number of steps.
   unsigned long long int early_stop_steps_{};
+
+  // Conversion
+  std::string input_filepath_{};
+  std::string output_filepath_{};
+
 };
 } // namespace api
 

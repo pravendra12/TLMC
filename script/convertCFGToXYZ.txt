@@ -1,0 +1,4 @@
+simulation_method ConvertCFGToXYZ
+input_filepath start_cmc_1.7K_1e6_Mo50Ta50_10x10x10.cfg.gz
+output_filepath start_cmc_1.7K_1e6_Mo50Ta50_10x10x10.xyz.gz
+

@@ -256,6 +256,14 @@ namespace api
           extract_encoding_ = false;
         }
       }
+      else if (segs[0] == "input_filepath")
+      {
+        input_filepath_ = std::string(segs[1]);
+      }
+      else if (segs[0] == "output_filepath")
+      {
+        output_filepath_ = std::string(segs[1]);
+      }
     }
     ifs.close();
   }

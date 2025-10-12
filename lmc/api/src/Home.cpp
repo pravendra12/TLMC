@@ -183,6 +183,32 @@ namespace api
     {
       ConvertAtomVectorsToConfigs(parameter.path_tlmc_output_);
     }
+    else if (parameter.method == "ConvertCFGToXYZ")
+    {
+      if (parameter.input_filepath_.empty() || parameter.output_filepath_.empty())
+      {
+        throw std::runtime_error(
+            "Error in ConvertCFGToXYZ: Both input and output file paths must be provided.");
+      }
+
+      // Optional: you can also check if the files exist
+      if (!fs::exists(parameter.input_filepath_))
+      {
+        throw std::runtime_error(
+            "Error in ConvertCFGToXYZ: Input file does not exist: " + parameter.input_filepath_);
+      }
+
+      auto cfg = Config::ReadCfg(parameter.input_filepath_);
+
+      Config::WriteXyzExtended(
+          parameter.output_filepath_,
+          cfg,
+          {},
+          {});
+
+      std::cout << "[INFO] Converted " << parameter.input_filepath_
+                << " to " << parameter.output_filepath_ << std::endl;
+    }
   }
 
   void RunCanonicalMcSerialFromParameter(const Parameter &parameter)
@@ -301,13 +327,13 @@ namespace api
     else if (!parameter.config_filename_.empty() && !parameter.atomic_indices_filename_.empty())
     {
       cerr << "[ERROR] Both configuration and atomic indices files are provided. "
-                << "Please specify only one input source." << endl;
+           << "Please specify only one input source." << endl;
       return;
     }
     else
     {
       cerr << "[ERROR] Neither configuration file nor atomic indices file provided in parameters."
-                << endl;
+           << endl;
       return;
     }
 

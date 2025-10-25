@@ -1,41 +1,18 @@
-# ==========================================================
-# Kinetic Monte Carlo Simulation Parameters
-# ==========================================================
-
-# ----------------------------
-# General Simulation Settings
-# ----------------------------
-simulation_method                  KineticMcFirstMpi                   
-temperature                        600                                 
-
-# ----------------------------
-# Input File Names
-# ----------------------------
-json_coefficients_filename         /home/pravendra3/Documents/LatticeMonteCarlo-eigen/script/coefficientFile_MoTa_V3.1.json                    
-atomic_indices_filename            /home/pravendra3/Documents/TLMC/bin/testingAtomIndicesReadWrite/atomIndices.bin.gz           
-structure_type                     BCC                                 
-
-# ----------------------------
-# Supercell & Lattice Settings
-# ----------------------------
-cutoffs                            3, 4, 5                             
-supercell_size                     4                                   
-cube_size                          5                                   
-lattice_param                      3.2                                 
-
-# ----------------------------
-# Optional Time-Temperature Profile
-# ----------------------------
-# time_temperature_filename         time_temp_profile.json             
-
-# ----------------------------
-# KMC Parameters
-# ----------------------------
-log_dump_steps                      10                                 
-thermodynamic_averaging_steps       100                                
-config_dump_steps                   10                                 
-maximum_steps                       100                                
-restart_steps                       0                                  
-restart_energy                      0                                  
-rate_corrector                      false                              
-vacancy_trajectory                  0.0 0.0 0.0                        
+simulation_method KineticMcFirstMpi
+temperature 1000
+json_coefficients_filename /work2/10270/pravendra03/stampede3/codeKMC/coefficients/coefficientFile_MoTa_V3.2.json
+atomic_indices_filename start_primSC10_CS35_MoTaX_cmc2000K_1e9_steps.bin.gz 
+structure_type BCC
+cutoffs 3, 4, 5
+supercell_size 10
+cube_size 35
+lattice_param 3.2
+log_dump_steps 1000
+thermodynamic_averaging_steps 1000
+config_dump_steps 1000000
+maximum_steps 1000000000
+restart_steps 0
+restart_energy 0
+restart_time 0
+rate_corrector false
+vacancy_trajectory 0.0 0.0 0.0

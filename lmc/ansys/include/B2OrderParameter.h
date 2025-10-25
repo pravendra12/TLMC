@@ -5,6 +5,7 @@
 #include <omp.h>
 #include <utility>
 #include <unordered_set>
+#include "TiledSupercell.h"
 using namespace std;
 
 /**

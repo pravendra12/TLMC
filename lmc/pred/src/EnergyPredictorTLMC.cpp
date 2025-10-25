@@ -133,7 +133,7 @@ double EnergyPredictorTLMC::GetEnergyChangeWithVacancy(
 
   auto migratingElement = tiledSupercell.GetElementAtSite(migratingAtomLatticeSiteId);
 
-  // This give the dELVFE term
+  // This give the dE_LVFE term
   // This applies for both migration and swap because
   // before jump the config is used to get the elements
   // After jump the migrating element will be specifically set
@@ -191,10 +191,6 @@ double EnergyPredictorTLMC::GetEnergyChangeWithVacancy(
   return dE;
 }
 
-/// @brief 
-/// @param tiledSupercell 
-/// @param latticeSiteJumpPair 
-/// @param numThreads 
 void EnergyPredictorTLMC::ProfileEnergyChange(
     const TiledSupercell &tiledSupercell,
     const pair<LatticeSiteMapping, LatticeSiteMapping> &latticeSiteJumpPair,

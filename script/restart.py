@@ -65,12 +65,13 @@ if __name__ == '__main__':
 
     for i, line in enumerate(reverse_readline(f'./kmc_log_backup.txt')):
         line = line.split()
-        if exists(f'./map{line[0]}.txt'):
+        if exists(f'./{line[0]}.bin.gz'):
             last_i = i
             last_step = line[0]
             last_time = line[1]
-            last_temperature = line[2]
-            last_energy = line[3]
+            last_temperature = line[3]
+            last_energy = line[4]
+
             break
     print(f"{last_i}, {last_step}, {last_time}, {last_temperature}, {last_energy}")
     with open(f'./kmc_log_backup.txt', 'r') as f1, open(f'./kmc_log.txt', 'w') as f2:
@@ -85,19 +86,23 @@ if __name__ == '__main__':
     old_param = read_parameters(f'./kmc_param_backup.txt')
     with open(f'./kmc_param.txt', 'w') as f4:
         f4.write(f"simulation_method {old_param['simulation_method']}\n")
+        f4.write(f"temperature {last_temperature}\n")
         f4.write(f"json_coefficients_filename {old_param['json_coefficients_filename']}\n")
         if "time_temperature_filename" in old_param.keys():
             f4.write(f"time_temperature_filename {old_param['time_temperature_filename']}\n")
-        f4.write(f"map_filename map{last_step}.txt\n")
+        f4.write(f"atomic_indices_filename {last_step}.bin.gz\n")
+        f4.write(f"structure_type {old_param['structure_type']}\n")
+        f4.write(f"cutoffs {old_param['cutoffs']}\n")
+        f4.write(f"supercell_size {old_param['supercell_size']}\n")
+        f4.write(f"cube_size {old_param['cube_size']}\n")
+        f4.write(f"lattice_param {old_param['lattice_param']}\n")
         f4.write(f"log_dump_steps {old_param['log_dump_steps']}\n")
         f4.write(f"config_dump_steps {old_param['config_dump_steps']}\n")
         f4.write(f"maximum_steps {old_param['maximum_steps']}\n")
         f4.write(f"thermodynamic_averaging_steps {old_param['thermodynamic_averaging_steps']}\n")
-        f4.write(f"temperature {last_temperature}\n")
-        f4.write(f"element_set {old_param['element_set']}\n")
         f4.write(f"restart_steps {last_step}\n")
         f4.write(f"restart_energy {last_energy}\n")
         f4.write(f"restart_time {last_time}\n")
-        f4.write(f"rate_corrector {old_param['rate_corrector']}\n")
+        f4.write(f"vacancy_trajectory 0.0 0.0 0.0\n")
         f4.flush()
     print(f"Done...")

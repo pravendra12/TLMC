@@ -15,6 +15,7 @@
 
 #include "Parameter.h"
 #include "Traverse.h"
+#include "SubLatticeOccupancy.h"
 #include "VacancyMigrationPredictorTLMC.h"
 #include "EnergyPredictorTLMC.h"
 #include "KRAPredictorTLMC.h"
@@ -52,6 +53,8 @@ namespace api
   void RunKineticMcFirstMpiFromParameter(const Parameter &parameter);
 
   void ProfileEnergyPredictor(const Parameter &parameter);
+
+  void RunAnsysFromParameter(const Parameter &parameter);
 
 
 } // api

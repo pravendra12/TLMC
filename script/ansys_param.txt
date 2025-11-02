@@ -1,12 +1,11 @@
 simulation_method Ansys
 log_type kinetic_mc
 #log_type canonical_mc
-config_type config
-cutoffs 3.20, 4.6, 5.4
 initial_steps 0
 increment_steps 10000
-
-# Extract encoding using CE
-extract_encoding true
-max_bond_order 3
-max_cluster_size 3
+supercell_size 10
+cube_size 35
+lattice_param 3.2
+structure_type BCC
+cutoffs 3 4 5
+element_set Mo Ta

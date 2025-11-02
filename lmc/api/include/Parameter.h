@@ -172,6 +172,8 @@ struct Parameter {
   /// Number of each solute element in the system.
   std::vector<size_t> solute_number_set_{};
 
+  std::vector<std::string> element_set_{};
+
   // Path where TiledLMC output from cmc or kmc is present
   std::string path_tlmc_output_{}; 
 

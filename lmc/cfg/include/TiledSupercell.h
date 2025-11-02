@@ -62,6 +62,11 @@ public:
       const size_t &latticeId,
       const size_t &maxBondOrder) const;
 
+  vector<uint64_t> GetAtomIndexVector() const;
+
+  vector<Element> GetAtomVector() const;
+
+
   // It returns the neighbouring LatticeSiteEncodedMapping for a latticeIdPair
   // Now it is independent of the configIdx for the two sites because the
   // neighbouring sites contain the information in encoded form regarding which
@@ -96,7 +101,7 @@ public:
   // Sets the vacancy at random site and returns where the vacancy was set successfully
   // And original element is also set which was there at the choosen site
   void SetVacancyAtRandomSite(Element &originalElement);
-
+    
   /**
    * @brief Decodes an encoded lattice site mapping into an actual lattice site mapping.
    *

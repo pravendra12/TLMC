@@ -147,12 +147,23 @@ namespace api
                 { return to_string(cutoff); });
       cout << endl;
       cout << "log_type: " << parameter.log_type_ << endl;
-      cout << "config_type: " << parameter.config_type_ << endl;
+      cout << "supercell_size: " << parameter.supercell_size_ << endl;
+      cout << "cube_size: " << parameter.cube_size_ << endl;
+      cout << "lattice_param: " << parameter.lattice_param_ << endl;
+      cout << "structure_type: " << parameter.structure_type_ << endl;
+      cout << "cutoffs: ";
+      for (const auto cutoff : parameter.cutoffs_)
+      {
+        cout << cutoff << " ";
+      }
+      cout << endl;
 
-      cout << "Parameters for CE Encoding" << endl;
-      cout << "extract_encoding: " << parameter.extract_encoding_ << endl;
-      cout << "max_bond_order: " << parameter.max_bond_order_ << endl;
-      cout << "max_cluster_size: " << parameter.max_cluster_size_ << endl;
+      cout << "element_set: ";
+      for (const auto ele : parameter.element_set_)
+      {
+        cout << ele << " ";
+      }
+      cout << endl;
     }
     else if (parameter.method == "ConvertAtomVectorsToConfigs")
     {
@@ -182,6 +193,10 @@ namespace api
     else if (parameter.method == "ConvertAtomVectorsToConfigs")
     {
       ConvertAtomVectorsToConfigs(parameter.path_tlmc_output_);
+    }
+    else if (parameter.method == "Ansys")
+    {
+      RunAnsysFromParameter(parameter);
     }
     else if (parameter.method == "ConvertCFGToXYZ")
     {
@@ -666,4 +681,45 @@ namespace api
     }
   }
 
+  void RunAnsysFromParameter(const Parameter &parameter)
+  {
+    Config smallConfig = Config::GenerateSupercell(
+        parameter.supercell_size_,
+        parameter.lattice_param_,
+        "X",
+        parameter.structure_type_);
+
+    // Update the neighbours of small config
+
+    smallConfig.UpdateNeighborList(parameter.cutoffs_);
+
+    // Declare the cube object
+    Cube cubeObj(parameter.cube_size_);
+
+    // Declare the tiled supercell
+    TiledSupercell tiledSupercell(
+        smallConfig,
+        cubeObj);
+
+    SubLatticeOccupancy subLatticeOccupancy(
+        tiledSupercell);
+
+    cout << "\nInitialized SubLatticeOccupancy Object\n" << endl;
+
+    ansys::Traverse iterator(
+        parameter.initial_steps_,
+        parameter.increment_steps_,
+        parameter.log_type_);
+
+    set<Element> elementSet;
+
+    for (const auto ele : parameter.element_set_)
+    {
+      elementSet.insert(Element(ele));
+    }
+
+    iterator.RunAnsys(
+        subLatticeOccupancy,
+        elementSet);
+  }
 }

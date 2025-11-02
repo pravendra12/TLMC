@@ -264,6 +264,13 @@ namespace api
       {
         output_filepath_ = std::string(segs[1]);
       }
+      else if (segs[0] == "element_set")
+      {
+        element_set_.clear();
+        std::copy(segs.begin() + 1, segs.end(),
+                  std::back_inserter(element_set_));
+      }
+            
     }
     ifs.close();
   }

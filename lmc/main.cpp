@@ -3,8 +3,7 @@
  */
 
 #include "Home.h"
-#include "SaveCubeAsConfig.h"
-/*
+
 int main(int argc, char *argv[])
 {
   if (argc == 1)
@@ -16,13 +15,4 @@ int main(int argc, char *argv[])
   api::Print(parameter);
   api::Run(parameter);
 }
-  */
-#include <fstream>
-using namespace std;
-
-
-int main() {
-
- Config::
-
-}
+  

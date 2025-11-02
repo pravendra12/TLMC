@@ -153,6 +153,16 @@ vector<LatticeSiteEncodedMapping> TiledSupercell::GetNeighborLatticeIdsUpToOrder
   return neighborsUpToOrder;
 }
 
+vector<uint64_t> TiledSupercell::GetAtomIndexVector() const
+{
+  return atomIndexVector_;
+}
+
+vector<Element> TiledSupercell::GetAtomVector() const
+{
+  return atomVector_;
+}
+
 vector<NeighbourOfPair> TiledSupercell::GetNeighboringLatticeIdSetOfPair(
     const pair<size_t, size_t> &latticeIdPair,
     const size_t &maxBondOrder,
@@ -306,10 +316,10 @@ void TiledSupercell::SetVacancyAtRandomSite(Element &originalElement)
 
   // Print info
   cout << "Vacancy 'X' was set at site ("
-            << latticeSiteId.latticeId << ", "
-            << latticeSiteId.smallConfigId << ") "
-            << "replacing element '" << originalElement.GetElementString() << "'"
-            << endl;
+       << latticeSiteId.latticeId << ", "
+       << latticeSiteId.smallConfigId << ") "
+       << "replacing element '" << originalElement.GetElementString() << "'"
+       << endl;
 }
 
 LatticeSiteMapping TiledSupercell::GetLatticeSiteMappingFromEncoding(

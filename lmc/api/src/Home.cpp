@@ -51,12 +51,12 @@ namespace api
       cout << "restart_time: " << parameter.restart_time_ << endl;
       cout << "time_temperature_filename: " << parameter.time_temperature_filename_
            << endl;
+      cout << "path_vfe_output: " << parameter.path_vfe_output_ << endl;
       cout << "rate_corrector: " << parameter.rate_corrector_ << endl;
       cout << "cube_size: " << parameter.cube_size_ << endl;
       cout << "vacancy_lattice_id: " << parameter.vacancayLatticeId_ << endl;
       cout << "small_config_id: " << parameter.smallConfigId_ << endl;
-      cout << "vacancy_trajectory: " << parameter.vacancy_trajectory_
-           << endl;
+      cout << "vacancy_trajectory: " << parameter.vacancy_trajectory_ << endl;
     }
 
     else if (parameter.method == "SimulatedAnnealing")
@@ -514,6 +514,15 @@ namespace api
       tiledSupercell.SetVacancyAtRandomSite(originalElement);
     }
 
+    // Check if rate corrector to be used
+    unique_ptr<RateCorrector> rateCorrector_ = nullptr;
+    if (parameter.rate_corrector_)
+    {
+      rateCorrector_ = make_unique<RateCorrector>(
+          tiledSupercell.GetConcentrationMap(),
+          parameter.path_vfe_output_);
+    }
+
     cout << "Finish config reading. Start KMC." << endl;
 
     mc::KineticMcFirstMpi kmcFirstMpi(tiledSupercell,
@@ -527,7 +536,7 @@ namespace api
                                       parameter.temperature_,
                                       vacancyMigrationPredictor,
                                       parameter.time_temperature_filename_,
-                                      parameter.rate_corrector_,
+                                      rateCorrector_,
                                       parameter.vacancy_trajectory_);
 
     kmcFirstMpi.Simulate();
@@ -704,7 +713,8 @@ namespace api
     SubLatticeOccupancy subLatticeOccupancy(
         tiledSupercell);
 
-    cout << "\nInitialized SubLatticeOccupancy Object\n" << endl;
+    cout << "\nInitialized SubLatticeOccupancy Object\n"
+         << endl;
 
     ansys::Traverse iterator(
         parameter.initial_steps_,

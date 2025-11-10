@@ -27,7 +27,7 @@ namespace mc
                                                  const double temperature,
                                                  VacancyMigrationPredictorTLMC &vacancyMigrationPredictor,
                                                  const string &timeTemperatureFilename,
-                                                 const bool isRateCorrector,
+                                                 unique_ptr<RateCorrector> &rateCorrector,
                                                  const Eigen::RowVector3d &vacancyTrajectory)
       : McAbstract(move(tiledSupercell),
                    logDumpSteps,
@@ -46,7 +46,7 @@ namespace mc
         timeTemperatureInterpolator_(
             timeTemperatureFilename),
         isTimeTemperatureInterpolator_(!timeTemperatureFilename.empty()),
-        isRateCorrector_(isRateCorrector),
+        rateCorrector_(move(rateCorrector)),
         vacancyLatticeSiteId_(tiledSupercell_.GetVacancySiteId()),
         vacancyTrajectory_(vacancyTrajectory),
         event_k_i_list_(kEventListSize_)
@@ -64,13 +64,14 @@ namespace mc
     }
   }
 
-  //
-  // double KineticMcFirstAbstract::GetTimeCorrectionFactor() {
-  //   if (isRateCorrector_) {
-  //     return rate_corrector_.GetTimeCorrectionFactor(temperature_);
-  //   }
-  //   return 1.0;
-  // }
+  double KineticMcFirstAbstract::GetTimeCorrectionFactor()
+  {
+    if (rateCorrector_)
+    {
+      return rateCorrector_->GetTimeCorrectionFactor(temperature_);
+    }
+    return 1.0;
+  }
 
   void KineticMcFirstAbstract::Dump() const
   {
@@ -93,7 +94,6 @@ namespace mc
       // config_.WriteConfig(to_string(steps_) + ".cfg.gz", config_);
       // tiledSupercell_.WriteAtomVectorInfoToFile(to_string(steps_) + ".txt");
       tiledSupercell_.WriteAtomicIndicesToFile(to_string(steps_) + ".bin.gz");
-
     }
     if (steps_ == maximumSteps_)
     {
@@ -184,8 +184,8 @@ namespace mc
 
     BuildEventList();
 
-    // double one_step_time = CalculateTime() * GetTimeCorrectionFactor();
-    double one_step_time = CalculateTime();
+    double one_step_time = CalculateTime() * GetTimeCorrectionFactor();
+    // double one_step_time = CalculateTime();
     Debug(one_step_time);
 
     event_k_i_ = event_k_i_list_[SelectEvent()];
@@ -230,7 +230,7 @@ namespace mc
                                                  const double temperature,
                                                  VacancyMigrationPredictorTLMC &vacancyMigrationPredictor,
                                                  const string &timeTemperatureFilename,
-                                                 const bool isRateCorrector,
+                                                 unique_ptr<RateCorrector> &rateCorrector,
                                                  const Eigen::RowVector3d &vacancyTrajectory)
       : KineticMcFirstAbstract(move(tiledSupercell),
                                logDumpSteps,
@@ -243,7 +243,7 @@ namespace mc
                                temperature,
                                vacancyMigrationPredictor,
                                timeTemperatureFilename,
-                               isRateCorrector,
+                               rateCorrector,
                                vacancyTrajectory),
         previous_j_lattice_id_(
             tiledSupercell_.GetLatticeSiteMappingFromEncoding(
@@ -254,8 +254,6 @@ namespace mc
     MPI_Op_create(DataSum, 1, &mpi_op_);
     DefineStruct(&mpi_datatype_);
   }
-
-  
 
   void KineticMcChainAbstract::OneStepSimulation()
   {

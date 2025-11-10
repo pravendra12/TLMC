@@ -183,6 +183,15 @@ public:
    */
   void UpdateAtomVector(const vector<uint64_t> &atomicIndicesVector);
 
+  /** @brief Returns the vacancy concentration map 
+   */
+  map<Element, double> GetConcentrationMap() const;
+
+  /** @brief Returns the vacancy concentration of an element
+   */
+  double GetElementConcentration(const Element &element) const;
+
+
   // I/O
 
   Config MakeSupercell() const;
@@ -250,6 +259,9 @@ private:
 
   // Total sites : numSmallConfig_ * numSitesPerSmallConfig_
   const size_t totalNumOfSites_{};
+
+  // Concentration of all the elements present in the tiledSupercell
+  map<Element, double> concentrationMap_{};
 
   // Helper methods
 

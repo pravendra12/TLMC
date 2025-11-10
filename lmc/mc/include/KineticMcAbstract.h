@@ -18,11 +18,13 @@
 #include <random>
 #include <omp.h>
 #include <mpi.h>
+#include <memory>
 #include <Eigen/Dense>
 #include "McAbstract.h"
 #include "JumpEvent.h"
 #include "TimeTemperatureInterpolator.h"
 #include "VacancyMigrationPredictorTLMC.h"
+#include "RateCorrector.hpp"
 
 using namespace std;
 
@@ -51,7 +53,7 @@ namespace mc
                            double temperature,
                            VacancyMigrationPredictorTLMC &vacancyMigrationPredictor,
                            const string &timeTemperatureFilename,
-                           bool isRateCorrector,
+                           unique_ptr<RateCorrector> &rateCorrector,
                            const Eigen::RowVector3d &vacancyTrajectory);
 
     /**
@@ -79,6 +81,11 @@ namespace mc
      * @brief Update the temperature based on the current temperature.
      */
     void UpdateTemperature();
+
+    /**
+     * @brief Returns time correction factor if rate corrector is used.
+     */
+    double GetTimeCorrectionFactor();
 
     /**
      * @brief Dumps the current simulation state.
@@ -140,12 +147,8 @@ namespace mc
 
     // @brief  Rate Corrector
     // const pred::RateCorrector rate_corrector_;
+    unique_ptr<RateCorrector> rateCorrector_;
 
-    /**
-     * @brief Indicates if rate correction is used.
-     *
-     */
-    const bool isRateCorrector_;
 
     /**
      * @brief Vacancy Lattice Id.
@@ -202,7 +205,7 @@ namespace mc
                            double temperature,
                            VacancyMigrationPredictorTLMC &vacancyMigrationPredictor,
                            const string &timeTemperatureFilename,
-                           bool isRateCorrector,
+                           unique_ptr<RateCorrector> &rateCorrector,
                            const Eigen::RowVector3d &vacancyTrajectory);
 
     /**

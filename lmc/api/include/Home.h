@@ -27,6 +27,7 @@
 #include "Cube.h"
 #include "CanonicalMcOmp.h"
 #include "ConvertAtomVectorsToConfigs.h"
+#include "RateCorrector.hpp"
 
 
 using namespace std;

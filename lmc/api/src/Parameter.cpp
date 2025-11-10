@@ -80,6 +80,10 @@ namespace api
       {
         path_tlmc_output_ = std::string(segs[1]);
       }
+      else if (segs[0] == "path_vfe_output")
+      {
+        path_vfe_output_ = std::string(segs[1]);
+      }
       else if (segs[0] == "map_filename")
       {
         map_filename_ = std::string(segs[1]);

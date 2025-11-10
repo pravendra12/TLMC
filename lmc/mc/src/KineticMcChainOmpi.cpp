@@ -27,7 +27,7 @@ namespace mc
                                          const double temperature,
                                          VacancyMigrationPredictorTLMC &vacancyMigrationPredictor,
                                          const string &timeTemperatureFilename,
-                                         const bool isRateCorrector,
+                                         unique_ptr<RateCorrector> &rateCorrector,
                                          const Eigen::RowVector3d &vacancyTrajectory)
       : KineticMcChainAbstract(move(tiledSupercell),
                                logDumpSteps,
@@ -40,7 +40,7 @@ namespace mc
                                temperature,
                                vacancyMigrationPredictor,
                                timeTemperatureFilename,
-                               isRateCorrector,
+                               rateCorrector,
                                vacancyTrajectory)
   {
     if (world_size_ != kEventListSize_)

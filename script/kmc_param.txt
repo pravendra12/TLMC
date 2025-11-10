@@ -10,6 +10,7 @@ lattice_param 3.2
 log_dump_steps 1000
 thermodynamic_averaging_steps 1000
 config_dump_steps 1000000
+path_vfe_output /home/pravendra3/Documents/TLMC/bin/vfe_output.txt
 maximum_steps 1000000000
 restart_steps 0
 restart_energy 0

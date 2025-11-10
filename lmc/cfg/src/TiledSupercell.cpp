@@ -498,8 +498,12 @@ void TiledSupercell::UpdateAtomVector(
       continue;
     }
 
-    SetElementAtSite(latticeSiteMapping, config.GetElementOfLattice(it->second));
+    auto element = config.GetElementOfLattice(it->second);
+
+    SetElementAtSite(latticeSiteMapping, element);
   }
+
+  concentrationMap_ = config.GetConcentration();
 
   if (errorFlag.load())
     throw std::runtime_error("No matching lattice site found during UpdateAtomVector.");
@@ -517,12 +521,33 @@ void TiledSupercell::UpdateAtomVector(
   atomVector_.reserve(totalNumOfSites_);
   atomIndexVector_.reserve(totalNumOfSites_);
 
+  map<Element, int> concentrationMap = {};
+
   for (size_t i = 0; i < totalNumOfSites_; i++)
   {
     auto atomicIndex = size_t(atomicIndicesVector[i]); // AtomicNumber
-    atomVector_.emplace_back(Element(atomicIndex));
+
+    auto element = Element(atomicIndex);
+    atomVector_.emplace_back(element);
     atomIndexVector_.emplace_back(atomicIndicesVector[i]);
+
+    concentrationMap[element]++;
   }
+
+  for (const auto &[element, count] : concentrationMap)
+  {
+    concentrationMap_[element] = double(count) / double(totalNumOfSites_);
+  }
+}
+
+map<Element, double> TiledSupercell::GetConcentrationMap() const
+{
+  return concentrationMap_;
+}
+
+double TiledSupercell::GetElementConcentration(const Element &element) const
+{
+  return concentrationMap_.at(element);
 }
 
 // I/O

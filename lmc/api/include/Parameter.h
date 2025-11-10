@@ -177,6 +177,9 @@ struct Parameter {
   // Path where TiledLMC output from cmc or kmc is present
   std::string path_tlmc_output_{}; 
 
+  // Path to vacancy formation energy for each element
+  std::string path_vfe_output_{};
+
   /// Early stopping criteria based on the number of steps.
   unsigned long long int early_stop_steps_{};
 

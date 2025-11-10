@@ -24,7 +24,7 @@ namespace mc
                                        const double temperature,
                                        VacancyMigrationPredictorTLMC &vacancyMigrationPredictor,
                                        const string &timeTemperatureFilename,
-                                       const bool isRateCorrector,
+                                       unique_ptr<RateCorrector> &rateCorrector,
                                        const Eigen::RowVector3d &vacancyTrajectory)
       : KineticMcFirstAbstract(move(tiledSupercell),
                                logDumpSteps,
@@ -37,7 +37,7 @@ namespace mc
                                temperature,
                                vacancyMigrationPredictor,
                                timeTemperatureFilename,
-                               isRateCorrector,
+                               rateCorrector,
                                vacancyTrajectory)
   {
     if (world_size_ != kEventListSize_)
@@ -62,7 +62,6 @@ namespace mc
     // LATTICE_ID , ENCODED_CONFIG_IDX
     const auto encodedNeighborOfVacancySiteId =
         tiledSupercell_.GetNeighborLatticeIdVectorOfLattice(vacancyLatticeSiteId_.latticeId, 1)[static_cast<size_t>(world_rank_)];
-
 
     LatticeSiteMapping neighbourOfVacancySiteId = tiledSupercell_.GetLatticeSiteMappingFromEncoding(
         encodedNeighborOfVacancySiteId,

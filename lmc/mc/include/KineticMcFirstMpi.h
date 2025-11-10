@@ -42,7 +42,7 @@ namespace mc
                       const double temperature,
                       VacancyMigrationPredictorTLMC &vacancyMigrationPredictor,
                       const string &timeTemperatureFilename,
-                      const bool isRateCorrector,
+                      unique_ptr<RateCorrector> &rateCorrector,
                       const Eigen::RowVector3d &vacancyTrajectory);
 
     /*!

@@ -7,8 +7,10 @@
 #include "KineticMcAbstract.h"
 #include "VacancyMigrationPredictorTLMC.h"
 
-namespace mc {
-class KineticMcFirstOmp : public KineticMcFirstAbstract {
+namespace mc
+{
+  class KineticMcFirstOmp : public KineticMcFirstAbstract
+  {
   public:
     KineticMcFirstOmp(TiledSupercell tiledSupercell,
                       const unsigned long long int logDumpSteps,
@@ -21,13 +23,14 @@ class KineticMcFirstOmp : public KineticMcFirstAbstract {
                       const double temperature,
                       VacancyMigrationPredictorTLMC &vacancyMigrationPredictor,
                       const string &timeTemperatureFilename,
-                      const bool isRateCorrector,
+                      unique_ptr<RateCorrector> &rateCorrector,
                       const Eigen::RowVector3d &vacancyTrajectory);
     ~KineticMcFirstOmp() override;
+
   protected:
     void BuildEventList() override;
     double CalculateTime() override;
-};
+  };
 } // mc
 
-#endif //LMC_LMC_MC_INCLUDE_KINETICMCFIRSTOMP_H_
+#endif // LMC_LMC_MC_INCLUDE_KINETICMCFIRSTOMP_H_

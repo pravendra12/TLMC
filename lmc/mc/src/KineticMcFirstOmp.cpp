@@ -14,7 +14,7 @@ namespace mc
                                        const double temperature,
                                        VacancyMigrationPredictorTLMC &vacancyMigrationPredictor,
                                        const string &timeTemperatureFilename,
-                                       const bool isRateCorrector,
+                                       unique_ptr<RateCorrector> &rateCorrector,
                                        const Eigen::RowVector3d &vacancyTrajectory)
       : KineticMcFirstAbstract(move(tiledSupercell),
                                logDumpSteps,
@@ -27,7 +27,7 @@ namespace mc
                                temperature,
                                vacancyMigrationPredictor,
                                timeTemperatureFilename,
-                               isRateCorrector,
+                               rateCorrector,
                                vacancyTrajectory)
   {
     if (world_size_ != 1)
@@ -51,7 +51,7 @@ namespace mc
   {
     total_rate_k_ = 0.0;
     const auto encoded_neighbor_lattice_id_vector = tiledSupercell_.GetNeighborLatticeIdVectorOfLattice(
-      vacancyLatticeSiteId_.latticeId, 1);
+        vacancyLatticeSiteId_.latticeId, 1);
 
 #pragma omp parallel default(none) shared(encoded_neighbor_lattice_id_vector) reduction(+ : total_rate_k_)
     {

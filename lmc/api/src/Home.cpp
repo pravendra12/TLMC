@@ -382,14 +382,13 @@ namespace api
     tiledSupercell.UpdateNeighbourLists(parameter.cutoffs_.size());
 
     // Declare LVFE Predictor
-    LVFEPredictorTLMC lvfePredictor(
-        ceParams,
-        tiledSupercell);
+    // LVFEPredictorTLMC lvfePredictor(
+    //     ceParams,
+    //     tiledSupercell);
 
     // Declare Energy Predictor
     EnergyPredictorTLMC energyChangePredictor(
-        symCEEnergyPredictor,
-        &lvfePredictor);
+        symCEEnergyPredictor);
 
     // Update to first nn
     tiledSupercell.UpdateNeighbourLists(1);

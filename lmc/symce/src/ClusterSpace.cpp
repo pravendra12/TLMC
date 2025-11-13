@@ -61,6 +61,9 @@ std::vector<double> ClusterSpace::getClusterVector(const Structure &structure,
       supercell,
       fractionalPositionTolerance);
   OrbitList supercellOrbitList = localOrbitListGenerator.getFullOrbitList();
+
+  cout << supercellOrbitList.size() << endl;
+  
   return getClusterVectorFromOrbitList(supercellOrbitList, supercell);
 }
 

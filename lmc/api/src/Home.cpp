@@ -387,6 +387,7 @@ namespace api
     //     tiledSupercell);
 
     // Declare Energy Predictor
+    
     EnergyPredictorTLMC energyChangePredictor(
         symCEEnergyPredictor);
 

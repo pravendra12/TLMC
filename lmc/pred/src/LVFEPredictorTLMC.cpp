@@ -135,11 +135,6 @@ double LVFEPredictorTLMC::GetDeForVacancyMigration(
       vacancyLatticeSite,       // migrating element will be assigned to vacancyLatticeSite
       migratingElement);
 
-  // ELVFE = Ev - 1/2 * (EA + EB)
-  // For a site EA + EB with 1 -1 will lead to only 2*Jo
-  // Same for the other site EA + EB with 1 -1 will lead to only 2*Jo
-  // Leading to cancelation of Jo terms
-
   double dEValue = lvfeValueAfterJump - lvfeValueBeforeJump;
 
   return dEValue;

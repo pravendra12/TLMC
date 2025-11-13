@@ -2,7 +2,7 @@
 
 EnergyPredictorTLMC::EnergyPredictorTLMC(
     SymmetricCEPredictorTLMC &symCEEnergyPredictor,
-    LVFEPredictorTLMC &lvfePredictor) : symCEEnergyPredictor_(symCEEnergyPredictor),
+    LVFEPredictorTLMC *lvfePredictor) : symCEEnergyPredictor_(symCEEnergyPredictor),
                                         lvfePredictor_(lvfePredictor),
                                         allowedElements_(
                                             symCEEnergyPredictor_.GetAllowedElements())
@@ -26,19 +26,30 @@ double EnergyPredictorTLMC::GetEnergyChange(
 
   double dE = 0;
 
-  if (firstIsVacancy || secondIsVacancy)
+  if (!lvfePredictor_)
   {
-    // Any of the two site is vacancy
-    dE = GetEnergyChangeWithVacancy(
+    // Both are atoms or
+    // symCE has "X" as allowed element
+    dE = symCEEnergyPredictor_.GetDeSwap(
         tiledSupercell,
         latticeSiteJumpPair);
   }
   else
   {
-    // Both are atoms
-    dE = symCEEnergyPredictor_.GetDeSwap(
-        tiledSupercell,
-        latticeSiteJumpPair);
+    if (firstIsVacancy || secondIsVacancy)
+    {
+      // Any of the two site is vacancy
+      dE = GetEnergyChangeWithVacancy(
+          tiledSupercell,
+          latticeSiteJumpPair);
+    }
+    else
+    {
+      // Both are atoms
+      dE = symCEEnergyPredictor_.GetDeSwap(
+          tiledSupercell,
+          latticeSiteJumpPair);
+    }
   }
 
   return dE;
@@ -139,7 +150,7 @@ double EnergyPredictorTLMC::GetEnergyChangeWithVacancy(
   // After jump the migrating element will be specifically set
   // for the other site.
 
-  double dElvfe = lvfePredictor_.GetDeForVacancyMigration(
+  double dElvfe = lvfePredictor_->GetDeForVacancyMigration(
       tiledSupercell,
       latticeSiteJumpPair);
 

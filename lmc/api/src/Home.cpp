@@ -285,7 +285,7 @@ namespace api
     // Declare Energy Predictor
     EnergyPredictorTLMC energyChangePredictor(
         symCEEnergyPredictor,
-        lvfePredictor);
+        &lvfePredictor);
 
     // Update to first nn
     tiledSupercell.UpdateNeighbourLists(1);
@@ -389,7 +389,7 @@ namespace api
     // Declare Energy Predictor
     EnergyPredictorTLMC energyChangePredictor(
         symCEEnergyPredictor,
-        lvfePredictor);
+        &lvfePredictor);
 
     // Update to first nn
     tiledSupercell.UpdateNeighbourLists(1);
@@ -473,7 +473,7 @@ namespace api
     // Declare Energy Predictor
     EnergyPredictorTLMC energyChangePredictor(
         symCEEnergyPredictor,
-        lvfePredictor);
+        &lvfePredictor);
 
     // Declare KRA Predictor
     KRAPredictorTLMC eKRAPredictor(
@@ -630,7 +630,7 @@ namespace api
     // Declare Energy Predictor
     EnergyPredictorTLMC energyChangePredictor(
         symCEEnergyPredictor,
-        lvfePredictor);
+        &lvfePredictor);
 
     // Select a lattice pair with different elements
     // The central Id is choosen so no worry of periodic boundary
@@ -650,7 +650,7 @@ namespace api
       if (element1 != element2)
       {
         latticeSite2 = nnSite;
-        break;
+        break;  
       }
     }
 
@@ -732,4 +732,70 @@ namespace api
         subLatticeOccupancy,
         elementSet);
   }
+
+  /*
+  void ValidateClosedLoop(const Parameter &parameter)
+  {
+    // Read CE Parameters
+    ClusterExpansionParameters ceParams(parameter.json_coefficients_filename_);
+
+    auto allowedElements = ceParams.GetAllowedElements();
+
+    auto config = Config::GenerateSupercell(
+        parameter.supercell_size_,
+        parameter.lattice_param_,
+        "X",
+        parameter.structure_type_);
+
+    config.UpdateNeighborList(parameter.cutoffs_);
+
+    auto neighbourList = cfg.GetNeighborLists()[0];
+
+    auto closedLoops = GenerateClosedLoops(
+        neighbourList,
+        100,
+        100);
+
+    // Energy predictor
+    double maxClusterCutoff = ceParams.GetMaxClusterCutoff();
+    config.UpdateNeighborList({maxClusterCutoff});
+
+    const size_t primSize = 2;
+
+    auto primConfig = Config::GenerateSupercell(
+        primSize,
+        parameter.lattice_param_,
+        "Mo", // Does not matter as the lattice param and structure type is important
+        parameter.structure_type_);
+
+    // Declare Symmetric CE
+    SymmetricCEPredictor symCEEnergyPredictor(
+        ceParams,
+        config,
+        primConfig);
+
+    // Declare LVFE Predictor
+    LVFEPredictor lvfePredictor(
+        ceParams,
+        config);
+
+    // Declare Energy Predictor
+    EnergyPredictor energyChangePredictor(
+        symCEEnergyPredictor,
+        lvfePredictor);
+
+    size_t numSamples = 20;
+    
+    // Iterate over closed loops
+    for (const auto &loop : closedLoops)
+    {
+      // Generate the configuration such that along loop there is same element
+      
+
+    }
+
+
+  }
+  */
+
 }

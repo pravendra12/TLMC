@@ -28,6 +28,7 @@
 #include "CanonicalMcOmp.h"
 #include "ConvertAtomVectorsToConfigs.h"
 #include "RateCorrector.hpp"
+#include "GenerateClosedLoops.h"
 
 
 using namespace std;
@@ -56,6 +57,8 @@ namespace api
   void ProfileEnergyPredictor(const Parameter &parameter);
 
   void RunAnsysFromParameter(const Parameter &parameter);
+
+  void ValidateClosedLoop(const Parameter &parameter);
 
 
 } // api

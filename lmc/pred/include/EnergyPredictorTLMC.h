@@ -14,9 +14,9 @@ using namespace std;
 class EnergyPredictorTLMC
 {
 public:
-  EnergyPredictorTLMC(
+  explicit EnergyPredictorTLMC(
       SymmetricCEPredictorTLMC &symCEEnergyPredictor,
-      LVFEPredictorTLMC &lvfePredictor);
+      LVFEPredictorTLMC *lvfePredictor = nullptr);
 
   // Applied for any pair
   double GetEnergyChange(
@@ -35,7 +35,9 @@ public:
 
 private:
   SymmetricCEPredictorTLMC &symCEEnergyPredictor_;
-  LVFEPredictorTLMC &lvfePredictor_;
+
+  // LVFEPredictorTLMC &lvfePredictor_;
+  LVFEPredictorTLMC *lvfePredictor_;
 
   const vector<string> &allowedElements_;
 };

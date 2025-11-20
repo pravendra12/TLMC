@@ -38,7 +38,7 @@ map<Element, double> ComputeVFE(
   // Elvfe = Ev - avgEnergy
   double energyWithVacancy = energyLVFE + avgEnergy;
 
-  //cout << "energyWithVacancy : " << energyWithVacancy << endl;
+  cout << "energyWithVacancy : " << energyWithVacancy << endl;
 
 
   map<Element, double> vfeMap;

@@ -9,6 +9,8 @@
 #include <boost/algorithm/string.hpp>
 #include "SubLatticeOccupancy.h"
 #include "TiledSupercell.h"
+#include "ShortRangeOrderTLMC.h"
+#include "B2ClusterTLMC.h"
 
 using namespace std;
 namespace fs = filesystem;
@@ -34,14 +36,19 @@ namespace ansys
     virtual ~Traverse();
 
     void RunAnsys(
+        const TiledSupercell &tiledSupercell,
         const SubLatticeOccupancy &subLatticeOccupancy,
-        const set<Element> &elementSet) const;
+        const set<Element> &elementSet,
+        const unordered_set<size_t> &convertToConfigSet) const;
 
-    static void RunAnsys(
+    void RunAnsysOnConfig(
+        const TiledSupercell &tiledSupercell,
         const vector<size_t> &atomicIndicesVector,
         const SubLatticeOccupancy &subLatticeOccupancy,
         const set<Element> &elementSet,
-        ostringstream &oss);
+        ostringstream &oss,
+        const bool &saveConfig = false,
+        const string &outfilename = "") const;
 
   private:
     string GetHeaderFrameString(const set<Element> &elementSet) const;

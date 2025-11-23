@@ -565,6 +565,16 @@ Config TiledSupercell::MakeSupercellFromAtomInfo(
     const Cube &cubeObj,
     const vector<Element> &atomVector)
 {
+  // In this implementation, the atom IDs in the TiledSupercell are preserved
+  // when constructing the full Config. Each atom in a small tile (smallConfig)
+  // is appended to the large supercell atom vector in the exact same order.
+  // The Config constructor then assigns lattice IDs to atoms using their
+  // indices in the vector without renumbering.
+  // Therefore, the atomId of any atom in the TiledSupercell maps directly
+  // and uniquely to the same atomId in the resulting Config.
+  // This allows cluster calculations performed on the TiledSupercell
+  // to be directly applied to the full Config without any additional mapping.
+
   const size_t cubeSize = cubeObj.GetSizeOfCube();                      // returns a of cube
   const size_t numOfSitesPerSmallConfig = smallConfig.GetNumLattices(); // number of sites in each small config
   const size_t numOfSmallConfig = cubeObj.GetNumOfSites();

@@ -274,7 +274,16 @@ namespace api
         std::copy(segs.begin() + 1, segs.end(),
                   std::back_inserter(element_set_));
       }
-            
+      else if (segs[0] == "convert_to_config_steps")
+      {
+        convert_to_config_steps_.clear(); 
+        std::transform(segs.begin() + 1,
+                       segs.end(),
+                       std::back_inserter(convert_to_config_steps_),
+                       [](const auto &convert_to_config_steps_)
+                       { return stoul(convert_to_config_steps_); });
+
+      }
     }
     ifs.close();
   }

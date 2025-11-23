@@ -187,6 +187,10 @@ struct Parameter {
   std::string input_filepath_{};
   std::string output_filepath_{};
 
+
+  // Atomic Index Binary file to convert to configs
+  std::vector<size_t> convert_to_config_steps_{};
+
 };
 } // namespace api
 

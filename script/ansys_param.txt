@@ -1,11 +1,13 @@
 simulation_method Ansys
-log_type kinetic_mc
-#log_type canonical_mc
+log_type canonical_mc
+#log_type kinetic_mc
+#log_type simulated_annealing
 initial_steps 0
-increment_steps 10000
+increment_steps 1000000
 supercell_size 10
-cube_size 35
+cube_size 5
 lattice_param 3.2
 structure_type BCC
-cutoffs 3 4 5
+cutoffs 3 4 
 element_set Mo Ta
+convert_to_config_steps 0 1000000 10000000

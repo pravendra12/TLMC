@@ -10,13 +10,13 @@ using namespace std;
 class B2Cluster
 {
 public:
-  B2Cluster(
-      const Config &config);
+  B2Cluster(const Config &config);
 
   void WriteB2ClusterConfig(const string &filename);
+  vector<unordered_set<size_t>> GetB2Clusters();
 
 private:
-  void GetB2Cluster();
+  void BuildB2Clusters();
   bool isB2(const size_t latticeId);
 
   const Config &config_;

@@ -308,6 +308,12 @@ public:
    */
   static Config ReadConfig(const std::string &filename);
 
+  /*! \brief Read the configuration from a XYZ file.
+   *  \param filename  The name of the configuration file.
+   *  \return          The configuration read from the file.
+   */
+  static Config ReadXyz(const std::string &filename);
+
   /*! \brief Generate the supercell configuration.
    *  \param supercell_size  Size of the Supercell.
    *  \param lattice_param   Lattice Parameter of the unit cell.

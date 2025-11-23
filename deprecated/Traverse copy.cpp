@@ -10,7 +10,7 @@ namespace ansys
                               finalSteps_(incrementSteps),
                               logType_(logType),
                               logMap_{},
-                              frameOfs_("ansys_log.txt", ofstream::out)
+                              frameOfs_("ansys_frame_log.txt", ofstream::out)
   {
 
     string logFileName;
@@ -72,6 +72,11 @@ namespace ansys
       {
         const auto &key = headers[col_index];
 
+        if (col_index > 5)
+        {
+          continue;
+        }
+
         try
         {
           const auto double_value = boost::lexical_cast<double>(buffer);
@@ -92,6 +97,7 @@ namespace ansys
         col_index++;
       }
     }
+
     cout << "Initial Steps: " << initialSteps_ << endl;
     cout << "Increment Steps: " << incrementSteps_ << endl;
     cout << "Final Steps: " << finalSteps_ << endl;
@@ -107,91 +113,82 @@ namespace ansys
 
   Traverse::~Traverse() = default;
 
+  // Parallel Version
   void Traverse::RunAnsys(
-      const TiledSupercell &tiledSupercell,
       const SubLatticeOccupancy &subLatticeOccupancy,
-      const set<Element> &elementSet,
-      const unordered_set<size_t> &convertToConfigSet) const
+      const set<Element> &elementSet) const
   {
-    string outputPath = "";
-    if (!convertToConfigSet.empty())
-    {
-      fs::path cwd = fs::current_path();
-      fs::path configDir = cwd / "config";
-
-      if (!fs::exists(configDir))
-        fs::create_directory(configDir);
-
-      outputPath = configDir.string();
-
-      std::cout << "Config directory created at: " << outputPath << std::endl;
-    }
-
-    // Write header once
-    frameOfs_ << GetHeaderFrameString(elementSet) << flush;
+    // Here these will be atomicIndices binary files index
+    vector<unsigned long long> configIndices;
 
     // Generate config indices
     for (unsigned long long i = initialSteps_; i <= finalSteps_; i += incrementSteps_)
     {
-      // Read atomic indices (or atomic numbers) from the compressed binary file
-      const string atomicIndicesFilename = to_string(i) + ".bin.gz";
+      configIndices.push_back(i);
+    }
 
-      if (!fs::exists(atomicIndicesFilename))
+    int totalConfigs = static_cast<int>(configIndices.size());
+    int numThreads = omp_get_max_threads();
+
+    // Write header once
+    frameOfs_ << GetHeaderFrameString(elementSet) << flush;
+
+    // Process in batches
+    for (int batchStart = 0; batchStart < totalConfigs; batchStart += numThreads)
+    {
+      int batchEnd = min(batchStart + numThreads, totalConfigs);
+      vector<ostringstream> outputBuffers(batchEnd - batchStart);
+
+// Parallel region
+#pragma omp parallel for num_threads(numThreads)
+      for (int idx = batchStart; idx < batchEnd; ++idx)
       {
-        continue;
+        int localIndex = idx - batchStart;
+        unsigned long long i = configIndices[idx];
+
+        // Read atomic indices (or atomic numbers) from the compressed binary file
+        const string atomicIndicesFilename = to_string(i) + ".bin.gz";
+        auto atomicIndicesVector = TiledSupercell::ReadAtomicIndicesFromFile(atomicIndicesFilename);
+
+        const auto time = logMap_.find("time") == logMap_.end()
+                              ? nan("")
+                              : get<unordered_map<unsigned long long, double>>(logMap_.at("time")).at(i);
+
+        const auto averageTime = logMap_.find("averageTime") == logMap_.end()
+                                     ? nan("")
+                                     : get<unordered_map<unsigned long long, double>>(logMap_.at("averageTime")).at(i);
+
+        const auto temperature = get<unordered_map<unsigned long long, double>>(logMap_.at("temperature")).at(i);
+        const auto energy = get<unordered_map<unsigned long long, double>>(logMap_.at("energy")).at(i);
+
+        ostringstream &oss = outputBuffers[localIndex];
+        oss << i << "\t" << time << "\t" << averageTime << "\t" << temperature << "\t" << energy;
+
+        // Analysis for a single atomicIndicesVector file
+        RunAnsys(
+            atomicIndicesVector,
+            subLatticeOccupancy,
+            elementSet,
+            oss);
+
+        oss << "\n";
       }
 
-      cout << "Running Ansys for " << atomicIndicesFilename << endl;
-
-      auto atomicIndicesVector = TiledSupercell::ReadAtomicIndicesFromFile(atomicIndicesFilename);
-
-      const auto time = logMap_.find("time") == logMap_.end()
-                            ? nan("")
-                            : get<unordered_map<unsigned long long, double>>(logMap_.at("time")).at(i);
-
-      const auto temperature = get<unordered_map<unsigned long long, double>>(logMap_.at("temperature")).at(i);
-      const auto energy = get<unordered_map<unsigned long long, double>>(logMap_.at("energy")).at(i);
-
-      frameOfs_ << i << "\t" << time << "\t" << temperature << "\t" << energy;
-
-      bool saveConfig = false;
-      if (convertToConfigSet.find(i) != convertToConfigSet.end())
+      // Write the batch to file in order
+      for (auto &oss : outputBuffers)
       {
-        saveConfig = true;
+        frameOfs_ << oss.str();
       }
-
-      string filename = "";
-
-      if (!outputPath.empty())
-      {
-        filename = outputPath + "/" + to_string(i) + ".xyz.gz";
-      }
-
-      ostringstream oss;
-
-      RunAnsysOnConfig(
-          tiledSupercell,
-          atomicIndicesVector,
-          subLatticeOccupancy,
-          elementSet,
-          oss,
-          saveConfig,
-          filename);
-
-      frameOfs_ << oss.str() << "\n";
     }
 
     frameOfs_.close();
   }
 
-  void Traverse::RunAnsysOnConfig(
-      const TiledSupercell &tiledSupercell,
+  void Traverse::RunAnsys(
       const vector<size_t> &atomicIndicesVector,
       const SubLatticeOccupancy &subLatticeOccupancy,
       const set<Element> &elementSet,
-      ostringstream &oss,
-      const bool &saveConfig,
-      const string &outfilename) const
+      ostringstream &oss)
   {
     // Analysis
 
@@ -215,33 +212,11 @@ namespace ansys
         oss << "\t" << orderParam << "\t" << alphaOccupancy << "\t" << betaOccupancy;
       }
     }
-
-    /// WCP Parameter
-    auto tiledSupercellLocal = tiledSupercell;
-    tiledSupercellLocal.UpdateAtomVector(atomicIndicesVector);
-
-    ShortRangeOrderTLMC sroObject(tiledSupercellLocal);
-
-    auto sroParamMap1 = sroObject.ComputeWarrenCowley(1);
-    auto sroParamMap2 = sroObject.ComputeWarrenCowley(2);
-
-    for (const auto &pair : sroParamMap1)
-    {
-      double sro1Value = sroParamMap1.count(pair.first) ? sroParamMap1.at(pair.first) : nan("");
-      double sro2Value = sroParamMap2.count(pair.first) ? sroParamMap2.at(pair.first) : nan("");
-      oss << "\t" << sro1Value << "\t" << sro2Value;
-    }
-
-    if (saveConfig)
-    {
-      B2ClusterTLMC b2Cluster(tiledSupercellLocal);
-      b2Cluster.WriteB2ClusterConfig(outfilename);
-    }
   }
 
   string Traverse::GetHeaderFrameString(const set<Element> &elementSet) const
   {
-    string headerFrame_ = "steps\ttime\ttemperature\tenergy\t";
+    string headerFrame_ = "steps\ttime\taverageTime\ttemperature\tenergy\t";
 
     // B2 Order Parameter
     for (const auto &element : elementSet)
@@ -250,22 +225,6 @@ namespace ansys
       headerFrame_ += "B2_order_param_" + elementString + "\t" +
                       "alpha_occupancy_" + elementString + "\t" +
                       "beta_occupancy_" + elementString + "\t";
-    }
-
-    // WCP Short range order parameter
-    // Right now the order list is hard coded as we would update the neighbourlist
-    // upto second nn for getting the B2Clusters information
-
-    static const vector<string> order_list{"first", "second"};
-    for (auto element1 : elementSet)
-    {
-      for (auto element2 : elementSet)
-      {
-        for (const auto &order : order_list)
-        {
-          headerFrame_ += "warren_cowley_" + order + "_" + element1.GetElementString() + "-" + element2.GetElementString() + "\t";
-        }
-      }
     }
 
     if (!headerFrame_.empty() && headerFrame_.back() == '\t')

@@ -16,7 +16,7 @@ KRAPredictorTLMC::KRAPredictorTLMC(
     const ClusterExpansionParameters &ceParams,
     const TiledSupercell &tiledSupercell) : maxBondOrder_(ceParams.GetMaxBondOrder("kra")),
                                             maxClusterSize_(
-                                                ceParams.GetMaxClusterSize("ce")),
+                                                ceParams.GetMaxClusterSize("kra")),
                                             referenceJumpDirection_(
                                                 ceParams.GetReferenceJumpDirection()),
                                             atomicBasis_(

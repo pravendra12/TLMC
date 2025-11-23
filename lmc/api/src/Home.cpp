@@ -159,9 +159,16 @@ namespace api
       cout << endl;
 
       cout << "element_set: ";
-      for (const auto ele : parameter.element_set_)
+      for (const auto &ele : parameter.element_set_)
       {
         cout << ele << " ";
+      }
+      cout << endl;
+
+      cout << "convert_to_config_steps: ";
+      for (const auto &fileIdx : parameter.convert_to_config_steps_)
+      {
+        cout << fileIdx << " ";
       }
       cout << endl;
     }
@@ -277,8 +284,6 @@ namespace api
     smallConfig.UpdateNeighborList(parameter.cutoffs_);
     tiledSupercell.UpdateNeighbourLists(parameter.cutoffs_.size());
 
-
-    
     // Declare LVFE Predictor
     // LVFEPredictorTLMC lvfePredictor(
     //     ceParams,
@@ -300,7 +305,7 @@ namespace api
         parameter.maximum_steps_,
         parameter.thermodynamic_averaging_steps_,
         parameter.restart_steps_,
-        parameter.restart_steps_,
+        parameter.restart_energy_,
         parameter.temperature_,
         energyChangePredictor);
 
@@ -388,7 +393,7 @@ namespace api
     //     tiledSupercell);
 
     // Declare Energy Predictor
-    
+
     EnergyPredictorTLMC energyChangePredictor(
         symCEEnergyPredictor);
 
@@ -404,7 +409,7 @@ namespace api
         parameter.maximum_steps_,
         parameter.thermodynamic_averaging_steps_,
         parameter.restart_steps_,
-        parameter.restart_steps_,
+        parameter.restart_energy_,
         parameter.temperature_,
         energyChangePredictor);
 
@@ -650,7 +655,7 @@ namespace api
       if (element1 != element2)
       {
         latticeSite2 = nnSite;
-        break;  
+        break;
       }
     }
 
@@ -710,6 +715,8 @@ namespace api
         smallConfig,
         cubeObj);
 
+    tiledSupercell.UpdateNeighbourLists(parameter.cutoffs_.size());
+
     SubLatticeOccupancy subLatticeOccupancy(
         tiledSupercell);
 
@@ -723,14 +730,22 @@ namespace api
 
     set<Element> elementSet;
 
-    for (const auto ele : parameter.element_set_)
+    for (const auto &ele : parameter.element_set_)
     {
       elementSet.insert(Element(ele));
     }
 
+    // Read convertToConfigSet from ansys_param
+
+    unordered_set<size_t> convertToConfigSet(
+        parameter.convert_to_config_steps_.begin(),
+        parameter.convert_to_config_steps_.end());
+
     iterator.RunAnsys(
+        tiledSupercell,
         subLatticeOccupancy,
-        elementSet);
+        elementSet,
+        convertToConfigSet);
   }
 
   /*
@@ -785,12 +800,12 @@ namespace api
         lvfePredictor);
 
     size_t numSamples = 20;
-    
+
     // Iterate over closed loops
     for (const auto &loop : closedLoops)
     {
       // Generate the configuration such that along loop there is same element
-      
+
 
     }
 

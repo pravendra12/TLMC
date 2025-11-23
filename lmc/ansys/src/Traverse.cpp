@@ -67,27 +67,32 @@ namespace ansys
       }
       finalSteps_ = stepNumber;
 
+      unordered_set<string> columns_to_read = {"time", "temperature", "energy"};
+
       size_t col_index = 1;
       while (line_stream >> buffer)
       {
         const auto &key = headers[col_index];
 
-        try
+        if (columns_to_read.find(key) != columns_to_read.end())
         {
-          const auto double_value = boost::lexical_cast<double>(buffer);
-          if (!holds_alternative<unordered_map<unsigned long long, double>>(logMap_[key]))
+          try
           {
-            logMap_[key] = unordered_map<unsigned long long, double>();
+            const auto double_value = boost::lexical_cast<double>(buffer);
+            if (!holds_alternative<unordered_map<unsigned long long, double>>(logMap_[key]))
+            {
+              logMap_[key] = unordered_map<unsigned long long, double>();
+            }
+            get<unordered_map<unsigned long long, double>>(logMap_[key])[stepNumber] = double_value;
           }
-          get<unordered_map<unsigned long long, double>>(logMap_[key])[stepNumber] = double_value;
-        }
-        catch (const boost::bad_lexical_cast &)
-        {
-          if (!holds_alternative<unordered_map<unsigned long long, string>>(logMap_[key]))
+          catch (const boost::bad_lexical_cast &)
           {
-            logMap_[key] = unordered_map<unsigned long long, string>();
+            if (!holds_alternative<unordered_map<unsigned long long, string>>(logMap_[key]))
+            {
+              logMap_[key] = unordered_map<unsigned long long, string>();
+            }
+            get<unordered_map<unsigned long long, string>>(logMap_[key])[stepNumber] = buffer;
           }
-          get<unordered_map<unsigned long long, string>>(logMap_[key])[stepNumber] = buffer;
         }
         col_index++;
       }

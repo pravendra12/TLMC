@@ -1,13 +1,14 @@
 simulation_method Ansys
 log_type canonical_mc
 #log_type kinetic_mc
-#log_type simulated_annealing
 initial_steps 0
-increment_steps 1000000
+increment_steps 10000000
 supercell_size 10
-cube_size 5
+cube_size 35
 lattice_param 3.2
 structure_type BCC
-cutoffs 3 4 
+cutoffs 3 4
 element_set Mo Ta
-convert_to_config_steps 0 1000000 10000000
+# The below *bin.gz files will be converted to xyz.gz files
+convert_to_config_steps 90000000 180000000 270000000 350000000
+

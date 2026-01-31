@@ -1,19 +1,20 @@
 simulation_method KineticMcFirstMpi
 temperature 1000
-json_coefficients_filename /work2/10270/pravendra03/stampede3/codeKMC/coefficients/coefficientFile_MoTa_V3.2.json
-atomic_indices_filename start_primSC10_CS35_MoTaX_cmc2000K_1e9_steps.bin.gz 
+# Change to correct coefficient file path, look into documentation for more details for format
+json_coefficients_filename ../ce_fitted_coefficients.json
+# Initial structure 
+atomic_indices_filename start_cmc2K_1e8.bin.gz
 structure_type BCC
 cutoffs 3, 4, 5
 supercell_size 10
-cube_size 35
+cube_size 10
 lattice_param 3.2
 log_dump_steps 1000
 thermodynamic_averaging_steps 1000
-config_dump_steps 1000000
-path_vfe_output /home/pravendra3/Documents/TLMC/bin/vfe_output.txt
+config_dump_steps 10000000
 maximum_steps 1000000000
 restart_steps 0
 restart_energy 0
-restart_time 0
 rate_corrector false
 vacancy_trajectory 0.0 0.0 0.0
+

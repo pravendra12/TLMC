@@ -11,4 +11,4 @@ map<Element, double> ComputeVFE(
     Config &config,
     const unordered_map<string, double> &chemicalPotentialMap,
     SymmetricCEPredictor &symCEPredictor,
-    LVFEPredictor &lvfePredictor);
+    LVFEPredictor *lvfePredictor = nullptr);

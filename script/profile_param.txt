@@ -1,22 +1,8 @@
-# ==========================================================
-# Profile Energy Change Parameters
-# ==========================================================
-
-# ----------------------------
-# General Simulation Settings
-# ----------------------------
 simulation_method                  ProfileEnergyChange                   
 temperature                        600                                 
-
-# ----------------------------
-# Input File Names
-# ----------------------------
-json_coefficients_filename         /home/pravendra3/Documents/LatticeMonteCarlo-eigen/script/coefficientFile_MoTa_V3.1.json                    
-structure_type                     BCC                                 
-
-# ----------------------------
-# Supercell & Lattice Settings
-# ----------------------------
+# Change to correct coefficient file path, look into documentation for more details for format
+json_coefficients_filename         ./ce_fitted_coefficients.json             
+structure_type                     BCC   
 cutoffs                            3, 4, 5                             
 supercell_size                     4                                   
 cube_size                          5                                   

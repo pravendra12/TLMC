@@ -53,7 +53,7 @@ double SymmetricCEPredictor::GetTotalFormationEnergy(
     const vector<double> &clusterVector)
 {
 
-  double formationEnergy = 0; // per atom
+  double formationEnergy = 0; // per site energy as X is a ghost atom
 
   for (int i = 0; i < clusterVector.size(); i++)
   {
@@ -72,8 +72,14 @@ double SymmetricCEPredictor::GetTotalEnergy(
       clusterVector);
 
   double muContribution = 0;
+ 
   for (const auto &[element, count] : elementCountMap_)
   {
+    if (element == "X")
+    {
+      // μ_X = 0
+      continue;
+    }
     // Chemical Potential Value
     auto muVal = chemicalPotentialsMap_.at(element);
 
@@ -135,6 +141,7 @@ double SymmetricCEPredictor::ComputeLocalFormationEnergyOfSite(
       config,
       canonicalSortedLatticeIds,
       localOrbitsEncoding_);
+    
 
   // cout << clusterVector.size() << endl;
 

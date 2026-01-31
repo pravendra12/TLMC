@@ -1,3 +1,4 @@
 simulation_method ConvertAtomVectorsToConfigs
-path_tlmc_output /home/pravendra3/Documents/TLMC/bin/testingCMCWithAtomIndices
+# path which contains *bin.gz file along with cmc_param.txt or kmc_param.txt
+path_tlmc_output ../cmc2000K
 

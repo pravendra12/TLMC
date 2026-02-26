@@ -57,6 +57,16 @@ namespace api
       cout << "vacancy_lattice_id: " << parameter.vacancayLatticeId_ << endl;
       cout << "small_config_id: " << parameter.smallConfigId_ << endl;
       cout << "vacancy_trajectory: " << parameter.vacancy_trajectory_ << endl;
+
+      if (parameter.rate_corrector_)
+      {
+        cout << "\nRate correction parameters:" << endl;
+        cout << "diffusivity: " << parameter.diffusivity_ << endl;
+        cout << "start_vacancy_concentration: " << parameter.startCv_ << endl;
+        cout << "eq_vacancy_concentration: " << parameter.eqCv_ << endl;
+        cout << "np: " << parameter.np_ << endl;
+        cout << "rho: " << parameter.rho_ << endl;
+      }
     }
 
     else if (parameter.method == "SimulatedAnnealing")
@@ -523,9 +533,26 @@ namespace api
     unique_ptr<RateCorrector> rateCorrector_ = nullptr;
     if (parameter.rate_corrector_)
     {
+      const double simCv = tiledSupercell.GetElementConcentration(Element("X"));
+
+      if (
+          parameter.diffusivity_ == 0 &&
+          parameter.eqCv_ == 0 &&
+          parameter.startCv_ == 0 &&
+          parameter.rho_ == 0 &&
+          parameter.np_ == 0)
+      {
+        std::cerr << "Error: rate-corrector parameters are not initialized correctly (all values are zero). Exiting.\n";
+        std::exit(EXIT_FAILURE);
+      }
+
       rateCorrector_ = make_unique<RateCorrector>(
-          tiledSupercell.GetConcentrationMap(),
-          parameter.path_vfe_output_);
+          simCv,
+          parameter.diffusivity_,
+          parameter.startCv_,
+          parameter.eqCv_,
+          parameter.np_,
+          parameter.rho_);
     }
 
     cout << "Finish config reading. Start KMC." << endl;

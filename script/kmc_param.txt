@@ -17,4 +17,9 @@ restart_steps 0
 restart_energy 0
 rate_corrector false
 vacancy_trajectory 0.0 0.0 0.0
-
+# rate_corrector true
+# diffusivity 1e-15
+# start_vacancy_concentration 8e-9
+# eq_vacancy_concentration 1e-13
+# np 100
+# rho 1e10

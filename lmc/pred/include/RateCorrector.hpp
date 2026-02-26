@@ -9,6 +9,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <numbers>
 #include "Constants.hpp"
 #include "Element.hpp"
 
@@ -16,116 +17,98 @@ using namespace std;
 
 class RateCorrector
 {
+  // Current implementation only accounts for the constant temperature vacancy
+  // evolution given a initial vacancy concentration along with other parameters.
+  // Later temperature dependence can be added, which can be used during quenching
+  // simulations.
+
+  /*
+  Reference:
+    Fischer, F. D., J. Svoboda, F. Appel, and E. Kozeschnik.
+    "Modeling of Excess Vacancy Annihilation at Different Types of Sinks."
+    Acta Materialia 59(9) (2011) 3463–3472. https://doi.org/10.1016/j.actamat.2011.02.020
+
+  This implementation follows the constant-temperature vacancy-annihilation
+  formalism from the above reference.
+
+  For an isothermal hold at temperature T, the vacancy fraction y(t) admits an
+  analytic closed form:
+
+    y(t) = y_eq(T) * ( y0 / y_eq(T) )^( exp( -K(T) * t ) )
+
+  where
+    - y0        : vacancy fraction at the start of the isothermal segment
+                  (e.g., quenched-in value from a prio6r high-T state, or any
+                  user-specified initial condition),
+    - y_eq(T)   : equilibrium vacancy fraction at temperature T (the long-time limit).
+
+  The relaxation rate is
+
+    K(T) = ( 2 * pi * rho * Dv(T) ) / ( np * f )
+
+  with
+    - Dv(T) : vacancy diffusivity at temperature T,
+    - rho   : dislocation density,
+    - np*d  : jog spacing (np times interplanar spacing d),
+    - f     : geometric factor (use f = 0.7272 for bcc in this model).
+  */
 
 public:
+  /**
+   * @brief Construct a rate corrector for isothermal vacancy-annihilation kinetics.
+   *
+   * Uses the model form
+   * `y(t) = y_eq(T) * (y0 / y_eq(T))^(exp(-K(T) * t))`
+   * with
+   * `K(T) = (2 * pi * rho * Dv(T)) / (np * f)`.
+   *
+   * @param simCv Vacancy fraction in the supercell.
+   * @param diffusivity Vacancy diffusivity term used in the relaxation rate.
+   * @param startCv Initial vacancy fraction at the start of the isothermal segment (`y0`).
+   * @param eqCv Equilibrium vacancy fraction at T.
+   * @param np Dimensionless number (`np * d` is jog spacing).
+   * @param rho Dislocation density.
+   * @param fValue Geometric factor `f` (default `0.7272` for bcc).
+   */
   RateCorrector(
-      const map<Element, double> &concentrationMap,
-      const string &pathVFEOutput) : concentrationMap_(concentrationMap),
-                                     vfeMap_(GetVfeMap(pathVFEOutput))
+      double simCv,
+      double diffusivity,
+      double startCv,
+      double eqCv,
+      double np,
+      double rho,
+      double fValue = 0.7272)
+      : simCv_(simCv),
+        startCv_(startCv),
+        eqCv_(eqCv),
+        kValue_((2.0 * numbers::pi * rho * diffusivity) / (np * fValue))
   {
   }
 
-  [[nodiscard]] inline double GetTimeCorrectionFactor(double temperature)
+  [[nodiscard]] inline double GetTimeCorrectionFactor(const double time)
   {
-    auto vacancy = Element("X");
-    return concentrationMap_.at(vacancy) / GetCorrectVacancyConcentration(temperature);
+    const double physicalCv = GetCorrectVacancyConcentration(time);
+    return simCv_ / physicalCv;
   }
 
 private:
-  // Read the vfe and the do and ensemble average
-
-  inline double GetCorrectVacancyConcentration(double temperature)
+  inline double GetCorrectVacancyConcentration(const double time)
   {
-    double avgCv = 0; // average vacancy concentration
-    UpdateAverageVacancyConcentration(temperature);
+    const double exponent = exp(-kValue_ * time);
+    const double base = startCv_ / eqCv_;
+    const double cv = eqCv_ * pow(base, exponent);
 
-    for (const auto &[element, conc] : concentrationMap_)
-    {
-      avgCv += conc * vacancyConcentrationMap_[element][temperature];
-    }
-    return avgCv;
+    return cv;
   }
 
-  void UpdateAverageVacancyConcentration(const double temperature)
-  {
-    const double beta = 1 / constants::kBoltzmann / temperature;
-
-    for (const auto &[eleString, vfeArray] : vfeMap_)
-    {
-      auto element = Element(eleString);
-
-      if (vacancyConcentrationMap_[element].find(temperature) != vacancyConcentrationMap_[element].end())
-        continue;
-
-      double avgConc = 0;
-      for (size_t i = 0; i < vfeArray.size(); i++)
-        avgConc += std::exp(-beta * vfeArray[i]);
-
-      avgConc /= double(vfeArray.size());
-
-      vacancyConcentrationMap_[element][temperature] = avgConc;
-    }
-  }
-
-  map<string, vector<double>> GetVfeMap(const string &pathVFEOutput)
-  {
-    ifstream infile(pathVFEOutput);
-
-    if (!infile.is_open())
-    {
-      cerr << "Error in `RateCorrector` : Can't open file: " << pathVFEOutput << endl;
-    }
-
-    map<string, vector<double>> vfeMap;
-    string line;
-
-    // idx  Mo  Ta
-    // 0  2.1 3.2
-    // ..
-    // N  2.3 3.01
-    getline(infile, line);
-    stringstream ssHeader(line);
-    string col;
-    vector<string> columns;
-
-    while (getline(ssHeader, col, '\t'))
-    {
-      if (col != "idx")
-      {
-        columns.push_back(col);
-        vfeMap[col] = {};
-      }
-    }
-
-    while (getline(infile, line))
-    {
-      if (line.empty())
-        continue;
-
-      stringstream ss(line);
-      string item;
-
-      // First item = idx, skip
-      getline(ss, item, '\t');
-
-      for (const auto &colName : columns)
-      {
-        if (!getline(ss, item, '\t'))
-          break;
-        vfeMap[colName].push_back(stod(item));
-      }
-    }
-
-    infile.close();
-
-    return vfeMap;
-  }
-
-  const map<Element, double> concentrationMap_;
-  const map<string, vector<double>> vfeMap_;
-
-  // Element : <Temperature, VacancyConcentration>
-  map<Element, map<double, double>> vacancyConcentrationMap_;
+  /** @brief Species concentrations used for weighted averaging. */
+  const double simCv_;
+  /** @brief Initial vacancy fraction y0 at the segment start. */
+  const double startCv_;
+  /** @brief Equilibruim vacancy fraction at T. */
+  const double eqCv_;
+  /** @brief  K(T) = ( 2 * pi * rho * Dv(T) ) / ( np * f ). */
+  const double kValue_;
 };
 
 #endif // LMC_LMC_PRED_INCLUDE_RATECORRECTOR_HPP_

@@ -276,13 +276,32 @@ namespace api
       }
       else if (segs[0] == "convert_to_config_steps")
       {
-        convert_to_config_steps_.clear(); 
+        convert_to_config_steps_.clear();
         std::transform(segs.begin() + 1,
                        segs.end(),
                        std::back_inserter(convert_to_config_steps_),
                        [](const auto &convert_to_config_steps_)
                        { return stoul(convert_to_config_steps_); });
-
+      }
+      else if (segs[0] == "diffusivity")
+      {
+        diffusivity_ = stod(segs[1]);
+      }
+      else if (segs[0] == "start_vacancy_concentration")
+      {
+        startCv_ = stod(segs[1]);
+      }
+      else if (segs[0] == "eq_vacancy_concentration")
+      {
+        eqCv_ = stod(segs[1]);
+      }
+      else if (segs[0] == "np")
+      {
+        np_ = stod(segs[1]);
+      }
+      else if (segs[0] == "rho")
+      {
+        rho_ = stod(segs[1]);
       }
     }
     ifs.close();

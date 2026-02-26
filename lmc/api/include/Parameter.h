@@ -21,177 +21,187 @@
 #include <iterator>
 #include <Eigen/Dense>
 
-namespace api {
+namespace api
+{
 
-struct Parameter {
- public:
+  struct Parameter
+  {
+  public:
+    /*!
+     * \brief Constructs a Parameter object and parses command-line arguments.
+     * \param : argc Number of command-line arguments.
+     * \param : argv Array of command-line argument strings.
+     */
+    Parameter(int argc, char *argv[]);
 
-  /*!
-   * \brief Constructs a Parameter object and parses command-line arguments.
-   * \param : argc Number of command-line arguments.
-   * \param : argv Array of command-line argument strings.
-   */
-  Parameter(int argc, char *argv[]);
+    /*!
+     * \brief Constructs a Parameter object and reads parameters from a file.
+     * \param param_filename : Parameter file name.
+     */
+    explicit Parameter(const std::string &param_filename);
 
-  /*!
-   * \brief Constructs a Parameter object and reads parameters from a file.
-   * \param param_filename : Parameter file name.
-   */
-  explicit Parameter(const std::string &param_filename);
+    /*!
+     * \brief Parses command-line arguments and initializes parameters.
+     * \param argc : Number of command-line arguments.
+     * \param argv : Array of command-line argument strings.
+     */
+    void ParseArgs(int argc, char *argv[]);
 
-  /*!
-   * \brief Parses command-line arguments and initializes parameters.
-   * \param argc : Number of command-line arguments.
-   * \param argv : Array of command-line argument strings.
-   */
-  void ParseArgs(int argc, char *argv[]);
+    /*!
+     * \brief Reads and initializes parameters from a file.
+     * \param param_filename : Parameter file name.
+     */
+    void ReadParam(const std::string &param_filename);
 
-  /*!
-   * \brief Reads and initializes parameters from a file.
-   * \param param_filename : Parameter file name.
-   */
-  void ReadParam(const std::string &param_filename);
+    /// Member variables
 
-  /// Member variables
+    /// Filename containing simulation parameters.
+    std::string parameters_filename{};
 
-  /// Filename containing simulation parameters.
-  std::string parameters_filename{};
+    /// Method used for the simulation (e.g. CanonicalMcSerial, KineticMcChainOmpi).
+    std::string method{};
 
-  /// Method used for the simulation (e.g. CanonicalMcSerial, KineticMcChainOmpi).
-  std::string method{};
+    /// Configuration file name.
+    std::string config_filename_{};
 
-  /// Configuration file name.
-  std::string config_filename_{};
+    std::string large_config_filename_{};
 
-  std::string large_config_filename_{};
+    /// Filename for the mapping file.
+    std::string map_filename_{};
 
-  /// Filename for the mapping file.
-  std::string map_filename_{};
+    /// JSON file containing pre-trained coefficients.
+    std::string json_coefficients_filename_{};
 
-  /// JSON file containing pre-trained coefficients.
-  std::string json_coefficients_filename_{};
+    /// Filename for time-temperature data.
+    std::string time_temperature_filename_{};
 
-  /// Filename for time-temperature data.
-  std::string time_temperature_filename_{};
+    /// Type of logging.
+    std::string log_type_{};
 
-  /// Type of logging.
-  std::string log_type_{};
+    /// Type of configuration format (e.g., POSCAR, XYZ)
+    /// **************Need To Check Once **********
+    std::string config_type_{};
 
+    /// Type of structure (e.g., BCC, FCC).
+    std::string structure_type_{};
 
-  /// Type of configuration format (e.g., POSCAR, XYZ)       
-  /// **************Need To Check Once **********
-  std::string config_type_{};
+    /// Number of steps after which the log file is updated.
+    unsigned long long int log_dump_steps_{};
 
-  /// Type of structure (e.g., BCC, FCC).
-  std::string structure_type_{};
+    /// Number of steps after which the configuration is dumped.
+    unsigned long long int config_dump_steps_{};
 
-  /// Number of steps after which the log file is updated.
-  unsigned long long int log_dump_steps_{};
+    /// Maximum number of steps for the simulation.
+    unsigned long long int maximum_steps_{};
 
-  /// Number of steps after which the configuration is dumped.
-  unsigned long long int config_dump_steps_{};
+    /// Vector to store vacancy trajectory
+    Eigen::RowVector3d vacancy_trajectory_{};
 
-  /// Maximum number of steps for the simulation.
-  unsigned long long int maximum_steps_{};
+    /// Maximum size of clusters to be considered.
+    size_t max_cluster_size_{};
 
-  /// Vector to store vacancy trajectory
-  Eigen::RowVector3d vacancy_trajectory_{};
+    /// Maximum bond order to be considered.
+    size_t max_bond_order_{};
 
-  /// Maximum size of clusters to be considered.
-  size_t max_cluster_size_{};
+    /// Number of steps used for thermodynamic averaging.
+    unsigned long long int thermodynamic_averaging_steps_{};
 
-  /// Maximum bond order to be considered.
-  size_t max_bond_order_{};
+    /// Temperature of the simulation in Kelvin.
+    double temperature_{};
 
-  /// Number of steps used for thermodynamic averaging.
-  unsigned long long int thermodynamic_averaging_steps_{};
+    /// Initial Temperature in Kelvin.
+    double initial_temperature_{};
 
-  /// Temperature of the simulation in Kelvin.
-  double temperature_{};
+    /// Decrement in temperature for annealing.
+    double decrement_temperature_{};
 
-  /// Initial Temperature in Kelvin.
-  double initial_temperature_{};
+    /// Size of the supercell used for training.
+    size_t supercell_size_{};
 
-  /// Decrement in temperature for annealing.
-  double decrement_temperature_{};
+    size_t cube_size_{};
 
-  /// Size of the supercell used for training.
-  size_t supercell_size_{};
+    size_t vacancayLatticeId_{};
+    size_t smallConfigId_{};
 
-  size_t cube_size_{};
+    // atomic_indices_filename
+    std::string atomic_indices_filename_{};
 
-  size_t vacancayLatticeId_{};
-  size_t smallConfigId_{};
+    /// Lattice parameter of the structure.
+    double lattice_param_{};
 
+    /// Steps at which the simulation restarts.
+    unsigned long long int restart_steps_{};
 
-  // atomic_indices_filename
-  std::string atomic_indices_filename_{};
+    /// Energy at the restart step.
+    double restart_energy_{};
 
-  /// Lattice parameter of the structure.
-  double lattice_param_{};
+    /// Time at the restart step.
+    double restart_time_{};
 
-  /// Steps at which the simulation restarts.
-  unsigned long long int restart_steps_{};
+    /// Enables or disables rate correction.
+    bool rate_corrector_{};
 
-  /// Energy at the restart step.
-  double restart_energy_{};
+    /// Cutoff distances for cluster interactions.
+    std::vector<double> cutoffs_{};
 
-  /// Time at the restart step.
-  double restart_time_{};
+    /// Extract the local environment
+    bool extract_encoding_{};
 
-  /// Enables or disables rate correction.
-  bool rate_corrector_{};
+    /// Initial number of steps for the simulation.
+    unsigned long long int initial_steps_{};
 
-  /// Cutoff distances for cluster interactions.
-  std::vector<double> cutoffs_{};
+    /// Incremental steps for specific operations.
+    unsigned long long int increment_steps_{};
 
-  /// Extract the local environment
-  bool extract_encoding_{};
-  
-  /// Initial number of steps for the simulation.
-  unsigned long long int initial_steps_{};
+    /// Criteria for the smallest clusters.
+    size_t smallest_cluster_criteria_{};
 
-  /// Incremental steps for specific operations.
-  unsigned long long int increment_steps_{};
+    /// Criteria for solvent bonds.
+    size_t solvent_bond_criteria_{};
 
-  /// Criteria for the smallest clusters.
-  size_t smallest_cluster_criteria_{};
+    /// Scaling factor for specific parameters.
+    size_t factor_{};
 
-  /// Criteria for solvent bonds.
-  size_t solvent_bond_criteria_{};
+    /// Element representing the solvent in the simulation.
+    std::string solvent_element_{};
 
-  /// Scaling factor for specific parameters.
-  size_t factor_{};
+    /// List of solute elements in the simulation.
+    std::vector<std::string> solute_element_set_{};
 
-  /// Element representing the solvent in the simulation.
-  std::string solvent_element_{};
+    /// Number of each solute element in the system.
+    std::vector<size_t> solute_number_set_{};
 
-  /// List of solute elements in the simulation.
-  std::vector<std::string> solute_element_set_{};
+    std::vector<std::string> element_set_{};
 
-  /// Number of each solute element in the system.
-  std::vector<size_t> solute_number_set_{};
+    // Path where TiledLMC output from cmc or kmc is present
+    std::string path_tlmc_output_{};
 
-  std::vector<std::string> element_set_{};
+    // Path to vacancy formation energy for each element
+    std::string path_vfe_output_{};
 
-  // Path where TiledLMC output from cmc or kmc is present
-  std::string path_tlmc_output_{}; 
+    /// Early stopping criteria based on the number of steps.
+    unsigned long long int early_stop_steps_{};
 
-  // Path to vacancy formation energy for each element
-  std::string path_vfe_output_{};
+    // Conversion
+    std::string input_filepath_{};
+    std::string output_filepath_{};
 
-  /// Early stopping criteria based on the number of steps.
-  unsigned long long int early_stop_steps_{};
+    // Atomic Index Binary file to convert to configs
+    std::vector<size_t> convert_to_config_steps_{};
 
-  // Conversion
-  std::string input_filepath_{};
-  std::string output_filepath_{};
-
-
-  // Atomic Index Binary file to convert to configs
-  std::vector<size_t> convert_to_config_steps_{};
-
-};
+    // Rate corrector params
+    
+    // Vacancy diffusivity at simulation temperature.
+    double diffusivity_{};
+    //  Initial vacancy fraction at the start of the isothermal segment (`y0`).
+    double startCv_{};
+    // Equilibruim vacancy concentration at temperature T
+    double eqCv_{};
+    // Average dislocation line-length factor (`np * d` in the reference notation).
+    double np_{};
+    // Dislocation density.
+    double rho_{};
+  };
 } // namespace api
 
-#endif //LMC_API_INCLUDE_PARAMETER_H_
+#endif // LMC_API_INCLUDE_PARAMETER_H_

@@ -68,7 +68,7 @@ namespace mc
   {
     if (rateCorrector_)
     {
-      return rateCorrector_->GetTimeCorrectionFactor(temperature_);
+      return rateCorrector_->GetTimeCorrectionFactor(time_);
     }
     return 1.0;
   }

@@ -48,7 +48,8 @@ namespace ansys
         const set<Element> &elementSet,
         ostringstream &oss,
         const bool &saveConfig = false,
-        const string &outfilename = "") const;
+        const string &configFilename = "",
+        const string &b2ClusterAtomMapFilename = "") const;
 
   private:
     string GetHeaderFrameString(const set<Element> &elementSet) const;

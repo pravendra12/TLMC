@@ -11,11 +11,18 @@ void B2ClusterTLMC::WriteB2ClusterConfig(const string &filename)
   auto numSites = tiledSupercell_.GetTotalNumOfSites();
 
   // Auxiliary lists
+  Config::VectorVariant atomIdVec = vector<size_t>(numSites, 0);
   Config::VectorVariant clusterIdVec = vector<int>(numSites, -1);
   Config::VectorVariant clusterSizeVec = vector<size_t>(numSites, 0);
   Config::VectorVariant isSharedVec = vector<int>(numSites, 0); // 0 = not shared, 1 = shared
 
   unordered_map<size_t, size_t> atomClusterCount;
+
+  // Store explicit atom IDs
+  for (size_t atomId = 0; atomId < numSites; ++atomId)
+  {
+    get<vector<size_t>>(atomIdVec)[atomId] = atomId;
+  }
 
   // First pass: count how many clusters each atom belongs to
   for (size_t clusterId = 0; clusterId < b2ClusterVector_.size(); ++clusterId)
@@ -41,6 +48,8 @@ void B2ClusterTLMC::WriteB2ClusterConfig(const string &filename)
   }
 
   map<string, Config::VectorVariant> auxiliaryLists;
+
+  auxiliaryLists["atomId"] = atomIdVec;
   auxiliaryLists["clusterId"] = clusterIdVec;
   auxiliaryLists["clusterSize"] = clusterSizeVec;
   auxiliaryLists["sharedAtom"] = isSharedVec; // new shared flag
@@ -48,6 +57,41 @@ void B2ClusterTLMC::WriteB2ClusterConfig(const string &filename)
   map<string, Config::ValueVariant> globalList; // empty
 
   Config::WriteXyzExtended(filename, largeConfig, auxiliaryLists, globalList);
+}
+
+void B2ClusterTLMC::WriteB2ClusterAtomMap(
+    const string &filename) const
+{
+  ofstream ofs(
+      filename,
+      ios_base::out | ios_base::binary);
+
+  boost::iostreams::filtering_ostream fos;
+
+  if (boost::filesystem::path(filename).extension() == ".gz")
+  {
+    fos.push(boost::iostreams::gzip_compressor());
+  }
+  else if (boost::filesystem::path(filename).extension() == ".bz2")
+  {
+    fos.push(boost::iostreams::bzip2_compressor());
+  }
+
+  fos.push(ofs);
+
+  for (size_t clusterId = 0;
+       clusterId < b2ClusterVector_.size();
+       ++clusterId)
+  {
+    fos << clusterId << ":";
+
+    for (size_t atomId : b2ClusterVector_[clusterId])
+    {
+      fos << ' ' << atomId;
+    }
+
+    fos << '\n';
+  }
 }
 
 vector<unordered_set<size_t>> B2ClusterTLMC::GetB2Clusters()

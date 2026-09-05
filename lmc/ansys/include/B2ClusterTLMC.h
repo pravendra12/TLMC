@@ -21,6 +21,8 @@ public:
 
   void WriteB2ClusterConfig(const string &filename);
 
+  void WriteB2ClusterAtomMap(const string &filename) const;
+
   // Returns atomId of the clusters formed
   vector<unordered_set<size_t>> GetB2Clusters();
 

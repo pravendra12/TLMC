@@ -118,18 +118,29 @@ namespace ansys
       const set<Element> &elementSet,
       const unordered_set<size_t> &convertToConfigSet) const
   {
-    string outputPath = "";
+    string configOutpath = "";
+    string b2ClusterAtomMapOutputPath = "";
     if (!convertToConfigSet.empty())
     {
       fs::path cwd = fs::current_path();
       fs::path configDir = cwd / "config";
 
+      fs::path b2ClusterAtomMapDir = cwd / "b2ClusterAtomMap";
+
       if (!fs::exists(configDir))
         fs::create_directory(configDir);
 
-      outputPath = configDir.string();
+      if (!fs::exists(b2ClusterAtomMapDir))
+        fs::create_directory(b2ClusterAtomMapDir);
 
-      std::cout << "Config directory created at: " << outputPath << std::endl;
+      configOutpath = configDir.string();
+      b2ClusterAtomMapOutputPath = b2ClusterAtomMapDir.string();
+
+      cout << "Config directory created at: "
+           << configOutpath << endl;
+
+      cout << "B2 cluster atom map directory created at: "
+           << b2ClusterAtomMapOutputPath << endl;
     }
 
     // Write header once
@@ -165,11 +176,13 @@ namespace ansys
         saveConfig = true;
       }
 
-      string filename = "";
+      string configFilename = "";
+      string b2ClusterAtomMapFilename = "";
 
-      if (!outputPath.empty())
+      if (!configOutpath.empty())
       {
-        filename = outputPath + "/" + to_string(i) + ".xyz.gz";
+        configFilename = configOutpath + "/" + to_string(i) + ".xyz.gz";
+        b2ClusterAtomMapFilename = b2ClusterAtomMapFilename + "/" + to_string(i) + ".cluster.gz";
       }
 
       ostringstream oss;
@@ -181,7 +194,7 @@ namespace ansys
           elementSet,
           oss,
           saveConfig,
-          filename);
+          configFilename);
 
       frameOfs_ << oss.str() << "\n";
     }
@@ -196,7 +209,8 @@ namespace ansys
       const set<Element> &elementSet,
       ostringstream &oss,
       const bool &saveConfig,
-      const string &outfilename) const
+      const string &configFilename,
+      const string &b2ClusterAtomMapFilename) const
   {
     // Analysis
 
@@ -240,7 +254,8 @@ namespace ansys
     if (saveConfig)
     {
       B2ClusterTLMC b2Cluster(tiledSupercellLocal);
-      b2Cluster.WriteB2ClusterConfig(outfilename);
+      b2Cluster.WriteB2ClusterConfig(configFilename);
+      b2Cluster.WriteB2ClusterAtomMap(b2ClusterAtomMapFilename);
     }
   }
 

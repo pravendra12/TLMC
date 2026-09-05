@@ -182,7 +182,7 @@ namespace ansys
       if (!configOutpath.empty())
       {
         configFilename = configOutpath + "/" + to_string(i) + ".xyz.gz";
-        b2ClusterAtomMapFilename = b2ClusterAtomMapFilename + "/" + to_string(i) + ".cluster.gz";
+        b2ClusterAtomMapFilename = b2ClusterAtomMapOutputPath + "/" + to_string(i) + ".cluster.gz";
       }
 
       ostringstream oss;
@@ -194,7 +194,8 @@ namespace ansys
           elementSet,
           oss,
           saveConfig,
-          configFilename);
+          configFilename,
+          b2ClusterAtomMapFilename);
 
       frameOfs_ << oss.str() << "\n";
     }

@@ -859,14 +859,6 @@ pair<vector<double>, vector<double>> SymmetricCE::GetLocalClusterVectorForPairSe
       vector<int> atomCluster1;
       vector<int> atomCluster2;
 
-      // A cluster that contains both sites of the pair is already counted in
-      // clusterVector1 (all clusters of site 1). It is skipped for site 2 so that
-      // clusterVector1 + clusterVector2 cover every affected cluster exactly once
-      // and the swap energy change (after - before) is exact. Counting it twice is
-      // wrong whenever there are three or more species (e.g. Mo/Ta/X).
-      // Hence clusterVector2 is NOT the full local cluster vector of site 2.
-      bool cluster2ContainsFirstSite = false;
-
       atomCluster1.reserve(encodedCluster.size());
       atomCluster2.reserve(encodedCluster.size());
 
@@ -898,7 +890,6 @@ pair<vector<double>, vector<double>> SymmetricCE::GetLocalClusterVectorForPairSe
         if (latticeId2 == latticeIdPair.first)
         {
           atomCluster2.emplace_back(static_cast<int>(latticeIdPairElements.first.GetAtomicIndex()));
-          cluster2ContainsFirstSite = true;
         }
         // If latticeId is same as second site Id assign second element
         else if (latticeId2 == latticeIdPair.second)
@@ -914,10 +905,7 @@ pair<vector<double>, vector<double>> SymmetricCE::GetLocalClusterVectorForPairSe
 
       double unit = 1;
       clusterCounts1[atomCluster1] += unit;
-      if (!cluster2ContainsFirstSite)
-      {
-        clusterCounts2[atomCluster2] += unit;
-      }
+      clusterCounts2[atomCluster2] += unit;
     }
 
     // Extract allowed occupations (needed to calculate point functions)
@@ -1090,14 +1078,6 @@ pair<vector<double>, vector<double>> SymmetricCE::GetLocalClusterVectorForPair(
       vector<int> atomCluster1;
       vector<int> atomCluster2;
 
-      // A cluster that contains both sites of the pair is already counted in
-      // clusterVector1 (all clusters of site 1). It is skipped for site 2 so that
-      // clusterVector1 + clusterVector2 cover every affected cluster exactly once
-      // and the swap energy change (after - before) is exact. Counting it twice is
-      // wrong whenever there are three or more species (e.g. Mo/Ta/X).
-      // Hence clusterVector2 is NOT the full local cluster vector of site 2.
-      bool cluster2ContainsFirstSite = false;
-
       atomCluster1.reserve(encodedCluster.size());
       atomCluster2.reserve(encodedCluster.size());
 
@@ -1129,7 +1109,6 @@ pair<vector<double>, vector<double>> SymmetricCE::GetLocalClusterVectorForPair(
         if (latticeId2 == latticeIdPair.first)
         {
           atomCluster2.emplace_back(static_cast<int>(latticeIdPairElements.first.GetAtomicIndex()));
-          cluster2ContainsFirstSite = true;
         }
         // If latticeId is same as second site Id assign second element
         else if (latticeId2 == latticeIdPair.second)
@@ -1145,10 +1124,7 @@ pair<vector<double>, vector<double>> SymmetricCE::GetLocalClusterVectorForPair(
 
       double unit = 1;
       clusterCounts1[atomCluster1] += unit;
-      if (!cluster2ContainsFirstSite)
-      {
-        clusterCounts2[atomCluster2] += unit;
-      }
+      clusterCounts2[atomCluster2] += unit;
     }
 
     // Extract allowed occupations (needed to calculate point functions)
@@ -1494,14 +1470,6 @@ pair<vector<double>, vector<double>> SymmetricCE::GetLocalClusterVectorForPair(
       vector<int> atomCluster1;
       vector<int> atomCluster2;
 
-      // A cluster that contains both sites of the pair is already counted in
-      // clusterVector1 (all clusters of site 1). It is skipped for site 2 so that
-      // clusterVector1 + clusterVector2 cover every affected cluster exactly once
-      // and the swap energy change (after - before) is exact. Counting it twice is
-      // wrong whenever there are three or more species (e.g. Mo/Ta/X).
-      // Hence clusterVector2 is NOT the full local cluster vector of site 2.
-      bool cluster2ContainsFirstSite = false;
-
       atomCluster1.reserve(encodedCluster.size());
       atomCluster2.reserve(encodedCluster.size());
 
@@ -1566,7 +1534,6 @@ pair<vector<double>, vector<double>> SymmetricCE::GetLocalClusterVectorForPair(
         if (siteMapping2 == latticeSitePair.first)
         {
           atomCluster2.emplace_back(static_cast<int>(latticeSitePairElements.first.GetAtomicIndex()));
-          cluster2ContainsFirstSite = true;
         }
         // If latticeId is same as second site Id assign second element
         else if (siteMapping2 == latticeSitePair.second)
@@ -1583,10 +1550,7 @@ pair<vector<double>, vector<double>> SymmetricCE::GetLocalClusterVectorForPair(
 
       double unit = 1;
       clusterCounts1[atomCluster1] += unit;
-      if (!cluster2ContainsFirstSite)
-      {
-        clusterCounts2[atomCluster2] += unit;
-      }
+      clusterCounts2[atomCluster2] += unit;
     }
 
     // Extract allowed occupations (needed to calculate point functions)
